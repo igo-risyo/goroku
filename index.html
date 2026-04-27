@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>碁録 GOROKU — 囲碁学習プラットフォーム</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Zen+Antique&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg: #0d0f0e;
+  --bg2: #131615;
+  --bg3: #1a1e1c;
+  --bg4: #222825;
+  --border: #2a3028;
+  --border2: #344030;
+  --text: #e8e4d8;
+  --text2: #a09880;
+  --text3: #686050;
+  --gold: #c8a84a;
+  --gold2: #e0c070;
+  --jade: #4a9870;
+  --jade2: #5cb888;
+  --red: #c85050;
+  --blue: #4a78c8;
+  --stone-b: #1a1a1a;
+  --stone-w: #f0ece0;
+  --radius: 6px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== LAYOUT ===== */
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  z-index: 100;
+  transition: transform 0.3s;
+}
+
+.logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-mark {
+  font-family: 'Zen Antique', serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+.logo-sub {
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.4em;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+
+.nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+.nav-group { margin-bottom: 4px; }
+.nav-label {
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  color: var(--text3);
+  text-transform: uppercase;
+  padding: 10px 18px 4px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px;
+  cursor: pointer;
+  color: var(--text2);
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  font-size: 12.5px;
+}
+.nav-item:hover { color: var(--text); background: rgba(200,168,74,0.05); }
+.nav-item.active { color: var(--gold); border-left-color: var(--gold); background: rgba(200,168,74,0.08); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+.user-card {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.avatar.pro { background: linear-gradient(135deg, var(--gold), #a07828); color: #fff; }
+.avatar.dan { background: linear-gradient(135deg, #4a78c8, #2a4888); color: #fff; }
+.avatar.kyu { background: linear-gradient(135deg, var(--jade), #2a6840); color: #fff; }
+.user-name { font-size: 12px; font-weight: 500; }
+.user-rank { font-size: 10px; color: var(--text3); }
+
+/* Main content */
+.main { margin-left: 220px; flex: 1; min-height: 100vh; }
+.topbar {
+  height: 52px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.page-title {
+  font-family: 'Zen Antique', serif;
+  font-size: 16px;
+  color: var(--gold);
+  flex: 1;
+}
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+.notif-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  position: relative;
+  transition: all 0.15s;
+}
+.notif-btn:hover { border-color: var(--gold); color: var(--gold); }
+.notif-dot {
+  width: 7px; height: 7px;
+  background: var(--red);
+  border-radius: 50%;
+  position: absolute;
+  top: 3px; right: 3px;
+}
+
+.content { padding: 20px 24px; }
+
+/* ===== PANELS ===== */
+.panel { display: none; animation: fadeIn 0.25s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.card-title {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.gold::after { background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+.stat-card.jade::after { background: linear-gradient(90deg, var(--jade), var(--jade2)); }
+.stat-card.blue::after { background: linear-gradient(90deg, var(--blue), #7aa0e8); }
+.stat-card.red::after { background: linear-gradient(90deg, var(--red), #e87070); }
+.stat-label { font-size: 10px; color: var(--text3); letter-spacing: 0.15em; margin-bottom: 6px; }
+.stat-val {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-card.gold .stat-val { color: var(--gold2); }
+.stat-card.jade .stat-val { color: var(--jade2); }
+.stat-card.blue .stat-val { color: #7aa0e8; }
+.stat-card.red .stat-val { color: #e87070; }
+.stat-sub { font-size: 10px; color: var(--text3); }
+
+/* Grid layout */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+/* Chart containers */
+.chart-wrap { position: relative; height: 180px; }
+.chart-wrap-sm { position: relative; height: 140px; }
+
+/* AI comment */
+.ai-comment {
+  background: linear-gradient(135deg, rgba(200,168,74,0.08), rgba(74,152,112,0.06));
+  border: 1px solid rgba(200,168,74,0.2);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.ai-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--jade));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.ai-body { flex: 1; }
+.ai-score {
+  display: inline-block;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold2);
+  font-family: 'Zen Antique', serif;
+  margin-right: 8px;
+}
+.ai-text { font-size: 12px; color: var(--text2); line-height: 1.7; margin-top: 4px; }
+
+/* Timeline / Feed */
+.feed { display: flex; flex-direction: column; gap: 12px; }
+.feed-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  transition: border-color 0.15s;
+}
+.feed-item:hover { border-color: var(--border2); }
+.feed-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.feed-name { font-size: 12px; font-weight: 500; }
+.feed-rank-tag {
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.1em;
+}
+.tag-pro { background: rgba(200,168,74,0.15); color: var(--gold2); border: 1px solid rgba(200,168,74,0.3); }
+.tag-dan { background: rgba(74,120,200,0.15); color: #7aa0e8; border: 1px solid rgba(74,120,200,0.3); }
+.tag-kyu { background: rgba(74,152,112,0.15); color: var(--jade2); border: 1px solid rgba(74,152,112,0.3); }
+.feed-time { font-size: 10px; color: var(--text3); margin-left: auto; }
+.feed-content { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
+.feed-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.feed-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+.feed-stats {
+  display: flex;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.feed-stat { font-size: 11px; color: var(--text3); }
+.feed-stat span { color: var(--text2); font-weight: 500; }
+
+/* Reactions */
+.reactions { display: flex; gap: 8px; margin-top: 8px; }
+.reaction-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: var(--bg4);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text2);
+  transition: all 0.15s;
+}
+.reaction-btn:hover { border-color: var(--gold); color: var(--gold); }
+.reaction-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(200,168,74,0.1); }
+.reaction-count { font-size: 11px; }
+
+/* Ranking */
+.rank-list { display: flex; flex-direction: column; gap: 6px; }
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg4);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.rank-item:hover { border-color: var(--border2); }
+.rank-item.me { border-color: rgba(200,168,74,0.4); background: rgba(200,168,74,0.06); }
+.rank-num {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Zen Antique', serif;
+  width: 28px;
+  text-align: center;
+  color: var(--text3);
+}
+.rank-num.top1 { color: #ffd700; }
+.rank-num.top2 { color: #c0c0c0; }
+.rank-num.top3 { color: #cd7f32; }
+.rank-info { flex: 1; }
+.rank-name { font-size: 12px; font-weight: 500; }
+.rank-sub { font-size: 10px; color: var(--text3); }
+.rank-score {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Zen Antique', serif;
+  color: var(--gold2);
+}
+.rank-trend { font-size: 11px; margin-top: 1px; }
+.trend-up { color: var(--jade2); }
+.trend-dn { color: var(--red); }
+.rank-bar-wrap { width: 80px; height: 4px; background: var(--bg2); border-radius: 2px; margin-top: 4px; }
+.rank-bar { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+
+/* Compare */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.compare-header {
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.compare-name { font-size: 14px; font-weight: 700; }
+.compare-score-big {
+  font-size: 36px;
+  font-weight: 700;
+  font-family: 'Zen Antique', serif;
+}
+.compare-vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-family: 'Zen Antique', serif;
+  color: var(--text3);
+  margin-bottom: 16px;
+}
+
+/* Record form */
+.form-section { margin-bottom: 20px; }
+.form-title {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 11px; color: var(--text2); letter-spacing: 0.1em; }
+.form-input, .form-select, .form-textarea {
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); }
+.form-textarea { resize: vertical; min-height: 70px; }
+.form-select option { background: var(--bg3); }
+
+/* Toggle group */
+.toggle-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle-item {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: var(--bg4);
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text2);
+  transition: all 0.15s;
+}
+.toggle-item:hover { border-color: var(--jade); color: var(--jade2); }
+.toggle-item.active { border-color: var(--jade); color: var(--jade2); background: rgba(74,152,112,0.1); }
+
+/* Number input with +/- */
+.num-input-wrap { display: flex; align-items: center; gap: 0; }
+.num-btn {
+  width: 32px; height: 34px;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.num-btn:first-child { border-radius: 4px 0 0 4px; border-right: none; }
+.num-btn:last-child { border-radius: 0 4px 4px 0; border-left: none; }
+.num-btn:hover { background: var(--border2); }
+.num-display {
+  flex: 1; min-width: 50px;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  padding: 6px 4px;
+  height: 34px;
+}
+
+/* Submit btn */
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--gold), #a07828);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'Zen Antique', serif;
+  font-size: 15px;
+  cursor: pointer;
+  letter-spacing: 0.2em;
+  transition: opacity 0.2s;
+  margin-top: 8px;
+}
+.submit-btn:hover { opacity: 0.9; }
+
+/* Follow / Compare */
+.follow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.follow-card {
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.follow-card:hover { border-color: var(--gold); }
+.follow-card.following { border-color: rgba(200,168,74,0.4); }
+.follow-info { flex: 1; }
+.follow-name { font-size: 12px; font-weight: 500; }
+.follow-sub { font-size: 10px; color: var(--text3); }
+.follow-score-sm { font-size: 14px; font-weight: 700; color: var(--gold2); }
+.follow-btn {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.follow-btn:hover, .follow-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(200,168,74,0.1); }
+
+/* Settings toggles */
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.setting-item:last-child { border-bottom: none; }
+.setting-label { font-size: 12px; }
+.setting-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.toggle-switch {
+  width: 40px; height: 22px;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 11px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.toggle-switch::after {
+  content: '';
+  width: 16px; height: 16px;
+  background: var(--text3);
+  border-radius: 50%;
+  position: absolute;
+  top: 2px; left: 2px;
+  transition: all 0.2s;
+}
+.toggle-switch.on { background: rgba(200,168,74,0.2); border-color: var(--gold); }
+.toggle-switch.on::after { background: var(--gold); transform: translateX(18px); }
+
+/* Mini bar chart (study log) */
+.mini-bars { display: flex; align-items: flex-end; gap: 4px; height: 60px; }
+.mini-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+.mini-bar {
+  width: 100%;
+  background: var(--jade);
+  border-radius: 2px 2px 0 0;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  min-height: 2px;
+}
+.mini-bar:hover { opacity: 1; }
+.mini-bar.me { background: var(--gold); }
+.mini-bar-label { font-size: 9px; color: var(--text3); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* Notification badge */
+.badge {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 10px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* Tab-like compare selector */
+.compare-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.compare-tab {
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  background: var(--bg4);
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.15s;
+}
+.compare-tab.active { border-color: var(--gold); color: var(--gold); background: rgba(200,168,74,0.08); }
+
+/* Progress mini */
+.prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.prog-label { font-size: 11px; color: var(--text2); width: 90px; flex-shrink: 0; }
+.prog-bar-wrap { flex: 1; height: 6px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--jade), var(--jade2)); transition: width 1s ease; }
+.prog-fill.gold { background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+.prog-val { font-size: 11px; color: var(--text2); width: 36px; text-align: right; }
+
+/* Tooltip */
+.tooltip-wrap { position: relative; display: inline-block; }
+.tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--text);
+  z-index: 999;
+}
+.tooltip-wrap:hover .tooltip { display: block; }
+
+/* ===== GAME CARD ===== */
+.add-game-btn {
+  width: 100%;
+  padding: 10px;
+  border: 1px dashed var(--border2);
+  background: transparent;
+  color: var(--jade2);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+  letter-spacing: 0.1em;
+}
+.add-game-btn:hover { border-color: var(--jade); background: rgba(74,152,112,0.06); }
+
+.game-card {
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.game-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(255,255,255,0.02);
+}
+.game-card-num {
+  font-family: 'Zen Antique', serif;
+  font-size: 15px;
+  color: var(--gold);
+  width: 22px;
+}
+.game-card-summary { flex: 1; font-size: 12px; color: var(--text2); }
+.game-card-result {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 3px;
+}
+.result-win { background: rgba(74,152,112,0.2); color: var(--jade2); }
+.result-lose { background: rgba(200,80,80,0.2); color: #e87070; }
+.result-draw { background: rgba(160,152,128,0.2); color: var(--text2); }
+.result-? { background: rgba(160,152,128,0.1); color: var(--text3); }
+.game-card-chevron { font-size: 11px; color: var(--text3); transition: transform 0.2s; }
+.game-card.open .game-card-chevron { transform: rotate(180deg); }
+.game-card-body { display: none; padding: 14px; border-top: 1px solid var(--border); }
+.game-card.open .game-card-body { display: block; }
+.game-card-remove {
+  background: none; border: none; color: var(--text3);
+  cursor: pointer; font-size: 14px; padding: 0 2px;
+  transition: color 0.15s;
+}
+.game-card-remove:hover { color: var(--red); }
+.inline-toggle-group { display: flex; flex-wrap: wrap; gap: 5px; }
+.inline-toggle {
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text2);
+  transition: all 0.15s;
+}
+.inline-toggle:hover { border-color: var(--jade); color: var(--jade2); }
+.inline-toggle.sel { border-color: var(--jade); color: var(--jade2); background: rgba(74,152,112,0.1); }
+.game-comment-wrap { margin-top: 10px; }
+.game-comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.public-toggle-row {
+  display: flex; align-items: center; gap: 6px; margin-top: 6px;
+}
+.other-country-input {
+  display: none;
+  margin-top: 6px;
+}
+.other-country-input.show { display: block; }
+
+/* Responsive adjustments for compact width */
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: repeat(2,1fr); }
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+  .compare-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">碁録</div>
+    <div class="logo-sub">GOROKU Platform</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-group">
+      <div class="nav-label">メイン</div>
+      <div class="nav-item active" onclick="showPanel('dashboard')">
+        <span class="nav-icon">🏠</span> ダッシュボード
+      </div>
+      <div class="nav-item" onclick="showPanel('record')">
+        <span class="nav-icon">✏️</span> 今日の記録
+      </div>
+      <div class="nav-item" onclick="showPanel('timeline')">
+        <span class="nav-icon">📢</span> タイムライン <span class="badge">3</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('ranking')">
+        <span class="nav-icon">🏆</span> ランキング
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">分析・比較</div>
+      <div class="nav-item" onclick="showPanel('compare')">
+        <span class="nav-icon">⚖️</span> 比較
+      </div>
+      <div class="nav-item" onclick="showPanel('follows')">
+        <span class="nav-icon">👁️</span> フォロー中
+      </div>
+      <div class="nav-item" onclick="showPanel('qa')">
+        <span class="nav-icon">💬</span> Q&A掲示板 <span class="badge">5</span>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">設定</div>
+      <div class="nav-item" onclick="showPanel('settings')">
+        <span class="nav-icon">⚙️</span> 記録項目設定
+      </div>
+    </div>
+  </nav>
+  <div class="user-card">
+    <div class="avatar kyu">碁</div>
+    <div>
+      <div class="user-name">igo_player</div>
+      <div class="user-rank">アマ三段 / ハンドルネーム</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">ダッシュボード</div>
+    <div class="topbar-actions">
+      <button class="notif-btn" onclick="showPanel('timeline')">🔔<div class="notif-dot"></div></button>
+      <button class="notif-btn" style="font-size:12px;width:auto;padding:0 12px;border-radius:4px;" onclick="showPanel('record')">+ 今日の記録</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="panel active" id="panel-dashboard">
+
+      <!-- AI Score Comment -->
+      <div class="ai-comment">
+        <div class="ai-icon">🤖</div>
+        <div class="ai-body">
+          <div>
+            <span class="ai-score">87点</span>
+            <span style="font-size:10px;color:var(--text3);letter-spacing:0.1em;">本日のAIスコア</span>
+          </div>
+          <div class="ai-text">
+            今日は詰碁50問とAI研究30分を着実にこなし、非常に良い学習量でした。特に詰碁の難問に取り組んでいる姿勢が高く評価されています。対局は普通碁3局（2勝1敗）とバランスが良いです。明日はAI研究で見つけた手を棋譜並べで確認するとさらに定着します。連続学習12日目、この調子で続けてください！💪
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card gold">
+          <div class="stat-label">📊 本日のスコア</div>
+          <div class="stat-val">87</div>
+          <div class="stat-sub">全体平均 62点 ↑+25</div>
+        </div>
+        <div class="stat-card jade">
+          <div class="stat-label">📅 連続学習</div>
+          <div class="stat-val">12</div>
+          <div class="stat-sub">日継続中 🔥</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">⚫ 詰碁</div>
+          <div class="stat-val">50</div>
+          <div class="stat-sub">問 / 今日 (平均 28問)</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">🌐 ネット対局</div>
+          <div class="stat-val">3</div>
+          <div class="stat-sub">局 / 今日 (平均 2.1局)</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">📈 週間スコア推移（自分 vs 平均）</div>
+          <div class="chart-wrap">
+            <canvas id="weekChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🗂 学習内訳（今週）</div>
+          <div class="chart-wrap">
+            <canvas id="pieChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Study log bars + Progress -->
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title">📅 詰碁 30日推移</div>
+          <div class="mini-bars" id="mini-bars"></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;">
+            <span style="font-size:10px;color:var(--text3)">30日前</span>
+            <span style="font-size:10px;color:var(--text3)">今日</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🎯 今月の達成率</div>
+          <div id="progress-bars"></div>
+        </div>
+      </div>
+
+      <!-- Average compare -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">⚖️ みんなとの比較（今週平均）</div>
+        <div class="chart-wrap-sm">
+          <canvas id="compareAvgChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RECORD ===== -->
+    <div class="panel" id="panel-record">
+      <div class="card">
+
+        <!-- 対局記録 -->
+        <div class="form-section">
+          <div class="form-title">⚔️ 対局記録</div>
+          <div id="game-list"></div>
+          <button class="add-game-btn" onclick="addGame()">＋ 対局を追加する</button>
+        </div>
+
+        <!-- 詰碁 -->
+        <div class="form-section">
+          <div class="form-title">⚫ 詰碁</div>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-label">問題数</div>
+              <div class="num-input-wrap">
+                <button class="num-btn" onclick="numChange('tsumego',-5)">−</button>
+                <div class="num-display" id="val-tsumego">50</div>
+                <button class="num-btn" onclick="numChange('tsumego',5)">＋</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="form-label">難易度</div>
+              <select class="form-select">
+                <option>★☆☆ 初級</option>
+                <option selected>★★☆ 中級</option>
+                <option>★★★ 上級</option>
+                <option>💎 プロ級</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 勉強時間（定石→AI研究に変更） -->
+        <div class="form-section" id="study-time-section">
+          <div class="form-title">📚 勉強時間</div>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-label">🤖 AI研究</div>
+              <div class="num-input-wrap">
+                <button class="num-btn" onclick="numChange('ai_study',-15)">−</button>
+                <div class="num-display" id="val-ai_study" style="min-width:60px">30<span style="font-size:10px">分</span></div>
+                <button class="num-btn" onclick="numChange('ai_study',15)">＋</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="form-label">棋譜並べ</div>
+              <div class="num-input-wrap">
+                <button class="num-btn" onclick="numChange('kifu',-15)">−</button>
+                <div class="num-display" id="val-kifu" style="min-width:60px">0<span style="font-size:10px">分</span></div>
+                <button class="num-btn" onclick="numChange('kifu',15)">＋</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="form-label">その他</div>
+              <div class="num-input-wrap">
+                <button class="num-btn" onclick="numChange('other',-15)">−</button>
+                <div class="num-display" id="val-other" style="min-width:60px">0<span style="font-size:10px">分</span></div>
+                <button class="num-btn" onclick="numChange('other',15)">＋</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 自分のコメント（非公開＋公開） -->
+        <div class="form-section">
+          <div class="form-title">📝 今日のコメント</div>
+
+          <!-- 良かった点 -->
+          <div class="form-group" style="margin-bottom:12px">
+            <div class="form-label" style="display:flex;align-items:center;gap:6px">
+              <span style="color:var(--jade2);font-size:13px">✅</span> 良かった点・うまくいったこと
+              <span style="font-size:10px;color:var(--text3);margin-left:auto">自分だけに表示 / 公開も可</span>
+            </div>
+            <textarea class="form-textarea" id="comment-good" placeholder="例：中盤の形勢判断が改善できた。AI研究で覚えた手が実戦で活きた。" style="min-height:60px"></textarea>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)" id="sw-good"></div>
+              <span style="font-size:10px;color:var(--text3)">タイムラインに公開する</span>
+            </div>
+          </div>
+
+          <!-- 反省点 -->
+          <div class="form-group" style="margin-bottom:12px">
+            <div class="form-label" style="display:flex;align-items:center;gap:6px">
+              <span style="color:var(--red);font-size:13px">⚠️</span> 反省点・改善したいこと
+            </div>
+            <textarea class="form-textarea" id="comment-bad" placeholder="例：終盤の計算ミスが多かった。ヨセで損をしてしまった。" style="min-height:60px">終盤の計算ミスが多かった。詰碁で読みを鍛える必要がある。</textarea>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <div class="toggle-switch" onclick="toggleSwitch(this)" id="sw-bad"></div>
+              <span style="font-size:10px;color:var(--text3)">タイムラインに公開する</span>
+            </div>
+          </div>
+
+          <!-- 自由メモ -->
+          <div class="form-group" style="margin-bottom:12px">
+            <div class="form-label" style="display:flex;align-items:center;gap:6px">
+              <span style="color:var(--gold);font-size:13px">💭</span> 自由メモ・気づき・何でも
+            </div>
+            <textarea class="form-textarea" id="comment-free" placeholder="感想、アイデア、悩み、明日やること…なんでも自由に。" style="min-height:70px">今日は詰碁を集中してやりました。中級の問題でも正解率が上がってきた気がします。AI研究でも新しい形を覚えたので明日の対局で試してみたい。</textarea>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <div class="toggle-switch on" onclick="toggleSwitch(this)" id="sw-free"></div>
+              <span style="font-size:10px;color:var(--text3)">タイムラインに公開する</span>
+            </div>
+          </div>
+
+          <!-- タグ -->
+          <div class="form-group">
+            <div class="form-label">タグ</div>
+            <div class="toggle-group">
+              <div class="toggle-item active" onclick="toggleTag(this)">詰碁</div>
+              <div class="toggle-item active" onclick="toggleTag(this)">AI研究</div>
+              <div class="toggle-item" onclick="toggleTag(this)">棋譜並べ</div>
+              <div class="toggle-item" onclick="toggleTag(this)">悩み相談</div>
+              <div class="toggle-item" onclick="toggleTag(this)">自己ベスト</div>
+              <div class="toggle-item" onclick="toggleTag(this)">対局</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="submit-btn" onclick="submitRecord()">記録を投稿する</button>
+      </div>
+    </div>
+
+    <!-- ===== TIMELINE ===== -->
+    <div class="panel" id="panel-timeline">
+      <div class="feed" id="feed-list"></div>
+    </div>
+
+    <!-- ===== RANKING ===== -->
+    <div class="panel" id="panel-ranking">
+      <div class="grid2">
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title">🏆 本日ランキング</div>
+            <div class="rank-list" id="rank-today"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title">📅 今月ランキング</div>
+            <div class="rank-list" id="rank-month"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 ランキングスコア分布</div>
+        <div class="chart-wrap">
+          <canvas id="rankDistChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== COMPARE ===== -->
+    <div class="panel" id="panel-compare">
+      <div class="compare-tabs" id="compare-tabs">
+        <div class="compare-tab active" onclick="setCompareTarget(this,'全体平均')">全体平均</div>
+        <div class="compare-tab" onclick="setCompareTarget(this,'一力遼九段')">一力遼九段</div>
+        <div class="compare-tab" onclick="setCompareTarget(this,'goking88')">goking88</div>
+        <div class="compare-tab" onclick="setCompareTarget(this,'石田先生')">石田先生</div>
+      </div>
+      <div class="compare-grid">
+        <div class="card">
+          <div class="compare-header">
+            <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px">
+              <div class="avatar kyu" style="width:28px;height:28px;font-size:12px">碁</div>
+              <div class="compare-name">igo_player（自分）</div>
+            </div>
+            <div class="compare-score-big" style="color:var(--jade2)">87</div>
+            <div style="font-size:10px;color:var(--text3)">本日スコア</div>
+          </div>
+          <div id="my-prog"></div>
+        </div>
+        <div class="card">
+          <div class="compare-header">
+            <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px">
+              <div class="avatar pro" style="width:28px;height:28px;font-size:12px">均</div>
+              <div class="compare-name" id="compare-target-name">全体平均</div>
+            </div>
+            <div class="compare-score-big" style="color:var(--text2)" id="compare-target-score">62</div>
+            <div style="font-size:10px;color:var(--text3)">本日スコア</div>
+          </div>
+          <div id="target-prog"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 週間比較グラフ</div>
+        <div class="chart-wrap">
+          <canvas id="compareLineChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FOLLOWS ===== -->
+    <div class="panel" id="panel-follows">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">🔍 ユーザーを探す</div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <input class="form-input" style="flex:1" placeholder="名前・棋士名・ハンドルネームで検索..." type="text">
+          <button class="submit-btn" style="width:auto;padding:8px 16px;font-size:12px;margin-top:0">検索</button>
+        </div>
+        <div class="card-title">フォロー中 <span style="color:var(--text2)">4人</span></div>
+        <div class="follow-grid" id="follow-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 フォロー中のスコア推移</div>
+        <div class="chart-wrap">
+          <canvas id="followChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Q&A ===== -->
+    <div class="panel" id="panel-qa">
+      <button class="submit-btn" style="margin-bottom:16px" onclick="showQAForm()">＋ 質問・悩みを投稿する</button>
+      <div id="qa-form" style="display:none;margin-bottom:16px">
+        <div class="card">
+          <div class="form-group" style="margin-bottom:10px">
+            <div class="form-label">タイトル</div>
+            <input class="form-input" placeholder="例：序盤の布石でいつも悩んでいます">
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
+            <div class="form-label">詳細</div>
+            <textarea class="form-textarea" placeholder="詳しく書くほど良い回答が集まります..."></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
+            <div class="form-label">タグ</div>
+            <div class="toggle-group">
+              <div class="toggle-item" onclick="toggleTag(this)">布石</div>
+              <div class="toggle-item" onclick="toggleTag(this)">定石</div>
+              <div class="toggle-item" onclick="toggleTag(this)">詰碁</div>
+              <div class="toggle-item" onclick="toggleTag(this)">対局</div>
+              <div class="toggle-item" onclick="toggleTag(this)">勉強法</div>
+              <div class="toggle-item" onclick="toggleTag(this)">メンタル</div>
+            </div>
+          </div>
+          <button class="submit-btn" style="margin-top:4px">投稿する</button>
+        </div>
+      </div>
+      <div class="feed" id="qa-list"></div>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <div class="panel" id="panel-settings">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">⚙️ 記録項目のオン/オフ</div>
+        <div id="settings-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">👤 プロフィール設定</div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">表示名</div>
+            <input class="form-input" value="igo_player">
+          </div>
+          <div class="form-group">
+            <div class="form-label">アカウント種別</div>
+            <select class="form-select">
+              <option>棋士（本名表示）</option>
+              <option selected>アマ強豪（ハンドルネーム）</option>
+              <option>棋士を目指す（ハンドルネーム）</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">段位・級</div>
+            <select class="form-select">
+              <option>九段（プロ）</option>
+              <option>初段〜九段（アマ）</option>
+              <option selected>三段（アマ）</option>
+              <option>初段未満</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">通知設定</div>
+            <select class="form-select">
+              <option selected>毎日（朝9時）</option>
+              <option>毎日（夜21時）</option>
+              <option>週1</option>
+              <option>通知なし</option>
+            </select>
+          </div>
+        </div>
+        <button class="submit-btn">保存する</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ===== DATA =====
+const USERS = [
+  { id:1, name:'一力遼九段', handle:'一力遼', type:'pro', rank:'九段(プロ)', score:98, streak:45, avatar:'力', color:'pro' },
+  { id:2, name:'仲邑菫九段', handle:'仲邑菫', type:'pro', rank:'九段(プロ)', score:96, streak:38, avatar:'菫', color:'pro' },
+  { id:3, name:'goking88', handle:'goking88', type:'dan', rank:'アマ七段', score:89, streak:20, avatar:'王', color:'dan' },
+  { id:4, name:'石田先生', handle:'石田先生', type:'dan', rank:'アマ五段', score:85, streak:15, avatar:'石', color:'dan' },
+  { id:5, name:'igo_player', handle:'igo_player', type:'kyu', rank:'アマ三段', score:87, streak:12, avatar:'碁', color:'kyu', me:true },
+  { id:6, name:'kifu_maniac', handle:'kifu_maniac', type:'kyu', rank:'アマ二段', score:72, streak:8, avatar:'棋', color:'kyu' },
+  { id:7, name:'tsumego_daily', handle:'tsumego_daily', type:'kyu', rank:'初段', score:68, streak:22, avatar:'詰', color:'kyu' },
+  { id:8, name:'まーくん', handle:'まーくん', type:'kyu', rank:'5級', score:55, streak:3, avatar:'ま', color:'kyu' },
+];
+
+const REACTIONS = ['すごい😆','いいね👍','まずまず👌','んー😒'];
+
+const FEED_DATA = [
+  {
+    uid:1, time:'2時間前',
+    content:'本因坊戦の棋譜を2局並べた。一力九段の中盤の厚みの作り方が本当に参考になる。普通碁でもこの感覚を意識してみたい。',
+    tags:['棋譜並べ','プロ棋士','普通碁'],
+    stats:{ game_normal:2, tsumego:30, study:90 },
+    score:98, reactions:{0:24,1:87,2:12,3:0}, myReact:-1,
+  },
+  {
+    uid:3, time:'3時間前',
+    content:'今日は早碁を15局打ちました。勝率65%。ミスが多かったので詰碁で基礎固めが必要だと実感。中国人の打ち方は本当に速くて参考になります。',
+    tags:['早碁','中国人','詰碁'],
+    stats:{ game_blitz:15, tsumego:20, study:30 },
+    score:89, reactions:{0:8,1:42,2:15,3:3}, myReact:1,
+  },
+  {
+    uid:6, time:'4時間前',
+    content:'詰碁の上級問題に挑戦中。1問に30分かかってしまいました。同じような問題を繰り返すべきか、どんどん新しい問題に進むべきか悩んでいます。アドバイスがあれば教えてください。',
+    tags:['詰碁','悩み相談','上級'],
+    stats:{ tsumego:10, study:60 },
+    score:72, reactions:{0:2,1:18,2:9,3:5}, myReact:-1,
+  },
+  {
+    uid:7, time:'5時間前',
+    content:'連続22日！毎日詰碁50問がついに習慣になってきた。最初はきつかったけど今は楽しくなってきました。',
+    tags:['詰碁','連続記録'],
+    stats:{ tsumego:50, streak:22 },
+    score:68, reactions:{0:31,1:64,2:8,3:0}, myReact:0,
+  },
+  {
+    uid:2, time:'6時間前',
+    content:'本日の練習：棋譜並べ3局、定石確認1時間、詰碁上級20問。大会前は特に読み精度を上げることを意識しています。',
+    tags:['棋譜並べ','定石','プロ'],
+    stats:{ game_long:1, tsumego:20, study:120 },
+    score:96, reactions:{0:58,1:112,2:4,3:0}, myReact:-1,
+  },
+];
+
+const QA_DATA = [
+  {
+    uid:6, time:'1日前',
+    title:'詰碁の繰り返し vs 新問題、どちらが効率的？',
+    content:'詰碁の上級問題を解いているのですが、間違えた問題を何度も繰り返すべきか、どんどん新問題に進むべきか悩んでいます。有段者の方のアドバイスをお聞きしたいです。',
+    tags:['詰碁','勉強法'],
+    answers:5, reactions:{0:4,1:23,2:8,3:1}, myReact:-1,
+  },
+  {
+    uid:8, time:'2日前',
+    title:'序盤の星小目の使い分けはどうすればいい？',
+    content:'星と小目を局面によって使い分けると聞きましたが、初心者にはいつどちらを選べばいいのかわかりません。基準を教えてください。',
+    tags:['布石','定石','初心者'],
+    answers:8, reactions:{0:7,1:31,2:5,3:0}, myReact:-1,
+  },
+  {
+    uid:7, time:'3日前',
+    title:'毎日どのくらい勉強していますか？目標を教えてください',
+    content:'自分は毎日1時間を目標にしていますが、プロを目指している方はどのくらいやっているのでしょうか？モチベーション管理も含めて教えてほしいです。',
+    tags:['勉強法','メンタル'],
+    answers:12, reactions:{0:15,1:45,2:3,3:0}, myReact:1,
+  },
+];
+
+const SETTINGS_LIST = [
+  { key:'blitz', label:'早碁（20秒以下）の記録', on:true },
+  { key:'normal', label:'普通碁（秒読み）の記録', on:true },
+  { key:'long', label:'長碁・持ち時間ありの記録', on:true },
+  { key:'opponent', label:'対局相手の種別タグ', on:true },
+  { key:'tsumego', label:'詰碁の問題数・難易度', on:true },
+  { key:'ai_study', label:'AI研究の勉強時間', on:true },
+  { key:'kifu', label:'棋譜並べの勉強時間', on:true },
+  { key:'other', label:'その他の勉強時間', on:false },
+  { key:'score', label:'AIスコアをランキングに表示', on:true },
+  { key:'notif', label:'フォロー中のプッシュ通知', on:true },
+];
+
+const FOLLOW_IDS = [1, 2, 3, 4];
+
+// ===== NUM INPUTS =====
+// ===== GAME RECORD ENGINE =====
+let gameList = [];
+let gameIdCounter = 0;
+
+function addGame() {
+  const id = ++gameIdCounter;
+  gameList.push({ id, open: true });
+  renderGameList();
+  // scroll to new card
+  setTimeout(()=>{
+    const el = document.getElementById('game-card-'+id);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 80);
+}
+
+function removeGame(id) {
+  gameList = gameList.filter(g=>g.id!==id);
+  renderGameList();
+}
+
+function toggleGameCard(id) {
+  const g = gameList.find(g=>g.id===id);
+  if(g) g.open = !g.open;
+  const card = document.getElementById('game-card-'+id);
+  if(card) card.classList.toggle('open', g.open);
+}
+
+function toggleInline(el, group) {
+  el.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>t.classList.remove('sel'));
+  el.classList.add('sel');
+  // Show other-country input if "その他" selected
+  const wrap = el.closest('.game-card-body');
+  if(wrap) {
+    const otherInput = wrap.querySelector('.other-country-input');
+    if(otherInput) otherInput.classList.toggle('show', el.textContent.includes('その他'));
+  }
+}
+
+function toggleInlineMulti(el) {
+  el.classList.toggle('sel');
+  const wrap = el.closest('.game-card-body');
+  if(wrap) {
+    const otherInput = wrap.querySelector('.other-country-input');
+    if(otherInput) {
+      const anyOther = Array.from(wrap.querySelectorAll('.country-toggle')).some(t=>t.classList.contains('sel') && t.textContent.includes('その他'));
+      otherInput.classList.toggle('show', anyOther);
+    }
+  }
+}
+
+function updateGameSummary(id) {
+  const card = document.getElementById('game-card-'+id);
+  if(!card) return;
+  const result = card.querySelector('.result-sel')?.textContent || '?';
+  const format = card.querySelector('.format-toggle.sel')?.textContent || '';
+  const opponent = card.querySelector('.opp-name-input')?.value || '相手';
+  const summary = card.querySelector('.game-card-summary');
+  const resultEl = card.querySelector('.game-card-result');
+  if(summary) summary.textContent = `${format} vs ${opponent}`;
+  if(resultEl) {
+    resultEl.textContent = result;
+    resultEl.className = 'game-card-result';
+    if(result==='勝') resultEl.classList.add('result-win');
+    else if(result==='負') resultEl.classList.add('result-lose');
+    else if(result==='引き分け') resultEl.classList.add('result-draw');
+    else resultEl.classList.add('result-?');
+  }
+}
+
+function renderGameList() {
+  const el = document.getElementById('game-list');
+  if(!el) return;
+  el.innerHTML = gameList.map((g, idx) => `
+  <div class="game-card ${g.open?'open':''}" id="game-card-${g.id}">
+    <div class="game-card-header" onclick="toggleGameCard(${g.id})">
+      <div class="game-card-num">第${idx+1}局</div>
+      <div class="game-card-summary">対局詳細を入力してください</div>
+      <div class="game-card-result result-?">?</div>
+      <div class="game-card-chevron">▼</div>
+      <button class="game-card-remove" onclick="event.stopPropagation();removeGame(${g.id})">✕</button>
+    </div>
+    <div class="game-card-body">
+
+      <!-- 結果 -->
+      <div class="form-group" style="margin-bottom:12px">
+        <div class="form-label">結果</div>
+        <div class="inline-toggle-group" id="result-group-${g.id}">
+          <div class="inline-toggle result-sel" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">勝</div>
+          <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">負</div>
+          <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">引き分け</div>
+        </div>
+      </div>
+
+      <!-- 対局形式 -->
+      <div class="form-group" style="margin-bottom:12px">
+        <div class="form-label">対局形式</div>
+        <div class="inline-toggle-group">
+          <div class="inline-toggle format-toggle sel" onclick="toggleInline(this);updateGameSummary(${g.id})">ネット対局</div>
+          <div class="inline-toggle format-toggle" onclick="toggleInline(this);updateGameSummary(${g.id})">対面（リアル）</div>
+        </div>
+      </div>
+
+      <!-- 時間設定 -->
+      <div class="form-group" style="margin-bottom:12px">
+        <div class="form-label">時間設定</div>
+        <div class="inline-toggle-group">
+          <div class="inline-toggle time-toggle sel" onclick="toggleInline(this)">早碁（20秒以下）</div>
+          <div class="inline-toggle time-toggle" onclick="toggleInline(this)">普通碁（秒読み）</div>
+          <div class="inline-toggle time-toggle" onclick="toggleInline(this)">長碁（持ち時間あり）</div>
+        </div>
+      </div>
+
+      <!-- 相手 -->
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="form-group">
+          <div class="form-label">相手の名前・ID（任意）</div>
+          <input class="form-input opp-name-input" placeholder="例：一力遼、goking88" oninput="updateGameSummary(${g.id})">
+        </div>
+        <div class="form-group">
+          <div class="form-label">相手のレベル</div>
+          <div class="inline-toggle-group">
+            <div class="inline-toggle sel" onclick="toggleInline(this)">プロ</div>
+            <div class="inline-toggle" onclick="toggleInline(this)">アマ強豪</div>
+            <div class="inline-toggle" onclick="toggleInline(this)">アマ一般</div>
+            <div class="inline-toggle" onclick="toggleInline(this)">初心者</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 相手の国籍（複数選択可） -->
+      <div class="form-group" style="margin-bottom:12px">
+        <div class="form-label">相手の国籍（複数選択可）</div>
+        <div class="inline-toggle-group">
+          <div class="inline-toggle country-toggle sel" onclick="toggleInlineMulti(this)">🇯🇵 日本人</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🇨🇳 中国人</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🇰🇷 韓国人</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🇹🇼 台湾人</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🌏 その他の国</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">不明</div>
+        </div>
+        <div class="other-country-input">
+          <input class="form-input" placeholder="国名を入力（例：アメリカ人、ドイツ人）" style="margin-top:6px">
+        </div>
+      </div>
+
+      <!-- 持ち時間・コミ -->
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="form-group">
+          <div class="form-label">碁盤サイズ</div>
+          <div class="inline-toggle-group">
+            <div class="inline-toggle sel" onclick="toggleInline(this)">19路</div>
+            <div class="inline-toggle" onclick="toggleInline(this)">13路</div>
+            <div class="inline-toggle" onclick="toggleInline(this)">9路</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">自分の色</div>
+          <div class="inline-toggle-group">
+            <div class="inline-toggle" onclick="toggleInline(this)">⚫ 黒</div>
+            <div class="inline-toggle sel" onclick="toggleInline(this)">⚪ 白</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- コメント（良かった点・反省点） -->
+      <div class="game-comment-wrap">
+        <div style="font-size:11px;color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">📝 この対局のコメント</div>
+
+        <div class="form-group" style="margin-bottom:10px">
+          <div class="form-label"><span style="color:var(--jade2)">✅</span> 良かった点</div>
+          <textarea class="form-textarea" placeholder="うまくいった手、作戦、読みなど…" style="min-height:55px"></textarea>
+          <div class="public-toggle-row">
+            <div class="toggle-switch on" onclick="toggleSwitch(this)"></div>
+            <span style="font-size:10px;color:var(--text3)">タイムラインに公開する</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:10px">
+          <div class="form-label"><span style="color:var(--red)">⚠️</span> 反省点・敗因分析</div>
+          <textarea class="form-textarea" placeholder="ミスした手、見落とし、改善したいこと…" style="min-height:55px"></textarea>
+          <div class="public-toggle-row">
+            <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+            <span style="font-size:10px;color:var(--text3)">タイムラインに公開する</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label"><span style="color:var(--gold)">💭</span> 自由メモ</div>
+          <textarea class="form-textarea" placeholder="感想・気づき・次に試したいこと…" style="min-height:50px"></textarea>
+          <div class="public-toggle-row">
+            <div class="toggle-switch on" onclick="toggleSwitch(this)"></div>
+            <span style="font-size:10px;color:var(--text3)">タイムラインに公開する</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>`).join('');
+}
+
+// Init with 1 sample game
+addGame();
+
+const numVals = { tsumego:50, ai_study:30, kifu:0, other:0 };
+function numChange(key, delta) {
+  numVals[key] = Math.max(0, numVals[key] + delta);
+  const el = document.getElementById('val-'+key);
+  if(el) {
+    const units = {ai_study:'分', kifu:'分', other:'分'};
+    el.innerHTML = numVals[key] + (units[key] ? '<span style="font-size:10px">'+units[key]+'</span>' : '');
+  }
+}
+function singleSelect(el, groupId) {
+  document.querySelectorAll('#'+groupId+' .toggle-item').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ===== TOGGLES =====
+function toggleTag(el) { el.classList.toggle('active'); }
+function toggleSwitch(el) { el.classList.toggle('on'); }
+
+// ===== PANEL SWITCH =====
+const PAGE_TITLES = {
+  dashboard:'ダッシュボード', record:'今日の記録を入力',
+  timeline:'タイムライン', ranking:'ランキング',
+  compare:'比較・分析', follows:'フォロー管理',
+  qa:'Q&A掲示板', settings:'記録項目設定',
+};
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.textContent.includes(PAGE_TITLES[name]?.slice(0,4))) n.classList.add('active');
+  });
+  document.getElementById('page-title').textContent = PAGE_TITLES[name] || name;
+  // Lazy render
+  if(name==='ranking') renderRanking();
+  if(name==='follows') renderFollows();
+  if(name==='compare') renderCompare();
+}
+
+// ===== FEED =====
+function userById(id) { return USERS.find(u=>u.id===id)||USERS[0]; }
+function typeTag(u) {
+  if(u.type==='pro') return `<span class="feed-rank-tag tag-pro">${u.rank}</span>`;
+  if(u.type==='dan') return `<span class="feed-rank-tag tag-dan">${u.rank}</span>`;
+  return `<span class="feed-rank-tag tag-kyu">${u.rank}</span>`;
+}
+function avatarHTML(u, size=28) {
+  return `<div class="avatar ${u.color}" style="width:${size}px;height:${size}px;font-size:${size*0.45}px">${u.avatar}</div>`;
+}
+
+function renderFeed() {
+  const el = document.getElementById('feed-list');
+  el.innerHTML = FEED_DATA.map((f,fi)=>{
+    const u = userById(f.uid);
+    const statsHtml = Object.entries(f.stats).map(([k,v])=>{
+      const labels = {game_blitz:'早碁',game_normal:'普通碁',game_long:'長碁',games:'対局数',win:'勝',lose:'負',tsumego:'詰碁',ai_study:'AI研究',study:'勉強時間',streak:'連続'};
+      const units = {game_blitz:'局',game_normal:'局',game_long:'局',games:'局',win:'勝',lose:'敗',tsumego:'問',ai_study:'分',study:'分',streak:'日'};
+      return `<div class="feed-stat">${labels[k]||k}: <span>${v}${units[k]||''}</span></div>`;
+    }).join('');
+    const reactHtml = REACTIONS.map((r,ri)=>`
+      <button class="reaction-btn ${f.myReact===ri?'active':''}" onclick="react(${fi},${ri},this)">
+        ${r} <span class="reaction-count">${f.reactions[ri]}</span>
+      </button>`).join('');
+    return `
+    <div class="feed-item">
+      <div class="feed-header">
+        ${avatarHTML(u)}
+        <div class="feed-name">${u.handle}</div>
+        ${typeTag(u)}
+        <div class="feed-time">${f.time}</div>
+      </div>
+      <div class="feed-content">${f.content}</div>
+      <div class="feed-tags">${f.tags.map(t=>`<span class="feed-tag">${t}</span>`).join('')}</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <div style="font-size:11px;color:var(--text3)">AIスコア</div>
+        <div style="font-size:16px;font-weight:700;color:var(--gold2);font-family:'Zen Antique',serif">${f.score}</div>
+      </div>
+      <div class="feed-stats">${statsHtml}</div>
+      <div class="reactions" style="margin-top:10px;flex-wrap:wrap">${reactHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function react(fi, ri, btn) {
+  const f = FEED_DATA[fi];
+  if(f.myReact===ri) {
+    f.reactions[ri]--;
+    f.myReact=-1;
+    btn.classList.remove('active');
+  } else {
+    if(f.myReact>=0) {
+      f.reactions[f.myReact]--;
+      document.querySelectorAll(`#feed-list .feed-item:nth-child(${fi+1}) .reaction-btn`)[f.myReact]?.classList.remove('active');
+      document.querySelectorAll(`#feed-list .feed-item:nth-child(${fi+1}) .reaction-count`)[f.myReact].textContent = f.reactions[f.myReact];
+    }
+    f.reactions[ri]++;
+    f.myReact=ri;
+    btn.classList.add('active');
+  }
+  btn.querySelector('.reaction-count').textContent = f.reactions[ri];
+}
+
+// ===== QA =====
+function renderQA() {
+  const el = document.getElementById('qa-list');
+  el.innerHTML = QA_DATA.map((q,qi)=>{
+    const u = userById(q.uid);
+    const reactHtml = REACTIONS.map((r,ri)=>`
+      <button class="reaction-btn ${q.myReact===ri?'active':''}" onclick="reactQA(${qi},${ri},this)">
+        ${r} <span class="reaction-count">${q.reactions[ri]}</span>
+      </button>`).join('');
+    return `
+    <div class="feed-item">
+      <div class="feed-header">
+        ${avatarHTML(u)}
+        <div class="feed-name">${u.handle}</div>
+        ${typeTag(u)}
+        <div class="feed-time">${q.time}</div>
+      </div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)">${q.title}</div>
+      <div class="feed-content">${q.content}</div>
+      <div class="feed-tags">${q.tags.map(t=>`<span class="feed-tag">${t}</span>`).join('')}</div>
+      <div class="reactions" style="flex-wrap:wrap">${reactHtml}</div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;color:var(--jade2)">💬 ${q.answers}件の回答</span>
+        <button style="font-size:11px;padding:4px 12px;border:1px solid var(--jade);border-radius:4px;background:transparent;color:var(--jade2);cursor:pointer">回答する</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function reactQA(qi,ri,btn) {
+  const q = QA_DATA[qi];
+  if(q.myReact===ri){q.reactions[ri]--;q.myReact=-1;btn.classList.remove('active');}
+  else{if(q.myReact>=0){q.reactions[q.myReact]--;q.myReact=-1;}q.reactions[ri]++;q.myReact=ri;btn.classList.add('active');}
+  btn.querySelector('.reaction-count').textContent = q.reactions[ri];
+}
+
+function showQAForm() {
+  const f = document.getElementById('qa-form');
+  f.style.display = f.style.display==='none' ? 'block' : 'none';
+}
+
+// ===== RANKING =====
+function renderRanking() {
+  const sorted = [...USERS].sort((a,b)=>b.score-a.score);
+  const max = sorted[0].score;
+  ['rank-today','rank-month'].forEach(id=>{
+    document.getElementById(id).innerHTML = sorted.map((u,i)=>{
+      const numCls = i===0?'top1':i===1?'top2':i===2?'top3':'';
+      return `
+      <div class="rank-item ${u.me?'me':''}">
+        <div class="rank-num ${numCls}">${i+1}</div>
+        ${avatarHTML(u,28)}
+        <div class="rank-info">
+          <div class="rank-name">${u.handle}${u.me?' (自分)':''}</div>
+          <div class="rank-sub">${u.rank} ・ 連続${u.streak}日</div>
+          <div class="rank-bar-wrap">
+            <div class="rank-bar" style="width:${(u.score/max*100).toFixed(0)}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="rank-score">${u.score}</div>
+          <div class="rank-trend ${i<3?'trend-up':''}"> ${i<4?'↑':'↓'}${Math.abs(Math.floor(Math.random()*5))+1}</div>
+        </div>
+      </div>`;
+    }).join('');
+  });
+}
+
+// ===== FOLLOWS =====
+function renderFollows() {
+  const fl = document.getElementById('follow-list');
+  const follows = USERS.filter(u=>FOLLOW_IDS.includes(u.id));
+  fl.innerHTML = follows.map(u=>`
+    <div class="follow-card following">
+      ${avatarHTML(u,34)}
+      <div class="follow-info">
+        <div class="follow-name">${u.handle}</div>
+        <div class="follow-sub">${u.rank} ・ 連続${u.streak}日</div>
+        <div class="follow-score-sm">${u.score}点</div>
+      </div>
+      <button class="follow-btn active" onclick="this.classList.toggle('active');this.textContent=this.classList.contains('active')?'フォロー中':'フォロー'">フォロー中</button>
+    </div>`).join('');
+}
+
+// ===== COMPARE =====
+const COMPARE_DATA = {
+  '全体平均': { score:62, tsumego:28, ai_study:25, kifu:15, games:3 },
+  '一力遼九段': { score:98, tsumego:60, ai_study:90, kifu:120, games:2 },
+  'goking88': { score:89, tsumego:45, ai_study:40, kifu:30, games:10 },
+  '石田先生': { score:85, tsumego:35, ai_study:50, kifu:60, games:1 },
+};
+const MY_DATA = { score:87, tsumego:50, ai_study:30, kifu:0, games:3 };
+let compareLineChart = null;
+
+function setCompareTarget(el, name) {
+  document.querySelectorAll('.compare-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const d = COMPARE_DATA[name];
+  document.getElementById('compare-target-name').textContent = name;
+  document.getElementById('compare-target-score').textContent = d.score;
+  renderCompareProgs(d);
+  renderCompareChart(name, d);
+}
+
+function renderCompare() {
+  // My progs
+  const myEl = document.getElementById('my-prog');
+  const items = [{label:'詰碁(問)',key:'tsumego',max:100},{label:'AI研究(分)',key:'ai_study',max:120},{label:'棋譜並べ(分)',key:'kifu',max:120},{label:'対局(局)',key:'games',max:20}];
+  myEl.innerHTML = items.map(i=>`
+    <div class="prog-row">
+      <div class="prog-label">${i.label}</div>
+      <div class="prog-bar-wrap"><div class="prog-fill gold" style="width:${(MY_DATA[i.key]/i.max*100).toFixed(0)}%"></div></div>
+      <div class="prog-val">${MY_DATA[i.key]}</div>
+    </div>`).join('');
+  renderCompareProgs(COMPARE_DATA['全体平均']);
+  renderCompareChart('全体平均', COMPARE_DATA['全体平均']);
+}
+
+function renderCompareProgs(d) {
+  const el = document.getElementById('target-prog');
+  const items = [{label:'詰碁(問)',key:'tsumego',max:100},{label:'AI研究(分)',key:'ai_study',max:120},{label:'棋譜並べ(分)',key:'kifu',max:120},{label:'対局(局)',key:'games',max:20}];
+  el.innerHTML = items.map(i=>`
+    <div class="prog-row">
+      <div class="prog-label">${i.label}</div>
+      <div class="prog-bar-wrap"><div class="prog-fill" style="width:${(d[i.key]/i.max*100).toFixed(0)}%"></div></div>
+      <div class="prog-val">${d[i.key]}</div>
+    </div>`).join('');
+}
+
+function renderCompareChart(name, d) {
+  const ctx = document.getElementById('compareLineChart')?.getContext('2d');
+  if(!ctx) return;
+  if(compareLineChart) compareLineChart.destroy();
+  const labels = ['月','火','水','木','金','土','日'];
+  const myScores = [72,80,78,85,82,90,87];
+  const seed = name.charCodeAt(0);
+  const targetScores = labels.map((_,i)=>Math.max(40, Math.min(100, d.score + Math.sin(i*seed)*8 + (Math.random()-0.5)*10)));
+  compareLineChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'自分',data:myScores,borderColor:'#5cb888',backgroundColor:'rgba(92,184,136,0.1)',tension:0.4,pointRadius:4,pointBackgroundColor:'#5cb888'},
+        {label:name,data:targetScores,borderColor:'#c8a84a',backgroundColor:'rgba(200,168,74,0.08)',tension:0.4,pointRadius:4,pointBackgroundColor:'#c8a84a',borderDash:[5,3]},
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#a09880',font:{size:11}}}}, scales:{x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}},y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'},min:40,max:100}} }
+  });
+}
+
+// ===== SETTINGS =====
+function renderSettings() {
+  document.getElementById('settings-list').innerHTML = SETTINGS_LIST.map(s=>`
+    <div class="setting-item">
+      <div>
+        <div class="setting-label">${s.label}</div>
+      </div>
+      <div class="toggle-switch ${s.on?'on':''}" onclick="toggleSwitch(this)"></div>
+    </div>`).join('');
+}
+
+// ===== PROGRESS BARS =====
+function renderProgressBars() {
+  const items = [
+    {label:'詰碁 目標100問/日',val:50,max:100,unit:'問'},
+    {label:'AI研究 60分/日',val:30,max:60,unit:'分'},
+    {label:'棋譜並べ 30分/日',val:0,max:30,unit:'分'},
+    {label:'対局 3局/日',val:3,max:3,unit:'局'},
+  ];
+  document.getElementById('progress-bars').innerHTML = items.map(i=>`
+    <div class="prog-row">
+      <div class="prog-label" style="width:130px;font-size:10px">${i.label}</div>
+      <div class="prog-bar-wrap"><div class="prog-fill gold" style="width:${(i.val/i.max*100).toFixed(0)}%"></div></div>
+      <div class="prog-val">${i.val}/${i.max}</div>
+    </div>`).join('');
+}
+
+// ===== MINI BARS =====
+function renderMiniBars() {
+  const data = Array.from({length:30},(_,i)=>Math.max(5,Math.floor(Math.sin(i*0.5)*20+35+Math.random()*20)));
+  data[29]=50;
+  const max = Math.max(...data);
+  const bars = document.getElementById('mini-bars');
+  if(!bars) return;
+  bars.innerHTML = data.map((v,i)=>`
+    <div class="mini-bar-wrap">
+      <div class="mini-bar ${i===29?'me':''}" style="height:${(v/max*56).toFixed(0)}px" title="${v}問"></div>
+    </div>`).join('');
+}
+
+// ===== CHARTS =====
+let charts = {};
+function initCharts() {
+  // Week score chart
+  const wc = document.getElementById('weekChart')?.getContext('2d');
+  if(wc && !charts.week) {
+    charts.week = new Chart(wc, {
+      type:'line',
+      data:{
+        labels:['月','火','水','木','金','土','日'],
+        datasets:[
+          {label:'自分',data:[72,80,78,85,82,90,87],borderColor:'#c8a84a',backgroundColor:'rgba(200,168,74,0.12)',tension:0.4,pointRadius:4,pointBackgroundColor:'#c8a84a'},
+          {label:'全体平均',data:[58,61,60,64,62,65,62],borderColor:'#4a9870',backgroundColor:'rgba(74,152,112,0.08)',tension:0.4,pointRadius:3,pointBackgroundColor:'#4a9870',borderDash:[4,3]},
+        ]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#a09880',font:{size:11}}}}, scales:{x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}},y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'},min:40,max:100}} }
+    });
+  }
+  // Pie chart
+  const pc = document.getElementById('pieChart')?.getContext('2d');
+  if(pc && !charts.pie) {
+    charts.pie = new Chart(pc, {
+      type:'doughnut',
+      data:{
+        labels:['詰碁','定石・布石','棋譜並べ','対局','その他'],
+        datasets:[{data:[35,25,15,20,5],backgroundColor:['#c8a84a','#4a9870','#4a78c8','#c85050','#686050'],borderWidth:0,hoverOffset:4}]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right',labels:{color:'#a09880',font:{size:10},boxWidth:12,padding:8}}} }
+    });
+  }
+  // Average compare chart
+  const ac = document.getElementById('compareAvgChart')?.getContext('2d');
+  if(ac && !charts.avg) {
+    charts.avg = new Chart(ac, {
+      type:'bar',
+      data:{
+        labels:['詰碁(問)','AI研究(分)','棋譜並べ(分)','対局(局)','スコア'],
+        datasets:[
+          {label:'自分',data:[50,30,0,3,87],backgroundColor:'rgba(200,168,74,0.7)',borderRadius:3},
+          {label:'全体平均',data:[28,25,15,2,62],backgroundColor:'rgba(74,152,112,0.5)',borderRadius:3},
+        ]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#a09880',font:{size:11}}}}, scales:{x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}},y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}}} }
+    });
+  }
+  // Rank distribution
+  const rd = document.getElementById('rankDistChart')?.getContext('2d');
+  if(rd && !charts.rankDist) {
+    charts.rankDist = new Chart(rd, {
+      type:'bar',
+      data:{
+        labels:['10-19','20-29','30-39','40-49','50-59','60-69','70-79','80-89','90-99','100'],
+        datasets:[{label:'人数',data:[2,5,8,15,22,18,12,8,4,1],backgroundColor:'rgba(74,120,200,0.6)',borderRadius:3}]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},annotation:{annotations:{line1:{type:'line',x:87/10-1,borderColor:'#c8a84a',borderWidth:2,label:{display:true,content:'あなた',color:'#c8a84a'}}}}}, scales:{x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}},y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}}} }
+    });
+  }
+  // Follow chart
+  const fc = document.getElementById('followChart')?.getContext('2d');
+  if(fc && !charts.follow) {
+    const labels = ['月','火','水','木','金','土','日'];
+    charts.follow = new Chart(fc, {
+      type:'line',
+      data:{
+        labels,
+        datasets:[
+          {label:'一力遼',data:[96,97,98,95,99,98,98],borderColor:'#ffd700',tension:0.4,pointRadius:3},
+          {label:'仲邑菫',data:[94,96,95,97,96,95,96],borderColor:'#c0c0c0',tension:0.4,pointRadius:3},
+          {label:'goking88',data:[85,87,86,88,89,87,89],borderColor:'#4a78c8',tension:0.4,pointRadius:3},
+          {label:'自分',data:[72,80,78,85,82,90,87],borderColor:'#5cb888',tension:0.4,pointRadius:4,borderWidth:2.5},
+        ]
+      },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#a09880',font:{size:11}}}}, scales:{x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}},y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'},min:60,max:100}} }
+    });
+  }
+}
+
+// ===== SUBMIT =====
+function submitRecord() {
+  const btn = document.querySelector('.submit-btn');
+  btn.textContent = '✓ 投稿完了！';
+  btn.style.background = 'linear-gradient(135deg, var(--jade), #2a7848)';
+  setTimeout(()=>{
+    btn.textContent = '記録を投稿する';
+    btn.style.background = '';
+    showPanel('dashboard');
+  }, 1800);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderFeed();
+  renderQA();
+  renderSettings();
+  renderProgressBars();
+  renderMiniBars();
+  initCharts();
+  // Game list initialized via addGame() above
+
+  // Nav active matching
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.addEventListener('click', ()=>{
+      document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+      n.classList.add('active');
+    });
+  });
+});
+</script>
+</body>
+</html>
