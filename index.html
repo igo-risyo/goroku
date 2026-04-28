@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Zen+Antique&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
-:root {
+:root{
   --bg:#0d0f0e;--bg2:#131615;--bg3:#1a1e1c;--bg4:#222825;
   --border:#2a3028;--border2:#344030;
   --text:#e8e4d8;--text2:#a09880;--text3:#686050;
@@ -18,18 +18,11 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;line-height:1.6;min-height:100vh;overflow-x:hidden;}
 
-/* ===== AUTH WALL ===== */
-#auth-wall{
-  display:flex;align-items:center;justify-content:center;
-  min-height:100vh;
-  background:radial-gradient(ellipse at 30% 20%,rgba(200,168,74,0.08),transparent 60%),var(--bg);
-}
-.auth-box{
-  background:var(--bg2);border:1px solid var(--border2);border-radius:10px;
-  padding:36px 40px;width:380px;max-width:95vw;
-}
+/* AUTH */
+#auth-wall{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 30% 20%,rgba(200,168,74,.08),transparent 60%),var(--bg);}
+.auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:36px 40px;width:380px;max-width:95vw;}
 .auth-logo{font-family:'Zen Antique',serif;font-size:32px;color:var(--gold);text-align:center;margin-bottom:4px;}
-.auth-sub{font-size:10px;letter-spacing:0.4em;color:var(--text3);text-align:center;text-transform:uppercase;margin-bottom:28px;}
+.auth-sub{font-size:10px;letter-spacing:.4em;color:var(--text3);text-align:center;text-transform:uppercase;margin-bottom:28px;}
 .auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px;}
 .auth-tab{flex:1;padding:9px;text-align:center;cursor:pointer;font-size:12px;color:var(--text3);border-bottom:2px solid transparent;transition:all .15s;}
 .auth-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
@@ -40,19 +33,16 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .auth-input::placeholder{color:var(--text3);}
 .auth-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--gold),#a07828);border:none;border-radius:4px;color:#fff;font-family:'Zen Antique',serif;font-size:15px;cursor:pointer;letter-spacing:.2em;transition:opacity .2s;}
 .auth-btn:hover{opacity:.9;}
-.auth-btn:disabled{opacity:.5;cursor:not-allowed;}
 .auth-google-btn{width:100%;padding:10px;background:var(--bg4);border:1px solid var(--border2);border-radius:4px;color:var(--text2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
 .auth-google-btn:hover{border-color:var(--gold);color:var(--gold);}
 .auth-divider{display:flex;align-items:center;gap:10px;color:var(--text3);font-size:11px;}
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border);}
-.auth-err{background:rgba(200,80,80,0.1);border:1px solid rgba(200,80,80,0.3);border-radius:4px;padding:8px 12px;font-size:11px;color:#e87070;display:none;}
-.auth-user-type{display:flex;flex-direction:column;gap:6px;}
-.auth-type-label{font-size:11px;color:var(--text2);}
-.auth-type-opts{display:flex;gap:6px;flex-wrap:wrap;}
+.auth-err{background:rgba(200,80,80,.1);border:1px solid rgba(200,80,80,.3);border-radius:4px;padding:8px 12px;font-size:11px;color:#e87070;display:none;}
+.auth-type-opts{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
 .auth-type-opt{padding:5px 12px;border:1px solid var(--border2);border-radius:3px;background:var(--bg4);color:var(--text2);cursor:pointer;font-size:11px;transition:all .15s;}
 .auth-type-opt.sel{border-color:var(--jade);color:var(--jade2);background:rgba(74,152,112,.1);}
 
-/* ===== MAIN APP ===== */
+/* LAYOUT */
 #app-content{display:none;min-height:100vh;}
 .app{display:flex;min-height:100vh;}
 .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;}
@@ -66,14 +56,22 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .nav-item:hover{color:var(--text);background:rgba(200,168,74,.05);}
 .nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(200,168,74,.08);}
 .nav-icon{font-size:15px;width:18px;text-align:center;}
+
+/* USER CARD WITH AVATAR IMAGE */
 .user-card{padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;}
 .user-card:hover{background:rgba(200,168,74,.04);}
-.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.avatar-wrap{position:relative;flex-shrink:0;}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;overflow:hidden;}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .avatar.pro{background:linear-gradient(135deg,var(--gold),#a07828);color:#fff;}
 .avatar.dan{background:linear-gradient(135deg,#4a78c8,#2a4888);color:#fff;}
 .avatar.kyu{background:linear-gradient(135deg,var(--jade),#2a6840);color:#fff;}
+/* 棋士マーク（王冠） */
+.crown-badge{position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:14px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));}
 .user-name{font-size:12px;font-weight:500;}
 .user-rank-label{font-size:10px;color:var(--text3);}
+
+/* MAIN */
 .main{margin-left:220px;flex:1;min-height:100vh;}
 .topbar{height:52px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:50;}
 .page-title{font-family:'Zen Antique',serif;font-size:16px;color:var(--gold);flex:1;}
@@ -81,7 +79,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .notif-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:transparent;color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;position:relative;transition:all .15s;}
 .notif-btn:hover{border-color:var(--gold);color:var(--gold);}
 .notif-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:3px;right:3px;}
-.icon-btn{font-size:12px;width:auto;padding:0 12px;border-radius:4px;height:32px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.icon-btn{font-size:12px;padding:0 12px;border-radius:4px;height:32px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .icon-btn:hover{border-color:var(--gold);color:var(--gold);}
 .icon-btn.primary{background:linear-gradient(135deg,var(--gold),#a07828);color:#fff;border-color:transparent;}
 .content{padding:20px 24px;}
@@ -108,13 +106,24 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .stat-sub{font-size:10px;color:var(--text3);}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 .chart-wrap{position:relative;height:180px;}
-.chart-wrap-sm{position:relative;height:140px;}
+.chart-wrap-sm{position:relative;height:160px;}
 
 /* AI COMMENT */
 .ai-comment{background:linear-gradient(135deg,rgba(200,168,74,.08),rgba(74,152,112,.06));border:1px solid rgba(200,168,74,.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start;}
 .ai-icon{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--jade));display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
 .ai-score{display:inline-block;font-size:22px;font-weight:700;color:var(--gold2);font-family:'Zen Antique',serif;margin-right:8px;}
 .ai-text{font-size:12px;color:var(--text2);line-height:1.7;margin-top:4px;}
+
+/* GOAL CARD */
+.goal-card{background:linear-gradient(135deg,rgba(74,120,200,.1),rgba(74,152,112,.08));border:1px solid rgba(74,120,200,.25);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;}
+.goal-card-title{font-size:10px;letter-spacing:.3em;color:#7aa0e8;text-transform:uppercase;margin-bottom:10px;}
+.goal-rows{display:flex;flex-direction:column;gap:8px;}
+.goal-row{display:flex;align-items:center;gap:10px;}
+.goal-label{font-size:11px;color:var(--text2);width:120px;flex-shrink:0;}
+.goal-bar-wrap{flex:1;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;}
+.goal-bar-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.goal-pct{font-size:11px;width:36px;text-align:right;font-weight:600;}
+.goal-ai-note{font-size:11px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.6;}
 
 /* FEED */
 .feed{display:flex;flex-direction:column;gap:12px;}
@@ -140,7 +149,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 
 /* RANKING */
 .rank-list{display:flex;flex-direction:column;gap:6px;}
-.rank-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg4);border-radius:4px;border:1px solid var(--border);transition:all .15s;cursor:pointer;}
+.rank-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg4);border-radius:4px;border:1px solid var(--border);cursor:pointer;transition:all .15s;}
 .rank-item:hover{border-color:var(--border2);}
 .rank-item.me{border-color:rgba(200,168,74,.4);background:rgba(200,168,74,.06);}
 .rank-num{font-size:16px;font-weight:700;font-family:'Zen Antique',serif;width:28px;text-align:center;color:var(--text3);}
@@ -157,21 +166,22 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .form-section{margin-bottom:20px;}
 .form-title{font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
 .form-group{display:flex;flex-direction:column;gap:6px;}
 .form-label{font-size:11px;color:var(--text2);letter-spacing:.1em;}
 .form-input,.form-select,.form-textarea{background:var(--bg4);border:1px solid var(--border2);border-radius:4px;padding:8px 12px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:12px;outline:none;transition:border-color .15s;width:100%;}
 .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold);}
-.form-textarea{resize:vertical;min-height:70px;}
+.form-textarea{resize:vertical;min-height:60px;}
 .toggle-group{display:flex;flex-wrap:wrap;gap:6px;}
 .toggle-item{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg4);cursor:pointer;font-size:11px;color:var(--text2);transition:all .15s;}
 .toggle-item:hover{border-color:var(--jade);color:var(--jade2);}
 .toggle-item.active{border-color:var(--jade);color:var(--jade2);background:rgba(74,152,112,.1);}
 .num-input-wrap{display:flex;align-items:center;}
-.num-btn{width:32px;height:34px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.num-btn{width:30px;height:32px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
 .num-btn:first-child{border-radius:4px 0 0 4px;border-right:none;}
 .num-btn:last-child{border-radius:0 4px 4px 0;border-left:none;}
 .num-btn:hover{background:var(--border2);}
-.num-display{flex:1;min-width:50px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-size:14px;font-weight:600;text-align:center;padding:6px 4px;height:34px;}
+.num-display{flex:1;min-width:40px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);font-size:13px;font-weight:600;text-align:center;padding:4px 2px;height:32px;}
 .submit-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--gold),#a07828);border:none;border-radius:4px;color:#fff;font-family:'Zen Antique',serif;font-size:15px;cursor:pointer;letter-spacing:.2em;transition:opacity .2s;margin-top:8px;}
 .submit-btn:hover{opacity:.9;}
 .submit-btn:disabled{opacity:.5;cursor:not-allowed;}
@@ -181,57 +191,58 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .toggle-switch::after{content:'';width:16px;height:16px;background:var(--text3);border-radius:50%;position:absolute;top:2px;left:2px;transition:all .2s;}
 .toggle-switch.on{background:rgba(200,168,74,.2);border-color:var(--gold);}
 .toggle-switch.on::after{background:var(--gold);transform:translateX(18px);}
+.public-toggle-row{display:flex;align-items:center;gap:6px;margin-top:6px;}
 
 /* GAME CARDS */
 .add-game-btn{width:100%;padding:10px;border:1px dashed var(--border2);background:transparent;color:var(--jade2);font-family:'Noto Sans JP',sans-serif;font-size:12px;border-radius:4px;cursor:pointer;transition:all .2s;margin-top:10px;letter-spacing:.1em;}
 .add-game-btn:hover{border-color:var(--jade);background:rgba(74,152,112,.06);}
 .game-card{background:var(--bg4);border:1px solid var(--border2);border-radius:5px;margin-bottom:12px;overflow:hidden;}
 .game-card-header{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;user-select:none;}
-.game-card-num{font-family:'Zen Antique',serif;font-size:15px;color:var(--gold);width:22px;}
-.game-card-summary{flex:1;font-size:12px;color:var(--text2);}
-.game-card-result{font-size:12px;font-weight:700;padding:2px 10px;border-radius:3px;}
+.game-card-num{font-family:'Zen Antique',serif;font-size:14px;color:var(--gold);width:36px;flex-shrink:0;}
+.game-card-summary{flex:1;font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.game-card-result{font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;flex-shrink:0;}
 .result-win{background:rgba(74,152,112,.2);color:var(--jade2);}
 .result-lose{background:rgba(200,80,80,.2);color:#e87070;}
 .result-draw{background:rgba(160,152,128,.2);color:var(--text2);}
 .result-q{background:rgba(160,152,128,.1);color:var(--text3);}
-.game-card-chevron{font-size:11px;color:var(--text3);transition:transform .2s;}
+.game-card-chevron{font-size:10px;color:var(--text3);transition:transform .2s;flex-shrink:0;}
 .game-card.open .game-card-chevron{transform:rotate(180deg);}
 .game-card-body{display:none;padding:14px;border-top:1px solid var(--border);}
 .game-card.open .game-card-body{display:block;}
-.game-card-remove{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;transition:color .15s;}
+.game-card-remove{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 2px;transition:color .15s;flex-shrink:0;}
 .game-card-remove:hover{color:var(--red);}
 .inline-toggle-group{display:flex;flex-wrap:wrap;gap:5px;}
-.inline-toggle{padding:4px 10px;border-radius:3px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;font-size:11px;color:var(--text2);transition:all .15s;}
+.inline-toggle{padding:4px 9px;border-radius:3px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;font-size:11px;color:var(--text2);transition:all .15s;}
 .inline-toggle:hover{border-color:var(--jade);color:var(--jade2);}
 .inline-toggle.sel{border-color:var(--jade);color:var(--jade2);background:rgba(74,152,112,.1);}
-.public-toggle-row{display:flex;align-items:center;gap:6px;margin-top:6px;}
 .other-country-input{display:none;margin-top:6px;}
 .other-country-input.show{display:block;}
 
 /* PROGRESS */
 .prog-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.prog-label{font-size:11px;color:var(--text2);width:100px;flex-shrink:0;}
+.prog-label{font-size:11px;color:var(--text2);width:110px;flex-shrink:0;}
 .prog-bar-wrap{flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
 .prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--jade),var(--jade2));transition:width 1s ease;}
 .prog-fill.gold{background:linear-gradient(90deg,var(--gold),var(--gold2));}
-.prog-val{font-size:11px;color:var(--text2);width:36px;text-align:right;}
+.prog-fill.blue{background:linear-gradient(90deg,var(--blue),#7aa0e8);}
+.prog-val{font-size:11px;color:var(--text2);width:40px;text-align:right;}
 
 /* MINI BARS */
-.mini-bars{display:flex;align-items:flex-end;gap:4px;height:60px;}
-.mini-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+.mini-bars{display:flex;align-items:flex-end;gap:3px;height:60px;}
+.mini-bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1;}
 .mini-bar{width:100%;background:var(--jade);border-radius:2px 2px 0 0;opacity:.7;transition:opacity .15s;min-height:2px;}
 .mini-bar:hover{opacity:1;}
 .mini-bar.me{background:var(--gold);}
-.mini-bar-label{font-size:9px;color:var(--text3);}
 
-/* QA */
+/* COMPARE */
 .compare-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
 .compare-tab{padding:6px 14px;border-radius:4px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);cursor:pointer;font-size:11px;transition:all .15s;}
 .compare-tab.active{border-color:var(--gold);color:var(--gold);background:rgba(200,168,74,.08);}
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 .compare-header{text-align:center;padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:12px;}
-.compare-name{font-size:14px;font-weight:700;}
-.compare-score-big{font-size:36px;font-weight:700;font-family:'Zen Antique',serif;}
+.compare-name{font-size:13px;font-weight:700;}
+.compare-score-big{font-size:32px;font-weight:700;font-family:'Zen Antique',serif;}
+
+/* FOLLOW */
 .follow-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
 .follow-card{background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius);padding:12px;display:flex;align-items:center;gap:10px;transition:all .15s;cursor:pointer;}
 .follow-card:hover{border-color:var(--gold);}
@@ -240,18 +251,47 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .follow-sub{font-size:10px;color:var(--text3);}
 .follow-btn{font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .follow-btn:hover,.follow-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(200,168,74,.1);}
+
+/* SETTINGS */
 .setting-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
 .setting-item:last-child{border-bottom:none;}
-.badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-left:4px;vertical-align:middle;}
 
-/* LOADING */
+/* AVATAR UPLOAD */
+.avatar-upload-area{display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.avatar-preview{width:60px;height:60px;border-radius:50%;overflow:hidden;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;flex-shrink:0;position:relative;}
+.avatar-preview img{width:100%;height:100%;object-fit:cover;}
+.avatar-upload-btn{padding:8px 16px;border:1px solid var(--gold);background:transparent;color:var(--gold);border-radius:4px;cursor:pointer;font-size:11px;letter-spacing:.1em;transition:all .15s;}
+.avatar-upload-btn:hover{background:rgba(200,168,74,.1);}
+#avatar-file-input{display:none;}
+
+/* GOAL INPUT */
+.goal-input-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.goal-input-item:last-child{border-bottom:none;}
+.goal-input-label{font-size:12px;color:var(--text2);flex:1;}
+.goal-input-field{width:90px;background:var(--bg4);border:1px solid var(--border2);border-radius:4px;padding:6px 10px;color:var(--text);font-size:12px;outline:none;text-align:right;transition:border-color .15s;}
+.goal-input-field:focus{border-color:var(--gold);}
+.goal-unit{font-size:11px;color:var(--text3);width:24px;}
+
+/* EXTRA STUDY ITEMS */
+.extra-study-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.extra-study-item{display:flex;gap:8px;align-items:center;}
+.extra-study-item .form-input{flex:1;}
+.extra-study-time{width:80px;flex-shrink:0;}
+.extra-remove-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 4px;transition:color .15s;}
+.extra-remove-btn:hover{color:var(--red);}
+.add-extra-btn{background:transparent;border:1px dashed var(--border2);color:var(--text3);border-radius:4px;padding:7px;font-size:11px;cursor:pointer;width:100%;transition:all .15s;letter-spacing:.1em;}
+.add-extra-btn:hover{border-color:var(--jade);color:var(--jade2);}
+
+/* BADGE */
+.badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-left:4px;vertical-align:middle;}
+.pro-crown{font-size:11px;margin-left:2px;}
+
+/* LOADING / TOAST */
 .loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:12px;}
 .loading-overlay.hidden{display:none;}
 .loading-spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:12px;color:var(--text3);letter-spacing:.2em;}
-
-/* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:12px 18px;font-size:12px;color:var(--text);z-index:9998;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.success{border-color:var(--jade);color:var(--jade2);}
@@ -260,21 +300,18 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-@media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr);}.grid2,.compare-grid{grid-template-columns:1fr;}}
+@media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr);}.grid2{grid-template-columns:1fr;}.form-row-3{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div class="loading-overlay" id="loading-overlay">
   <div class="loading-spinner"></div>
   <div class="loading-text">碁録 読み込み中...</div>
 </div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- ===== AUTH WALL ===== -->
+<!-- AUTH -->
 <div id="auth-wall">
   <div class="auth-box">
     <div class="auth-logo">碁録</div>
@@ -284,57 +321,42 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
       <div class="auth-tab" onclick="switchAuthTab('signup')">新規登録</div>
     </div>
     <div id="auth-err" class="auth-err"></div>
-
-    <!-- LOGIN -->
     <div class="auth-form active" id="form-login">
       <input class="auth-input" id="login-email" type="email" placeholder="メールアドレス">
       <input class="auth-input" id="login-pass" type="password" placeholder="パスワード">
       <button class="auth-btn" onclick="doLogin()">ログイン</button>
       <div class="auth-divider">または</div>
-      <button class="auth-google-btn" onclick="doGoogleLogin()">
-        <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-8 20-20 0-1.3-.2-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5.1l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.6-2.9-11.3-7H6.3C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.4l6.2 5.2C40.9 35.5 44 30.2 44 24c0-1.3-.2-2.7-.4-4z"/></svg>
-        Googleでログイン
-      </button>
+      <button class="auth-google-btn" onclick="doGoogleLogin()"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-8 20-20 0-1.3-.2-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5.1l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.6-2.9-11.3-7H6.3C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.4l6.2 5.2C40.9 35.5 44 30.2 44 24c0-1.3-.2-2.7-.4-4z"/></svg> Googleでログイン</button>
     </div>
-
-    <!-- SIGNUP -->
     <div class="auth-form" id="form-signup">
       <input class="auth-input" id="signup-display" type="text" placeholder="表示名（ハンドルネーム or 本名）">
       <input class="auth-input" id="signup-email" type="email" placeholder="メールアドレス">
       <input class="auth-input" id="signup-pass" type="password" placeholder="パスワード（6文字以上）">
-      <div class="auth-user-type">
-        <div class="auth-type-label">アカウント種別</div>
-        <div class="auth-type-opts">
-          <div class="auth-type-opt" onclick="selectType(this,'pro')">棋士（本名表示）</div>
-          <div class="auth-type-opt sel" onclick="selectType(this,'dan')">アマ強豪</div>
-          <div class="auth-type-opt" onclick="selectType(this,'kyu')">棋士を目指す</div>
-        </div>
+      <div style="font-size:11px;color:var(--text2)">アカウント種別</div>
+      <div class="auth-type-opts">
+        <div class="auth-type-opt" onclick="selectType(this,'pro')">棋士（本名）</div>
+        <div class="auth-type-opt sel" onclick="selectType(this,'dan')">アマ強豪</div>
+        <div class="auth-type-opt" onclick="selectType(this,'kyu')">棋士を目指す</div>
       </div>
       <input class="auth-input" id="signup-rank" type="text" placeholder="段位・級（例：アマ三段、5級）">
       <button class="auth-btn" onclick="doSignup()">アカウント作成</button>
       <div class="auth-divider">または</div>
-      <button class="auth-google-btn" onclick="doGoogleLogin()">
-        <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-8 20-20 0-1.3-.2-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5.1l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.6-2.9-11.3-7H6.3C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.4l6.2 5.2C40.9 35.5 44 30.2 44 24c0-1.3-.2-2.7-.4-4z"/></svg>
-        Googleで登録
-      </button>
+      <button class="auth-google-btn" onclick="doGoogleLogin()"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-8 20-20 0-1.3-.2-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5.1l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.6-2.9-11.3-7H6.3C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.4l6.2 5.2C40.9 35.5 44 30.2 44 24c0-1.3-.2-2.7-.4-4z"/></svg> Googleで登録</button>
     </div>
   </div>
 </div>
 
-<!-- ===== APP ===== -->
+<!-- APP -->
 <div id="app-content">
 <div class="app">
 <aside class="sidebar">
-  <div class="logo">
-    <div class="logo-mark">碁録</div>
-    <div class="logo-sub">GOROKU Platform</div>
-  </div>
+  <div class="logo"><div class="logo-mark">碁録</div><div class="logo-sub">GOROKU Platform</div></div>
   <nav class="nav">
     <div class="nav-group">
       <div class="nav-label">メイン</div>
       <div class="nav-item active" onclick="showPanel('dashboard')"><span class="nav-icon">🏠</span> ダッシュボード</div>
       <div class="nav-item" onclick="showPanel('record')"><span class="nav-icon">✏️</span> 今日の記録</div>
-      <div class="nav-item" onclick="showPanel('timeline')"><span class="nav-icon">📢</span> タイムライン <span class="badge" id="badge-tl">NEW</span></div>
+      <div class="nav-item" onclick="showPanel('timeline')"><span class="nav-icon">📢</span> タイムライン</div>
       <div class="nav-item" onclick="showPanel('ranking')"><span class="nav-icon">🏆</span> ランキング</div>
     </div>
     <div class="nav-group">
@@ -345,11 +367,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
     </div>
     <div class="nav-group">
       <div class="nav-label">設定</div>
-      <div class="nav-item" onclick="showPanel('settings')"><span class="nav-icon">⚙️</span> 設定</div>
+      <div class="nav-item" onclick="showPanel('settings')"><span class="nav-icon">⚙️</span> 設定・目標</div>
     </div>
   </nav>
   <div class="user-card" onclick="showPanel('settings')">
-    <div class="avatar kyu" id="sidebar-avatar">碁</div>
+    <div class="avatar-wrap">
+      <div class="avatar kyu" id="sidebar-avatar">碁</div>
+      <div class="crown-badge" id="sidebar-crown" style="display:none">👑</div>
+    </div>
     <div>
       <div class="user-name" id="sidebar-name">読み込み中...</div>
       <div class="user-rank-label" id="sidebar-rank"></div>
@@ -361,22 +386,27 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
   <div class="topbar">
     <div class="page-title" id="page-title">ダッシュボード</div>
     <div class="topbar-actions">
-      <button class="notif-btn" title="通知">🔔<div class="notif-dot"></div></button>
+      <button class="notif-btn">🔔<div class="notif-dot"></div></button>
       <button class="icon-btn primary" onclick="showPanel('record')">＋ 今日の記録</button>
       <button class="icon-btn" onclick="doLogout()">ログアウト</button>
     </div>
   </div>
-
   <div class="content">
 
     <!-- DASHBOARD -->
     <div class="panel active" id="panel-dashboard">
-      <div class="ai-comment" id="ai-comment-box">
+      <div class="ai-comment">
         <div class="ai-icon">🤖</div>
         <div class="ai-body">
-          <div><span class="ai-score" id="ai-score-val">—</span><span style="font-size:10px;color:var(--text3);letter-spacing:.1em">本日のAIスコア</span></div>
+          <div><span class="ai-score" id="ai-score-val">—</span><span style="font-size:10px;color:var(--text3)">本日のAIスコア</span></div>
           <div class="ai-text" id="ai-comment-text">今日の記録を入力するとAIがコメントします。</div>
         </div>
+      </div>
+      <!-- 目標達成カード -->
+      <div class="goal-card" id="goal-progress-card" style="display:none">
+        <div class="goal-card-title">🎯 目標達成状況（本日）</div>
+        <div class="goal-rows" id="goal-rows"></div>
+        <div class="goal-ai-note" id="goal-ai-note"></div>
       </div>
       <div class="stats-row">
         <div class="stat-card gold"><div class="stat-label">📊 本日スコア</div><div class="stat-val" id="dash-score">—</div><div class="stat-sub" id="dash-score-sub">記録を入力してください</div></div>
@@ -390,7 +420,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
       </div>
       <div class="grid2">
         <div class="card"><div class="card-title">📅 詰碁 30日推移</div><div class="mini-bars" id="mini-bars"></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span style="font-size:10px;color:var(--text3)">30日前</span><span style="font-size:10px;color:var(--text3)">今日</span></div></div>
-        <div class="card"><div class="card-title">🎯 今月の達成率</div><div id="progress-bars"></div></div>
+        <div class="card"><div class="card-title">🎯 今月の目標達成率</div><div id="progress-bars"></div></div>
       </div>
       <div class="card" style="margin-bottom:20px"><div class="card-title">⚖️ みんなとの比較（今週平均）</div><div class="chart-wrap-sm"><canvas id="compareAvgChart"></canvas></div></div>
     </div>
@@ -406,23 +436,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
         <div class="form-section">
           <div class="form-title">⚫ 詰碁</div>
           <div class="form-row">
-            <div class="form-group">
-              <div class="form-label">問題数</div>
-              <div class="num-input-wrap">
-                <button class="num-btn" onclick="numChange('tsumego',-5)">−</button>
-                <div class="num-display" id="val-tsumego">0</div>
-                <button class="num-btn" onclick="numChange('tsumego',5)">＋</button>
-              </div>
-            </div>
-            <div class="form-group">
-              <div class="form-label">難易度</div>
-              <select class="form-select" id="tsumego-level">
-                <option>★☆☆ 初級</option>
-                <option selected>★★☆ 中級</option>
-                <option>★★★ 上級</option>
-                <option>💎 プロ級</option>
-              </select>
-            </div>
+            <div class="form-group"><div class="form-label">問題数</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('tsumego',-5)">−</button><div class="num-display" id="val-tsumego">0</div><button class="num-btn" onclick="numChange('tsumego',5)">＋</button></div></div>
+            <div class="form-group"><div class="form-label">難易度</div><select class="form-select" id="tsumego-level"><option>★☆☆ 初級</option><option selected>★★☆ 中級</option><option>★★★ 上級</option><option>💎 プロ級</option></select></div>
           </div>
         </div>
         <div class="form-section">
@@ -430,24 +445,27 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
           <div class="form-row">
             <div class="form-group"><div class="form-label">🤖 AI研究（分）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('ai_study',-15)">−</button><div class="num-display" id="val-ai_study">0</div><button class="num-btn" onclick="numChange('ai_study',15)">＋</button></div></div>
             <div class="form-group"><div class="form-label">棋譜並べ（分）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('kifu',-15)">−</button><div class="num-display" id="val-kifu">0</div><button class="num-btn" onclick="numChange('kifu',15)">＋</button></div></div>
-            <div class="form-group"><div class="form-label">その他（分）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('other',-15)">−</button><div class="num-display" id="val-other">0</div><button class="num-btn" onclick="numChange('other',15)">＋</button></div></div>
           </div>
+          <!-- その他項目（自由追加） -->
+          <div class="form-label" style="margin-bottom:8px">その他の勉強（内容と時間を自由に入力）</div>
+          <div class="extra-study-list" id="extra-study-list"></div>
+          <button class="add-extra-btn" onclick="addExtraStudy()">＋ 勉強項目を追加</button>
         </div>
         <div class="form-section">
           <div class="form-title">📝 今日のコメント</div>
           <div class="form-group" style="margin-bottom:12px">
             <div class="form-label">✅ 良かった点</div>
-            <textarea class="form-textarea" id="comment-good" placeholder="うまくいったこと、気づき…" style="min-height:60px"></textarea>
+            <textarea class="form-textarea" id="comment-good" placeholder="うまくいったこと、気づき…"></textarea>
             <div class="public-toggle-row"><div class="toggle-switch on" id="sw-good" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div>
           </div>
           <div class="form-group" style="margin-bottom:12px">
             <div class="form-label">⚠️ 反省点</div>
-            <textarea class="form-textarea" id="comment-bad" placeholder="ミス、改善点…" style="min-height:60px"></textarea>
+            <textarea class="form-textarea" id="comment-bad" placeholder="ミス、改善点…"></textarea>
             <div class="public-toggle-row"><div class="toggle-switch" id="sw-bad" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div>
           </div>
           <div class="form-group" style="margin-bottom:12px">
             <div class="form-label">💭 自由メモ</div>
-            <textarea class="form-textarea" id="comment-free" placeholder="感想、アイデア、何でも…" style="min-height:60px"></textarea>
+            <textarea class="form-textarea" id="comment-free" placeholder="感想、アイデア、何でも…"></textarea>
             <div class="public-toggle-row"><div class="toggle-switch on" id="sw-free" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div>
           </div>
           <div class="form-group">
@@ -484,11 +502,32 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
     <!-- COMPARE -->
     <div class="panel" id="panel-compare">
       <div class="compare-tabs" id="compare-tabs"></div>
-      <div class="compare-grid">
-        <div class="card"><div class="compare-header"><div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px"><div class="avatar kyu" id="cmp-my-avatar" style="width:28px;height:28px;font-size:12px">碁</div><div class="compare-name" id="cmp-my-name">自分</div></div><div class="compare-score-big" style="color:var(--jade2)" id="cmp-my-score">—</div><div style="font-size:10px;color:var(--text3)">本日スコア</div></div><div id="my-prog"></div></div>
-        <div class="card"><div class="compare-header"><div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px"><div class="avatar pro" style="width:28px;height:28px;font-size:12px">均</div><div class="compare-name" id="compare-target-name">全体平均</div></div><div class="compare-score-big" style="color:var(--text2)" id="compare-target-score">—</div><div style="font-size:10px;color:var(--text3)">本日スコア</div></div><div id="target-prog"></div></div>
+      <div class="grid2">
+        <div class="card">
+          <div class="compare-header">
+            <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px">
+              <div class="avatar-wrap"><div class="avatar kyu" id="cmp-my-avatar" style="width:30px;height:30px;font-size:13px">碁</div><div class="crown-badge" id="cmp-crown" style="display:none;font-size:10px">👑</div></div>
+              <div class="compare-name" id="cmp-my-name">自分</div>
+            </div>
+            <div class="compare-score-big" style="color:var(--jade2)" id="cmp-my-score">—</div>
+            <div style="font-size:10px;color:var(--text3)">本日スコア</div>
+          </div>
+          <div id="my-prog"></div>
+        </div>
+        <div class="card">
+          <div class="compare-header">
+            <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:6px">
+              <div class="avatar pro" style="width:30px;height:30px;font-size:13px">均</div>
+              <div class="compare-name" id="compare-target-name">全体平均</div>
+            </div>
+            <div class="compare-score-big" style="color:var(--text2)" id="compare-target-score">—</div>
+            <div style="font-size:10px;color:var(--text3)">本日スコア</div>
+          </div>
+          <div id="target-prog"></div>
+        </div>
       </div>
-      <div class="card"><div class="card-title">📊 週間比較グラフ</div><div class="chart-wrap"><canvas id="compareLineChart"></canvas></div></div>
+      <div class="card"><div class="card-title">📊 全項目比較グラフ</div><div class="chart-wrap" style="height:220px"><canvas id="compareRadarChart"></canvas></div></div>
+      <div class="card" style="margin-top:16px"><div class="card-title">📈 週間スコア比較</div><div class="chart-wrap"><canvas id="compareLineChart"></canvas></div></div>
     </div>
 
     <!-- FOLLOWS -->
@@ -522,15 +561,48 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 
     <!-- SETTINGS -->
     <div class="panel" id="panel-settings">
+      <!-- PROFILE -->
       <div class="card" style="margin-bottom:16px">
-        <div class="card-title">👤 プロフィール</div>
+        <div class="card-title">👤 プロフィール・アイコン</div>
+        <div class="avatar-upload-area">
+          <div class="avatar-preview kyu" id="settings-avatar-preview">碁</div>
+          <div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:6px">プロフィール画像</div>
+            <button class="avatar-upload-btn" onclick="document.getElementById('avatar-file-input').click()">画像を変更</button>
+            <input type="file" id="avatar-file-input" accept="image/*" onchange="handleAvatarChange(event)">
+            <div style="font-size:10px;color:var(--text3);margin-top:4px">JPG・PNG・GIF（5MB以内）</div>
+          </div>
+        </div>
         <div class="form-row">
           <div class="form-group"><div class="form-label">表示名</div><input class="form-input" id="set-displayname" placeholder="表示名"></div>
           <div class="form-group"><div class="form-label">段位・級</div><input class="form-input" id="set-rank" placeholder="例：アマ三段、5級"></div>
         </div>
-        <div class="form-group" style="margin-bottom:12px"><div class="form-label">アカウント種別</div><div class="toggle-group" id="set-type-opts"><div class="toggle-item" onclick="setTypeSelect(this,'pro')">棋士（本名表示）</div><div class="toggle-item" onclick="setTypeSelect(this,'dan')">アマ強豪</div><div class="toggle-item" onclick="setTypeSelect(this,'kyu')">棋士を目指す</div></div></div>
+        <div class="form-group" style="margin-bottom:12px">
+          <div class="form-label">アカウント種別</div>
+          <div class="toggle-group" id="set-type-opts">
+            <div class="toggle-item" onclick="setTypeSelect(this,'pro')">👑 棋士（本名）</div>
+            <div class="toggle-item" onclick="setTypeSelect(this,'dan')">アマ強豪</div>
+            <div class="toggle-item" onclick="setTypeSelect(this,'kyu')">棋士を目指す</div>
+          </div>
+        </div>
         <button class="submit-btn" onclick="saveProfile()">プロフィールを保存</button>
       </div>
+
+      <!-- GOALS -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">🎯 日々の目標（自分だけに表示・AIが評価）</div>
+        <div id="goal-settings-list">
+          <div class="goal-input-item"><div class="goal-input-label">詰碁 目標問題数</div><input class="goal-input-field" id="goal-tsumego" type="number" min="0" placeholder="50"><span class="goal-unit">問/日</span></div>
+          <div class="goal-input-item"><div class="goal-input-label">AI研究 目標時間</div><input class="goal-input-field" id="goal-ai_study" type="number" min="0" placeholder="30"><span class="goal-unit">分/日</span></div>
+          <div class="goal-input-item"><div class="goal-input-label">棋譜並べ 目標時間</div><input class="goal-input-field" id="goal-kifu" type="number" min="0" placeholder="30"><span class="goal-unit">分/日</span></div>
+          <div class="goal-input-item"><div class="goal-input-label">対局 目標数</div><input class="goal-input-field" id="goal-games" type="number" min="0" placeholder="3"><span class="goal-unit">局/日</span></div>
+          <div class="goal-input-item"><div class="goal-input-label">合計勉強時間</div><input class="goal-input-field" id="goal-total_study" type="number" min="0" placeholder="60"><span class="goal-unit">分/日</span></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px">※ 目標はあなただけに表示されます。毎日AIが達成状況を評価します。</div>
+        <button class="submit-btn" onclick="saveGoals()">目標を保存</button>
+      </div>
+
+      <!-- SETTINGS TOGGLES -->
       <div class="card">
         <div class="card-title">⚙️ 記録項目のオン/オフ</div>
         <div id="settings-list"></div>
@@ -542,19 +614,18 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 </div>
 </div>
 
-<!-- ===== FIREBASE + APP LOGIC ===== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword,
-         createUserWithEmailAndPassword, GoogleAuthProvider,
-         signInWithPopup, signOut }
+         createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection,
-         addDoc, query, orderBy, limit, getDocs, where,
-         updateDoc, increment, serverTimestamp, onSnapshot }
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc,
+         query, orderBy, limit, getDocs, where, updateDoc, increment,
+         serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
 
-// ===== FIREBASE CONFIG =====
 const firebaseConfig = {
   apiKey: "AIzaSyDMWj2D93inW4a5yziKyBx9twcQsQzKdl0",
   authDomain: "kufu-igo.firebaseapp.com",
@@ -567,383 +638,399 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
-// ===== STATE =====
-let currentUser = null;
-let currentProfile = null;
-let charts = {};
-let gameIdCounter = 0;
-let gameList = [];
-let compareLineChart = null;
-let followChart = null;
+let currentUser = null, currentProfile = null, currentGoals = {};
+let charts = {}, gameIdCounter = 0, gameList = [], extraStudyCounter = 0;
+let pendingAvatarFile = null;
 let selectedUserType = 'dan';
 
-// ===== HELPERS =====
-function showLoading(v){ document.getElementById('loading-overlay').classList.toggle('hidden',!v); }
+// ── HELPERS ──
+const $ = id => document.getElementById(id);
+function showLoading(v){ $('loading-overlay').classList.toggle('hidden',!v); }
 function showToast(msg, type='success'){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast '+type;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3000);
+  const t=$('toast'); t.textContent=msg; t.className='toast '+type; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
-function avatarLetter(name){ return name ? name[0].toUpperCase() : '碁'; }
-function typeClass(type){ return type==='pro'?'pro':type==='dan'?'dan':'kyu'; }
-function typeTagHTML(profile){
-  const labels = {pro:'棋士',dan:'アマ強豪',kyu:'棋士志望'};
-  const cls = typeClass(profile.userType);
-  return `<span class="feed-rank-tag tag-${cls}">${labels[profile.userType]||'アマ'} ${profile.rank||''}</span>`;
-}
+function avatarLetter(n){ return n?n[0].toUpperCase():'碁'; }
+function typeClass(t){ return t==='pro'?'pro':t==='dan'?'dan':'kyu'; }
 function timeAgo(ts){
   if(!ts) return '';
-  const d = ts.toDate ? ts.toDate() : new Date(ts);
-  const diff = (Date.now()-d.getTime())/1000;
+  const d=ts.toDate?ts.toDate():new Date(ts), diff=(Date.now()-d.getTime())/1000;
   if(diff<60) return 'たった今';
   if(diff<3600) return Math.floor(diff/60)+'分前';
   if(diff<86400) return Math.floor(diff/3600)+'時間前';
   return Math.floor(diff/86400)+'日前';
 }
-function calcScore(data){
-  let s = 0;
-  s += Math.min((data.tsumego||0)*0.8, 40);
-  s += Math.min((data.ai_study||0)*0.3, 20);
-  s += Math.min((data.kifu||0)*0.25, 15);
-  s += Math.min((data.games||0)*3, 15);
-  s += Math.min((data.other||0)*0.1, 5);
-  if(data.comment_good) s += 3;
-  if(data.comment_bad) s += 3;
-  if(data.comment_free) s += 2;
-  return Math.min(Math.round(s), 100);
-}
-function genAIComment(data, score){
-  const lines = [];
-  if(score>=90) lines.push('素晴らしい学習量です！');
-  else if(score>=70) lines.push('良い学習ができています。');
-  else if(score>=50) lines.push('コツコツ続けていきましょう。');
-  else lines.push('今日の学習を記録できました。');
-  if((data.tsumego||0)>=50) lines.push(`詰碁${data.tsumego}問は非常に優秀です。`);
-  else if((data.tsumego||0)>0) lines.push(`詰碁${data.tsumego}問、お疲れ様でした。`);
-  if((data.ai_study||0)>=30) lines.push('AI研究で新しい手法を吸収できています。');
-  if((data.games||0)>0) lines.push(`対局${data.games}局の実戦経験が棋力向上に直結します。`);
-  if(!data.comment_bad) lines.push('反省点も記録すると成長が加速します。');
-  return lines.join('');
+function avatarHTML(profile, size=32){
+  const cls=typeClass(profile.userType||'kyu');
+  const crown=profile.userType==='pro'?`<div class="crown-badge" style="font-size:${Math.round(size*0.35)}px">👑</div>`:'';
+  const img=profile.photoURL?`<img src="${profile.photoURL}" alt="">`:`<span>${avatarLetter(profile.displayName)}</span>`;
+  return `<div class="avatar-wrap"><div class="avatar ${cls}" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.4)}px">${img}</div>${crown}</div>`;
 }
 
-// ===== AUTH UI =====
-window.switchAuthTab = (tab) => {
+// ── SCORE ──
+function calcScore(data, goals={}){
+  let s=0;
+  s+=Math.min((data.tsumego||0)*0.8,40);
+  s+=Math.min((data.ai_study||0)*0.3,20);
+  s+=Math.min((data.kifu||0)*0.25,15);
+  const gc=Array.isArray(data.games)?data.games.length:(data.games||0);
+  s+=Math.min(gc*3,15);
+  const extraMins=(data.extra_study||[]).reduce((a,e)=>a+(e.minutes||0),0);
+  s+=Math.min(extraMins*0.1,10);
+  if(data.comment_good) s+=3; if(data.comment_bad) s+=3; if(data.comment_free) s+=2;
+  return Math.min(Math.round(s),100);
+}
+
+function genAIComment(data, score, goals={}){
+  const gc=Array.isArray(data.games)?data.games.length:0;
+  let parts=[];
+  if(score>=90) parts.push('今日は非常に充実した学習でした！');
+  else if(score>=70) parts.push('良い学習ができています。');
+  else if(score>=40) parts.push('コツコツ積み上げていきましょう。');
+  else parts.push('今日の記録がつけられました。');
+  if(data.tsumego>=50) parts.push(`詰碁${data.tsumego}問は素晴らしいです。`);
+  else if(data.tsumego>0) parts.push(`詰碁${data.tsumego}問、お疲れ様。`);
+  if(data.ai_study>=30) parts.push('AI研究で新しい手法を習得できています。');
+  if(gc>0) parts.push(`対局${gc}局の実戦経験が直結します。`);
+  // goal evaluation
+  if(Object.keys(goals).length){
+    const g_t=goals.tsumego||0, g_ai=goals.ai_study||0;
+    if(g_t&&data.tsumego<g_t) parts.push(`詰碁目標まであと${g_t-data.tsumego}問。`);
+    if(g_ai&&data.ai_study<g_ai) parts.push(`AI研究目標まであと${g_ai-data.ai_study}分。`);
+    if((!g_t||data.tsumego>=g_t)&&(!g_ai||data.ai_study>=g_ai)) parts.push('全目標達成おめでとう！🎉');
+  }
+  return parts.join(' ');
+}
+
+function genGoalAINote(data, goals, todayRecord){
+  if(!todayRecord) return '今日の記録を入力すると目標との比較が表示されます。';
+  const gc=Array.isArray(todayRecord.games)?todayRecord.games.length:0;
+  const achieved=[];
+  const missed=[];
+  if(goals.tsumego){ (todayRecord.tsumego||0)>=goals.tsumego?achieved.push('詰碁'):missed.push(`詰碁（${todayRecord.tsumego||0}/${goals.tsumego}問）`); }
+  if(goals.ai_study){ (todayRecord.ai_study||0)>=goals.ai_study?achieved.push('AI研究'):missed.push(`AI研究（${todayRecord.ai_study||0}/${goals.ai_study}分）`); }
+  if(goals.kifu){ (todayRecord.kifu||0)>=goals.kifu?achieved.push('棋譜並べ'):missed.push(`棋譜並べ（${todayRecord.kifu||0}/${goals.kifu}分）`); }
+  if(goals.games){ gc>=goals.games?achieved.push('対局'):missed.push(`対局（${gc}/${goals.games}局）`); }
+  let note='';
+  if(achieved.length) note+=`✅ 達成: ${achieved.join('・')}　`;
+  if(missed.length) note+=`📌 未達: ${missed.join('、')}`;
+  return note||'目標との比較中...';
+}
+
+// ── AUTH UI ──
+window.switchAuthTab=(tab)=>{
   document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',i===(tab==='login'?0:1)));
-  document.getElementById('form-login').classList.toggle('active', tab==='login');
-  document.getElementById('form-signup').classList.toggle('active', tab==='signup');
-  document.getElementById('auth-err').style.display='none';
+  $('form-login').classList.toggle('active',tab==='login');
+  $('form-signup').classList.toggle('active',tab==='signup');
+  $('auth-err').style.display='none';
 };
-window.selectType = (el, type) => {
-  document.querySelectorAll('.auth-type-opt').forEach(t=>t.classList.remove('sel'));
-  el.classList.add('sel'); selectedUserType = type;
+window.selectType=(el,t)=>{
+  document.querySelectorAll('.auth-type-opt').forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel'); selectedUserType=t;
 };
-function showAuthError(msg){ const e=document.getElementById('auth-err'); e.textContent=msg; e.style.display='block'; }
+function showAuthError(m){ const e=$('auth-err'); e.textContent=m; e.style.display='block'; }
 
-window.doLogin = async () => {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  if(!email||!pass){ showAuthError('メールアドレスとパスワードを入力してください'); return; }
-  try {
-    showLoading(true);
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch(e) {
-    showLoading(false);
-    showAuthError('ログインに失敗しました。メールアドレスかパスワードを確認してください。');
-  }
+window.doLogin=async()=>{
+  const email=$('login-email').value.trim(), pass=$('login-pass').value;
+  if(!email||!pass){showAuthError('メールアドレスとパスワードを入力してください');return;}
+  try{ showLoading(true); await signInWithEmailAndPassword(auth,email,pass); }
+  catch(e){ showLoading(false); showAuthError('ログインに失敗しました。'); }
 };
-
-window.doSignup = async () => {
-  const name = document.getElementById('signup-display').value.trim();
-  const email = document.getElementById('signup-email').value.trim();
-  const pass = document.getElementById('signup-pass').value;
-  const rank = document.getElementById('signup-rank').value.trim();
-  if(!name||!email||!pass){ showAuthError('全ての項目を入力してください'); return; }
-  if(pass.length<6){ showAuthError('パスワードは6文字以上にしてください'); return; }
-  try {
+window.doSignup=async()=>{
+  const name=$('signup-display').value.trim(), email=$('signup-email').value.trim(),
+        pass=$('signup-pass').value, rank=$('signup-rank').value.trim();
+  if(!name||!email||!pass){showAuthError('全て入力してください');return;}
+  if(pass.length<6){showAuthError('パスワードは6文字以上');return;}
+  try{
     showLoading(true);
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    const cred=await createUserWithEmailAndPassword(auth,email,pass);
     await setDoc(doc(db,'users',cred.user.uid),{
-      displayName: name, email, rank: rank||'', userType: selectedUserType,
-      createdAt: serverTimestamp(), streak: 0, totalScore: 0,
+      displayName:name,email,rank:rank||'',userType:selectedUserType,
+      photoURL:'',createdAt:serverTimestamp(),streak:0,totalScore:0,
+      goals:{tsumego:50,ai_study:30,kifu:30,games:3,total_study:60}
     });
-  } catch(e) {
-    showLoading(false);
-    showAuthError('登録に失敗しました: '+e.message);
-  }
+  }catch(e){ showLoading(false); showAuthError('登録失敗: '+e.message); }
 };
-
-window.doGoogleLogin = async () => {
-  try {
+window.doGoogleLogin=async()=>{
+  try{
     showLoading(true);
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-    const snap = await getDoc(doc(db,'users',user.uid));
+    const result=await signInWithPopup(auth,googleProvider);
+    const user=result.user;
+    const snap=await getDoc(doc(db,'users',user.uid));
     if(!snap.exists()){
       await setDoc(doc(db,'users',user.uid),{
-        displayName: user.displayName||'囲碁プレイヤー',
-        email: user.email, rank:'', userType:'kyu',
-        createdAt: serverTimestamp(), streak:0, totalScore:0,
+        displayName:user.displayName||'囲碁プレイヤー',email:user.email,
+        rank:'',userType:'kyu',photoURL:user.photoURL||'',
+        createdAt:serverTimestamp(),streak:0,totalScore:0,
+        goals:{tsumego:50,ai_study:30,kifu:30,games:3,total_study:60}
       });
     }
-  } catch(e) {
-    showLoading(false);
-    showAuthError('Googleログインに失敗しました。');
-  }
+  }catch(e){ showLoading(false); showAuthError('Googleログイン失敗'); }
 };
+window.doLogout=async()=>{ await signOut(auth); currentUser=null; currentProfile=null; };
 
-window.doLogout = async () => {
-  await signOut(auth);
-  currentUser = null; currentProfile = null;
-};
-
-// ===== AUTH STATE =====
-onAuthStateChanged(auth, async (user) => {
+// ── AUTH STATE ──
+onAuthStateChanged(auth,async user=>{
   if(user){
-    currentUser = user;
-    try {
-      const snap = await getDoc(doc(db,'users',user.uid));
-      currentProfile = snap.exists() ? snap.data() : { displayName: user.displayName||'プレイヤー', rank:'', userType:'kyu' };
-    } catch(e){ currentProfile = { displayName: user.displayName||'プレイヤー', rank:'', userType:'kyu' }; }
+    currentUser=user;
+    try{
+      const snap=await getDoc(doc(db,'users',user.uid));
+      currentProfile=snap.exists()?snap.data():{displayName:user.displayName||'プレイヤー',rank:'',userType:'kyu',photoURL:'',goals:{}};
+      currentGoals=currentProfile.goals||{};
+    }catch(e){ currentProfile={displayName:user.displayName||'プレイヤー',rank:'',userType:'kyu',photoURL:'',goals:{}}; currentGoals={}; }
     updateSidebarUser();
-    document.getElementById('auth-wall').style.display = 'none';
-    document.getElementById('app-content').style.display = 'block';
+    $('auth-wall').style.display='none';
+    $('app-content').style.display='block';
     showLoading(false);
     initApp();
-  } else {
-    document.getElementById('auth-wall').style.display = 'flex';
-    document.getElementById('app-content').style.display = 'none';
+  }else{
+    $('auth-wall').style.display='flex';
+    $('app-content').style.display='none';
     showLoading(false);
   }
 });
 
 function updateSidebarUser(){
   if(!currentProfile) return;
-  const el = document.getElementById('sidebar-avatar');
-  el.textContent = avatarLetter(currentProfile.displayName);
-  el.className = 'avatar '+typeClass(currentProfile.userType);
-  document.getElementById('sidebar-name').textContent = currentProfile.displayName||'';
-  document.getElementById('sidebar-rank').textContent = currentProfile.rank||'';
+  const av=$('sidebar-avatar');
+  av.className='avatar '+typeClass(currentProfile.userType);
+  if(currentProfile.photoURL){ av.innerHTML=`<img src="${currentProfile.photoURL}" alt="">`; }
+  else{ av.innerHTML=avatarLetter(currentProfile.displayName); }
+  $('sidebar-crown').style.display=currentProfile.userType==='pro'?'block':'none';
+  $('sidebar-name').textContent=currentProfile.displayName||'';
+  $('sidebar-rank').textContent=currentProfile.rank||'';
 }
 
-// ===== APP INIT =====
+// ── INIT ──
 async function initApp(){
+  addGame();
+  renderSettings();
+  renderMiniBars();
   await loadDashboard();
   loadTimeline();
-  addGame(); // initial game card
-  renderSettings();
-  renderProgressBars();
-  renderMiniBars();
-  // prefill settings
-  if(currentProfile){
-    const dn = document.getElementById('set-displayname');
-    const rk = document.getElementById('set-rank');
-    if(dn) dn.value = currentProfile.displayName||'';
-    if(rk) rk.value = currentProfile.rank||'';
-    document.querySelectorAll('#set-type-opts .toggle-item').forEach(t=>{
-      const types={'棋士（本名表示）':'pro','アマ強豪':'dan','棋士を目指す':'kyu'};
-      t.classList.toggle('active', types[t.textContent]===currentProfile.userType);
-    });
+  prefillSettings();
+}
+
+function prefillSettings(){
+  if(!currentProfile) return;
+  const dn=$('set-displayname'), rk=$('set-rank');
+  if(dn) dn.value=currentProfile.displayName||'';
+  if(rk) rk.value=currentProfile.rank||'';
+  const typeMap={'👑 棋士（本名）':'pro','アマ強豪':'dan','棋士を目指す':'kyu'};
+  document.querySelectorAll('#set-type-opts .toggle-item').forEach(t=>{
+    t.classList.toggle('active',typeMap[t.textContent]===currentProfile.userType);
+  });
+  // goals
+  const g=currentGoals;
+  ['tsumego','ai_study','kifu','games','total_study'].forEach(k=>{
+    const el=$('goal-'+k); if(el&&g[k]) el.value=g[k];
+  });
+  // avatar preview
+  const prev=$('settings-avatar-preview');
+  if(prev){
+    prev.className='avatar-preview '+typeClass(currentProfile.userType);
+    if(currentProfile.photoURL){ prev.innerHTML=`<img src="${currentProfile.photoURL}" alt="">`; }
+    else{ prev.textContent=avatarLetter(currentProfile.displayName); }
   }
 }
 
-// ===== DASHBOARD =====
+// ── DASHBOARD ──
 async function loadDashboard(){
   if(!currentUser) return;
-  try {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const q = query(collection(db,'records'),
-      where('uid','==',currentUser.uid),
-      where('date','>=',today),
-      orderBy('date','desc'), limit(1));
-    const snap = await getDocs(q);
+  try{
+    const today=new Date(); today.setHours(0,0,0,0);
+    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),where('date','>=',today),orderBy('date','desc'),limit(1));
+    const snap=await getDocs(q);
     if(!snap.empty){
-      const data = snap.docs[0].data();
-      const score = calcScore(data);
-      document.getElementById('dash-score').textContent = score;
-      document.getElementById('dash-score-sub').textContent = '本日スコア';
-      document.getElementById('dash-streak').textContent = currentProfile?.streak||0;
-      document.getElementById('dash-tsumego').textContent = data.tsumego||0;
-      document.getElementById('dash-games').textContent = data.games?.length||0;
-      document.getElementById('ai-score-val').textContent = score+'点';
-      document.getElementById('ai-comment-text').textContent = genAIComment(data, score);
-    } else {
-      document.getElementById('ai-comment-text').textContent = '今日はまだ記録がありません。「今日の記録」から入力してください。';
+      const data=snap.docs[0].data();
+      const score=calcScore(data,currentGoals);
+      $('dash-score').textContent=score;
+      $('dash-score-sub').textContent='本日スコア';
+      $('dash-streak').textContent=currentProfile?.streak||0;
+      $('dash-tsumego').textContent=data.tsumego||0;
+      const gc=Array.isArray(data.games)?data.games.length:0;
+      $('dash-games').textContent=gc;
+      $('ai-score-val').textContent=score+'点';
+      $('ai-comment-text').textContent=genAIComment(data,score,currentGoals);
+      renderGoalProgress(data);
+    }else{
+      $('ai-comment-text').textContent='今日の記録を入力するとAIがコメントします。';
     }
-  } catch(e){ console.log('Dashboard load:', e.message); }
+  }catch(e){ console.log('Dashboard:',e.message); }
+  renderProgressBars();
   initCharts();
 }
 
-// ===== SUBMIT RECORD =====
-window.submitRecord = async () => {
-  if(!currentUser){ showToast('ログインが必要です','error'); return; }
-  const btn = document.getElementById('submit-record-btn');
-  btn.disabled = true; btn.textContent = '保存中...';
-  try {
-    const tags = Array.from(document.querySelectorAll('#record-tags .toggle-item.active')).map(t=>t.textContent);
-    const data = {
-      uid: currentUser.uid,
-      displayName: currentProfile?.displayName||'',
-      userType: currentProfile?.userType||'kyu',
-      rank: currentProfile?.rank||'',
-      date: new Date(),
-      tsumego: numVals.tsumego,
-      tsumegoLevel: document.getElementById('tsumego-level')?.value||'',
-      ai_study: numVals.ai_study,
-      kifu: numVals.kifu,
-      other: numVals.other,
-      games: gameList.map(g=>collectGameData(g.id)),
-      comment_good: document.getElementById('comment-good').value,
-      comment_good_public: document.getElementById('sw-good').classList.contains('on'),
-      comment_bad: document.getElementById('comment-bad').value,
-      comment_bad_public: document.getElementById('sw-bad').classList.contains('on'),
-      comment_free: document.getElementById('comment-free').value,
-      comment_free_public: document.getElementById('sw-free').classList.contains('on'),
-      tags,
-      createdAt: serverTimestamp(),
+function renderGoalProgress(data){
+  if(!data||!Object.keys(currentGoals).length){ $('goal-progress-card').style.display='none'; return; }
+  $('goal-progress-card').style.display='block';
+  const gc=Array.isArray(data.games)?data.games.length:0;
+  const items=[
+    {label:'詰碁',actual:data.tsumego||0,goal:currentGoals.tsumego||0,unit:'問',color:'#c8a84a'},
+    {label:'AI研究',actual:data.ai_study||0,goal:currentGoals.ai_study||0,unit:'分',color:'#4a9870'},
+    {label:'棋譜並べ',actual:data.kifu||0,goal:currentGoals.kifu||0,unit:'分',color:'#4a78c8'},
+    {label:'対局',actual:gc,goal:currentGoals.games||0,unit:'局',color:'#c85050'},
+  ].filter(i=>i.goal>0);
+  $('goal-rows').innerHTML=items.map(i=>{
+    const pct=Math.min(100,Math.round(i.actual/i.goal*100));
+    return `<div class="goal-row">
+      <div class="goal-label">${i.label} ${i.actual}/${i.goal}${i.unit}</div>
+      <div class="goal-bar-wrap"><div class="goal-bar-fill" style="width:${pct}%;background:${i.color}"></div></div>
+      <div class="goal-pct" style="color:${pct>=100?'var(--jade2)':'var(--text2)'}">${pct}%${pct>=100?' ✅':''}</div>
+    </div>`;
+  }).join('');
+  $('goal-ai-note').textContent=genGoalAINote(data,currentGoals,data);
+}
+
+// ── RECORD SUBMIT ──
+window.submitRecord=async()=>{
+  if(!currentUser){showToast('ログインが必要です','error');return;}
+  const btn=$('submit-record-btn');
+  btn.disabled=true; btn.textContent='保存中...';
+  try{
+    const tags=Array.from(document.querySelectorAll('#record-tags .toggle-item.active')).map(t=>t.textContent);
+    const extra=getExtraStudyData();
+    const data={
+      uid:currentUser.uid,
+      displayName:currentProfile?.displayName||'',
+      userType:currentProfile?.userType||'kyu',
+      rank:currentProfile?.rank||'',
+      photoURL:currentProfile?.photoURL||'',
+      date:new Date(),
+      tsumego:numVals.tsumego,
+      tsumegoLevel:$('tsumego-level')?.value||'',
+      ai_study:numVals.ai_study,
+      kifu:numVals.kifu,
+      extra_study:extra,
+      games:gameList.map(g=>collectGameData(g.id)),
+      comment_good:$('comment-good').value,
+      comment_good_public:$('sw-good').classList.contains('on'),
+      comment_bad:$('comment-bad').value,
+      comment_bad_public:$('sw-bad').classList.contains('on'),
+      comment_free:$('comment-free').value,
+      comment_free_public:$('sw-free').classList.contains('on'),
+      tags,createdAt:serverTimestamp(),
     };
-    data.score = calcScore(data);
-    data.aiComment = genAIComment(data, data.score);
-    await addDoc(collection(db,'records'), data);
-    // update streak
+    data.score=calcScore(data,currentGoals);
+    data.aiComment=genAIComment(data,data.score,currentGoals);
+    await addDoc(collection(db,'records'),data);
     await updateDoc(doc(db,'users',currentUser.uid),{
-      streak: increment(1), totalScore: increment(data.score),
-      lastRecordAt: serverTimestamp(),
+      streak:increment(1),totalScore:increment(data.score),lastRecordAt:serverTimestamp()
     });
     showToast('✅ 記録を保存しました！');
-    btn.textContent = '✓ 投稿完了！';
-    btn.style.background = 'linear-gradient(135deg,var(--jade),#2a7848)';
-    setTimeout(()=>{
-      btn.disabled=false; btn.textContent='記録を投稿する'; btn.style.background='';
-      showPanel('dashboard'); loadDashboard(); loadTimeline();
-    }, 2000);
-  } catch(e){
-    showToast('保存に失敗しました: '+e.message, 'error');
-    btn.disabled=false; btn.textContent='記録を投稿する';
-  }
+    btn.textContent='✓ 投稿完了！'; btn.style.background='linear-gradient(135deg,var(--jade),#2a7848)';
+    setTimeout(()=>{ btn.disabled=false; btn.textContent='記録を投稿する'; btn.style.background=''; showPanel('dashboard'); loadDashboard(); loadTimeline(); },2000);
+  }catch(e){ showToast('保存に失敗: '+e.message,'error'); btn.disabled=false; btn.textContent='記録を投稿する'; }
 };
 
-// ===== TIMELINE =====
+// ── TIMELINE ──
 async function loadTimeline(){
-  try {
-    const q = query(collection(db,'records'), orderBy('createdAt','desc'), limit(30));
-    const snap = await getDocs(q);
-    document.getElementById('tl-loading').style.display='none';
-    const el = document.getElementById('feed-list');
+  try{
+    const q=query(collection(db,'records'),orderBy('createdAt','desc'),limit(30));
+    const snap=await getDocs(q);
+    $('tl-loading').style.display='none';
+    const el=$('feed-list');
     if(snap.empty){ el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center">まだ投稿がありません。最初の記録をつけましょう！</div>'; return; }
-    el.innerHTML = snap.docs.map(d=>{
-      const r = d.data(); const rid = d.id;
-      const isMe = r.uid===currentUser?.uid;
-      const tc = typeClass(r.userType);
-      const labels = {pro:'棋士',dan:'アマ強豪',kyu:'棋士志望'};
-      const publicComment = [
-        r.comment_good_public&&r.comment_good ? '✅ '+r.comment_good : '',
-        r.comment_bad_public&&r.comment_bad ? '⚠️ '+r.comment_bad : '',
-        r.comment_free_public&&r.comment_free ? '💭 '+r.comment_free : '',
+    const REACTIONS=['すごい😆','いいね👍','まずまず👌','んー😒'];
+    el.innerHTML=snap.docs.map(d=>{
+      const r=d.data(), rid=d.id, isMe=r.uid===currentUser?.uid;
+      const tc=typeClass(r.userType), labels={pro:'棋士',dan:'アマ強豪',kyu:'棋士志望'};
+      const crownHTML=r.userType==='pro'?'<span class="pro-crown">👑</span>':'';
+      const gc=Array.isArray(r.games)?r.games.length:0;
+      const pubComment=[
+        r.comment_good_public&&r.comment_good?'✅ '+r.comment_good:'',
+        r.comment_bad_public&&r.comment_bad?'⚠️ '+r.comment_bad:'',
+        r.comment_free_public&&r.comment_free?'💭 '+r.comment_free:'',
       ].filter(Boolean).join(' / ');
-      const gamesCount = Array.isArray(r.games) ? r.games.length : (r.games||0);
-      const reactions = r.reactions||{0:0,1:0,2:0,3:0};
-      const myReact = r.myReactions?.[currentUser?.uid]??-1;
-      const REACTIONS = ['すごい😆','いいね👍','まずまず👌','んー😒'];
-      const reactHTML = REACTIONS.map((rx,ri)=>
-        `<button class="reaction-btn ${myReact===ri?'active':''}" onclick="doReact('${rid}',${ri},this)">${rx} <span>${reactions[ri]||0}</span></button>`
-      ).join('');
+      const reactions=r.reactions||{0:0,1:0,2:0,3:0};
+      const myReact=r.myReactions?.[currentUser?.uid]??-1;
+      const reactHTML=REACTIONS.map((rx,ri)=>`<button class="reaction-btn ${myReact===ri?'active':''}" onclick="doReact('${rid}',${ri},this)">${rx} <span>${reactions[ri]||0}</span></button>`).join('');
+      const imgHTML=r.photoURL?`<img src="${r.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(r.displayName)}</span>`;
+      const extraHTML=(r.extra_study||[]).map(e=>`<div class="feed-stat">${e.name} <span>${e.minutes}分</span></div>`).join('');
       return `<div class="feed-item">
         <div class="feed-header">
-          <div class="avatar ${tc}" style="width:28px;height:28px;font-size:12px">${avatarLetter(r.displayName)}</div>
-          <div class="feed-name">${r.displayName||'匿名'}${isMe?' (自分)':''}</div>
+          <div class="avatar-wrap"><div class="avatar ${tc}" style="width:28px;height:28px;font-size:12px">${imgHTML}</div>${r.userType==='pro'?'<div class="crown-badge" style="font-size:10px">👑</div>':''}</div>
+          <div class="feed-name">${r.displayName||'匿名'}${isMe?' (自分)':''}${crownHTML}</div>
           <span class="feed-rank-tag tag-${tc}">${labels[r.userType]||''} ${r.rank||''}</span>
           <div class="feed-time">${timeAgo(r.createdAt)}</div>
         </div>
-        ${publicComment?`<div class="feed-content">${publicComment}</div>`:''}
+        ${pubComment?`<div class="feed-content">${pubComment}</div>`:''}
         <div class="feed-tags">${(r.tags||[]).map(t=>`<span class="feed-tag">${t}</span>`).join('')}</div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
           <span style="font-size:11px;color:var(--text3)">AIスコア</span>
           <span style="font-size:16px;font-weight:700;color:var(--gold2);font-family:'Zen Antique',serif">${r.score||0}</span>
+          <span style="font-size:10px;color:var(--text3)">${r.aiComment||''}</span>
         </div>
         <div class="feed-stats">
           ${r.tsumego?`<div class="feed-stat">詰碁 <span>${r.tsumego}問</span></div>`:''}
           ${r.ai_study?`<div class="feed-stat">AI研究 <span>${r.ai_study}分</span></div>`:''}
           ${r.kifu?`<div class="feed-stat">棋譜並べ <span>${r.kifu}分</span></div>`:''}
-          ${gamesCount?`<div class="feed-stat">対局 <span>${gamesCount}局</span></div>`:''}
+          ${gc?`<div class="feed-stat">対局 <span>${gc}局</span></div>`:''}
+          ${extraHTML}
         </div>
         <div class="reactions">${reactHTML}</div>
       </div>`;
     }).join('');
-  } catch(e){ console.log('Timeline:', e.message); document.getElementById('tl-loading').innerHTML='<div style="color:var(--text3);padding:20px">読み込みに失敗しました</div>'; }
+  }catch(e){ console.log('TL:',e.message); $('tl-loading').innerHTML='<div style="color:var(--text3);padding:20px">読み込みに失敗しました</div>'; }
 }
 
-window.doReact = async (recordId, ri, btn) => {
+window.doReact=async(rid,ri,btn)=>{
   if(!currentUser) return;
-  try {
-    const ref = doc(db,'records',recordId);
-    const snap = await getDoc(ref);
+  try{
+    const ref=doc(db,'records',rid), snap=await getDoc(ref);
     if(!snap.exists()) return;
-    const data = snap.data();
-    const myReacts = data.myReactions||{};
-    const prev = myReacts[currentUser.uid]??-1;
-    const reactions = data.reactions||{0:0,1:0,2:0,3:0};
-    if(prev===ri){
-      reactions[ri]=Math.max(0,(reactions[ri]||0)-1);
-      myReacts[currentUser.uid]=-1;
-      btn.classList.remove('active');
-    } else {
-      if(prev>=0) reactions[prev]=Math.max(0,(reactions[prev]||0)-1);
-      reactions[ri]=(reactions[ri]||0)+1;
-      myReacts[currentUser.uid]=ri;
-      btn.classList.add('active');
-    }
+    const data=snap.data(), myReacts=data.myReactions||{}, prev=myReacts[currentUser.uid]??-1;
+    const reactions=data.reactions||{0:0,1:0,2:0,3:0};
+    if(prev===ri){ reactions[ri]=Math.max(0,(reactions[ri]||0)-1); myReacts[currentUser.uid]=-1; btn.classList.remove('active'); }
+    else{ if(prev>=0) reactions[prev]=Math.max(0,(reactions[prev]||0)-1); reactions[ri]=(reactions[ri]||0)+1; myReacts[currentUser.uid]=ri; btn.classList.add('active'); }
     btn.querySelector('span').textContent=reactions[ri];
-    await updateDoc(ref,{reactions, myReactions:myReacts});
-  } catch(e){}
+    await updateDoc(ref,{reactions,myReactions:myReacts});
+  }catch(e){}
 };
 
-// ===== RANKING =====
+// ── RANKING ──
 async function loadRanking(){
-  try {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const q = query(collection(db,'records'), where('date','>=',today), orderBy('date','desc'), orderBy('score','desc'), limit(20));
-    const snap = await getDocs(q);
-    const records = snap.docs.map(d=>d.data());
-    // dedupe by uid, keep highest score
-    const seen={}; const top=[];
-    records.forEach(r=>{ if(!seen[r.uid]){seen[r.uid]=r;top.push(r);} });
-    const max = top[0]?.score||1;
-    const html = top.map((r,i)=>{
-      const isMe = r.uid===currentUser?.uid;
-      const nc = i===0?'top1':i===1?'top2':i===2?'top3':'';
+  try{
+    const today=new Date(); today.setHours(0,0,0,0);
+    const q=query(collection(db,'records'),where('date','>=',today),orderBy('date','desc'),orderBy('score','desc'),limit(30));
+    const snap=await getDocs(q);
+    const seen={}, top=[];
+    snap.docs.forEach(d=>{ const r=d.data(); if(!seen[r.uid]){seen[r.uid]=r;top.push(r);} });
+    const max=top[0]?.score||1;
+    const html=top.map((r,i)=>{
+      const isMe=r.uid===currentUser?.uid, nc=i===0?'top1':i===1?'top2':i===2?'top3':'';
+      const crownBadge=r.userType==='pro'?'<div class="crown-badge" style="font-size:10px;top:-4px">👑</div>':'';
+      const imgHTML=r.photoURL?`<img src="${r.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(r.displayName)}</span>`;
       return `<div class="rank-item ${isMe?'me':''}">
         <div class="rank-num ${nc}">${i+1}</div>
-        <div class="avatar ${typeClass(r.userType)}" style="width:28px;height:28px;font-size:12px">${avatarLetter(r.displayName)}</div>
-        <div class="rank-info"><div class="rank-name">${r.displayName}${isMe?' (自分)':''}</div><div class="rank-sub">${r.rank||''}</div><div class="rank-bar-wrap"><div class="rank-bar" style="width:${Math.round(r.score/max*100)}%"></div></div></div>
+        <div class="avatar-wrap"><div class="avatar ${typeClass(r.userType)}" style="width:28px;height:28px;font-size:12px">${imgHTML}</div>${crownBadge}</div>
+        <div class="rank-info"><div class="rank-name">${r.displayName}${isMe?' (自分)':''}${r.userType==='pro'?'<span class="pro-crown">👑</span>':''}</div><div class="rank-sub">${r.rank||''}</div><div class="rank-bar-wrap"><div class="rank-bar" style="width:${Math.round(r.score/max*100)}%"></div></div></div>
         <div class="rank-score">${r.score}</div>
       </div>`;
-    }).join('') || '<div style="color:var(--text3);font-size:12px;padding:12px">本日の記録がまだありません</div>';
-    document.getElementById('rank-today').innerHTML = html;
-    document.getElementById('rank-month').innerHTML = html; // same for now
-  } catch(e){ console.log('Ranking:', e.message); }
+    }).join('')||'<div style="color:var(--text3);font-size:12px;padding:12px">本日の記録がまだありません</div>';
+    $('rank-today').innerHTML=html;
+    $('rank-month').innerHTML=html;
+  }catch(e){ console.log('Ranking:',e.message); }
 }
 
-// ===== QA =====
+// ── QA ──
 async function loadQA(){
-  try {
-    const q = query(collection(db,'questions'), orderBy('createdAt','desc'), limit(20));
-    const snap = await getDocs(q);
-    const el = document.getElementById('qa-list');
-    if(snap.empty){ el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center">まだ投稿がありません</div>'; return; }
+  try{
+    const q=query(collection(db,'questions'),orderBy('createdAt','desc'),limit(20));
+    const snap=await getDocs(q);
+    const el=$('qa-list');
+    if(snap.empty){el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center">まだ投稿がありません</div>';return;}
     const REACTIONS=['すごい😆','いいね👍','まずまず👌','んー😒'];
-    el.innerHTML = snap.docs.map(d=>{
-      const q=d.data(); const qid=d.id;
-      const reactions=q.reactions||{0:0,1:0,2:0,3:0};
-      const myReact=q.myReactions?.[currentUser?.uid]??-1;
-      const reactHTML=REACTIONS.map((rx,ri)=>
-        `<button class="reaction-btn ${myReact===ri?'active':''}" onclick="doReactQA('${qid}',${ri},this)">${rx} <span>${reactions[ri]||0}</span></button>`
-      ).join('');
+    el.innerHTML=snap.docs.map(d=>{
+      const q=d.data(),qid=d.id, reactions=q.reactions||{0:0,1:0,2:0,3:0},myReact=q.myReactions?.[currentUser?.uid]??-1;
+      const reactHTML=REACTIONS.map((rx,ri)=>`<button class="reaction-btn ${myReact===ri?'active':''}" onclick="doReactQA('${qid}',${ri},this)">${rx} <span>${reactions[ri]||0}</span></button>`).join('');
+      const imgHTML=q.photoURL?`<img src="${q.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(q.displayName)}</span>`;
       return `<div class="feed-item">
         <div class="feed-header">
-          <div class="avatar ${typeClass(q.userType)}" style="width:28px;height:28px;font-size:12px">${avatarLetter(q.displayName)}</div>
+          <div class="avatar-wrap"><div class="avatar ${typeClass(q.userType)}" style="width:28px;height:28px;font-size:12px">${imgHTML}</div>${q.userType==='pro'?'<div class="crown-badge" style="font-size:10px">👑</div>':''}</div>
           <div class="feed-name">${q.displayName||'匿名'}</div>
           <div class="feed-time">${timeAgo(q.createdAt)}</div>
         </div>
@@ -957,155 +1044,264 @@ async function loadQA(){
         </div>
       </div>`;
     }).join('');
-  } catch(e){ console.log('QA:', e.message); }
+  }catch(e){ console.log('QA:',e.message); }
 }
-
-window.submitQA = async () => {
-  const title = document.getElementById('qa-title').value.trim();
-  const body = document.getElementById('qa-body').value.trim();
-  if(!title){ showToast('タイトルを入力してください','error'); return; }
-  const tags = Array.from(document.querySelectorAll('#qa-tags .toggle-item.active')).map(t=>t.textContent);
-  try {
-    await addDoc(collection(db,'questions'),{
-      uid: currentUser.uid, displayName: currentProfile?.displayName||'',
-      userType: currentProfile?.userType||'kyu', rank: currentProfile?.rank||'',
-      title, body, tags, answers:0, createdAt: serverTimestamp(),
-    });
-    document.getElementById('qa-title').value='';
-    document.getElementById('qa-body').value='';
-    document.getElementById('qa-form').style.display='none';
-    showToast('✅ 投稿しました！');
-    loadQA();
-  } catch(e){ showToast('投稿に失敗しました','error'); }
+window.submitQA=async()=>{
+  const title=$('qa-title').value.trim(), body=$('qa-body').value.trim();
+  if(!title){showToast('タイトルを入力してください','error');return;}
+  const tags=Array.from(document.querySelectorAll('#qa-tags .toggle-item.active')).map(t=>t.textContent);
+  try{
+    await addDoc(collection(db,'questions'),{uid:currentUser.uid,displayName:currentProfile?.displayName||'',userType:currentProfile?.userType||'kyu',rank:currentProfile?.rank||'',photoURL:currentProfile?.photoURL||'',title,body,tags,answers:0,createdAt:serverTimestamp()});
+    $('qa-title').value=''; $('qa-body').value=''; $('qa-form').style.display='none';
+    showToast('✅ 投稿しました！'); loadQA();
+  }catch(e){ showToast('投稿失敗','error'); }
 };
-
-window.doReactQA = async (qid, ri, btn) => {
+window.doReactQA=async(qid,ri,btn)=>{
   if(!currentUser) return;
-  try {
-    const ref = doc(db,'questions',qid);
-    const snap = await getDoc(ref);
-    if(!snap.exists()) return;
-    const data = snap.data();
-    const myReacts = data.myReactions||{};
-    const prev = myReacts[currentUser.uid]??-1;
-    const reactions = data.reactions||{0:0,1:0,2:0,3:0};
-    if(prev===ri){ reactions[ri]=Math.max(0,(reactions[ri]||0)-1); myReacts[currentUser.uid]=-1; btn.classList.remove('active'); }
-    else { if(prev>=0) reactions[prev]=Math.max(0,(reactions[prev]||0)-1); reactions[ri]=(reactions[ri]||0)+1; myReacts[currentUser.uid]=ri; btn.classList.add('active'); }
+  try{
+    const ref=doc(db,'questions',qid), snap=await getDoc(ref); if(!snap.exists()) return;
+    const data=snap.data(), myReacts=data.myReactions||{}, prev=myReacts[currentUser.uid]??-1;
+    const reactions=data.reactions||{0:0,1:0,2:0,3:0};
+    if(prev===ri){reactions[ri]=Math.max(0,(reactions[ri]||0)-1);myReacts[currentUser.uid]=-1;btn.classList.remove('active');}
+    else{if(prev>=0)reactions[prev]=Math.max(0,(reactions[prev]||0)-1);reactions[ri]=(reactions[ri]||0)+1;myReacts[currentUser.uid]=ri;btn.classList.add('active');}
     btn.querySelector('span').textContent=reactions[ri];
-    await updateDoc(ref,{reactions, myReactions:myReacts});
-  } catch(e){}
+    await updateDoc(ref,{reactions,myReactions:myReacts});
+  }catch(e){}
 };
 
-// ===== FOLLOWS =====
+// ── FOLLOWS ──
 async function loadFollows(){
   if(!currentUser) return;
-  try {
-    const userSnap = await getDoc(doc(db,'users',currentUser.uid));
-    const followIds = userSnap.data()?.following||[];
-    const el = document.getElementById('follow-list');
-    if(!followIds.length){ el.innerHTML='<div style="color:var(--text3);font-size:12px">まだフォローしていません</div>'; return; }
-    const profiles = await Promise.all(followIds.map(uid=>getDoc(doc(db,'users',uid))));
-    el.innerHTML = profiles.filter(s=>s.exists()).map(s=>{
-      const p=s.data(); const uid=s.id;
+  try{
+    const snap=await getDoc(doc(db,'users',currentUser.uid));
+    const followIds=snap.data()?.following||[];
+    const el=$('follow-list');
+    if(!followIds.length){el.innerHTML='<div style="color:var(--text3);font-size:12px">まだフォローしていません。ユーザーを検索してフォローしましょう。</div>';return;}
+    const profiles=await Promise.all(followIds.map(uid=>getDoc(doc(db,'users',uid))));
+    el.innerHTML=profiles.filter(s=>s.exists()).map(s=>{
+      const p=s.data(), uid=s.id;
+      const imgHTML=p.photoURL?`<img src="${p.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(p.displayName)}</span>`;
       return `<div class="follow-card">
-        <div class="avatar ${typeClass(p.userType)}" style="width:34px;height:34px;font-size:14px">${avatarLetter(p.displayName)}</div>
-        <div class="follow-info"><div class="follow-name">${p.displayName}</div><div class="follow-sub">${p.rank||''}</div></div>
+        <div class="avatar-wrap"><div class="avatar ${typeClass(p.userType)}" style="width:36px;height:36px;font-size:14px">${imgHTML}</div>${p.userType==='pro'?'<div class="crown-badge">👑</div>':''}</div>
+        <div class="follow-info"><div class="follow-name">${p.displayName}${p.userType==='pro'?'<span class="pro-crown">👑</span>':''}</div><div class="follow-sub">${p.rank||''}</div></div>
         <button class="follow-btn active" onclick="unfollowUser('${uid}',this)">フォロー中</button>
       </div>`;
     }).join('');
-  } catch(e){ console.log('Follows:', e.message); }
+  }catch(e){ console.log('Follows:',e.message); }
 }
-
-window.searchUsers = async () => {
-  const q = document.getElementById('user-search').value.trim();
-  if(!q) return;
-  try {
-    const snap = await getDocs(collection(db,'users'));
-    const results = snap.docs.filter(d=>{
-      const data=d.data();
-      return d.id!==currentUser.uid &&
-        (data.displayName?.includes(q)||data.rank?.includes(q));
-    });
-    const el = document.getElementById('search-results');
-    el.style.display = results.length?'grid':'none';
-    el.innerHTML = results.map(d=>{
-      const p=d.data(); const uid=d.id;
+window.searchUsers=async()=>{
+  const q=$('user-search').value.trim(); if(!q) return;
+  try{
+    const snap=await getDocs(collection(db,'users'));
+    const results=snap.docs.filter(d=>d.id!==currentUser.uid&&(d.data().displayName?.includes(q)||d.data().rank?.includes(q)));
+    const el=$('search-results');
+    el.style.display=results.length?'grid':'none';
+    el.innerHTML=results.map(d=>{
+      const p=d.data(), uid=d.id;
+      const imgHTML=p.photoURL?`<img src="${p.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(p.displayName)}</span>`;
       return `<div class="follow-card">
-        <div class="avatar ${typeClass(p.userType)}" style="width:34px;height:34px;font-size:14px">${avatarLetter(p.displayName)}</div>
+        <div class="avatar-wrap"><div class="avatar ${typeClass(p.userType)}" style="width:36px;height:36px;font-size:14px">${imgHTML}</div>${p.userType==='pro'?'<div class="crown-badge">👑</div>':''}</div>
         <div class="follow-info"><div class="follow-name">${p.displayName}</div><div class="follow-sub">${p.rank||''}</div></div>
         <button class="follow-btn" onclick="followUser('${uid}',this)">フォロー</button>
       </div>`;
     }).join('');
-    if(!results.length) showToast('ユーザーが見つかりませんでした');
-  } catch(e){ showToast('検索に失敗しました','error'); }
+    if(!results.length) showToast('ユーザーが見つかりません');
+  }catch(e){ showToast('検索失敗','error'); }
+};
+window.followUser=async(uid,btn)=>{
+  try{
+    const snap=await getDoc(doc(db,'users',currentUser.uid));
+    const following=[...new Set([...(snap.data()?.following||[]),uid])];
+    await updateDoc(doc(db,'users',currentUser.uid),{following});
+    btn.textContent='フォロー中'; btn.classList.add('active'); showToast('フォローしました');
+  }catch(e){}
+};
+window.unfollowUser=async(uid,btn)=>{
+  try{
+    const snap=await getDoc(doc(db,'users',currentUser.uid));
+    await updateDoc(doc(db,'users',currentUser.uid),{following:(snap.data()?.following||[]).filter(id=>id!==uid)});
+    btn.textContent='フォロー'; btn.classList.remove('active'); showToast('フォロー解除しました');
+  }catch(e){}
 };
 
-window.followUser = async (uid, btn) => {
-  try {
-    await updateDoc(doc(db,'users',currentUser.uid),{ following: [...((await getDoc(doc(db,'users',currentUser.uid))).data()?.following||[]), uid] });
-    btn.textContent='フォロー中'; btn.classList.add('active');
-    showToast('フォローしました');
-  } catch(e){}
-};
-window.unfollowUser = async (uid, btn) => {
-  try {
-    const snap = await getDoc(doc(db,'users',currentUser.uid));
-    const following = (snap.data()?.following||[]).filter(id=>id!==uid);
-    await updateDoc(doc(db,'users',currentUser.uid),{ following });
-    btn.textContent='フォロー'; btn.classList.remove('active');
-    showToast('フォロー解除しました');
-  } catch(e){}
+// ── COMPARE（全項目レーダーチャート） ──
+async function loadCompare(){
+  try{
+    const snap=await getDocs(query(collection(db,'users'),limit(10)));
+    const tabs=$('compare-tabs');
+    const others=snap.docs.filter(d=>d.id!==currentUser?.uid).slice(0,4);
+    tabs.innerHTML=`<div class="compare-tab active" onclick="setCompareTarget(this,'avg',null)">全体平均</div>`
+      +others.map(d=>`<div class="compare-tab" onclick="setCompareTarget(this,'${d.id}','${d.data().displayName}')">${d.data().displayName}${d.data().userType==='pro'?'👑':''}</div>`).join('');
+    $('cmp-my-name').textContent=currentProfile?.displayName||'自分';
+    $('cmp-crown').style.display=currentProfile?.userType==='pro'?'block':'none';
+    const cmpAv=$('cmp-my-avatar');
+    cmpAv.className='avatar '+typeClass(currentProfile?.userType||'kyu');
+    if(currentProfile?.photoURL) cmpAv.innerHTML=`<img src="${currentProfile.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    else cmpAv.innerHTML=avatarLetter(currentProfile?.displayName);
+    await setCompareTarget(tabs.firstElementChild,'avg',null);
+  }catch(e){ console.log('Compare:',e.message); }
+}
+
+window.setCompareTarget=async(el,uid,name)=>{
+  document.querySelectorAll('.compare-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  $('compare-target-name').textContent=name||'全体平均';
+  try{
+    const today=new Date(); today.setHours(0,0,0,0);
+    // My data
+    const myQ=query(collection(db,'records'),where('uid','==',currentUser.uid),where('date','>=',today),orderBy('date','desc'),limit(1));
+    const mySnap=await getDocs(myQ);
+    const myData=mySnap.empty?{}:mySnap.docs[0].data();
+    $('cmp-my-score').textContent=myData.score||0;
+    renderAllProgs('my-prog',myData,true);
+
+    let targetData={};
+    if(uid==='avg'){
+      const allQ=query(collection(db,'records'),where('date','>=',today),orderBy('date','desc'),limit(50));
+      const allSnap=await getDocs(allQ);
+      const all=allSnap.docs.map(d=>d.data());
+      const n=Math.max(all.length,1);
+      const avgGames=all.reduce((s,r)=>{const gc=Array.isArray(r.games)?r.games.length:0;return s+gc;},0)/n;
+      const avgExtra=all.reduce((s,r)=>(r.extra_study||[]).reduce((a,e)=>a+(e.minutes||0),0)+s,0)/n;
+      targetData={score:Math.round(all.reduce((s,r)=>s+(r.score||0),0)/n),tsumego:Math.round(all.reduce((s,r)=>s+(r.tsumego||0),0)/n),ai_study:Math.round(all.reduce((s,r)=>s+(r.ai_study||0),0)/n),kifu:Math.round(all.reduce((s,r)=>s+(r.kifu||0),0)/n),games:Math.round(avgGames),extra:Math.round(avgExtra)};
+    }else{
+      const tQ=query(collection(db,'records'),where('uid','==',uid),where('date','>=',today),orderBy('date','desc'),limit(1));
+      const tSnap=await getDocs(tQ);
+      targetData=tSnap.empty?{}:tSnap.docs[0].data();
+    }
+    $('compare-target-score').textContent=targetData.score||0;
+    renderAllProgs('target-prog',targetData,false);
+    renderRadarChart(myData,targetData,name||'全体平均');
+    renderCompareLineChart(uid,name);
+  }catch(e){ console.log('SetCompare:',e.message); }
 };
 
-// ===== PROFILE SAVE =====
-window.saveProfile = async () => {
-  const displayName = document.getElementById('set-displayname').value.trim();
-  const rank = document.getElementById('set-rank').value.trim();
-  const typeMap={'棋士（本名表示）':'pro','アマ強豪':'dan','棋士を目指す':'kyu'};
-  const activeType = document.querySelector('#set-type-opts .toggle-item.active');
-  const userType = typeMap[activeType?.textContent]||currentProfile?.userType||'kyu';
-  try {
-    await updateDoc(doc(db,'users',currentUser.uid),{ displayName, rank, userType });
-    currentProfile = {...currentProfile, displayName, rank, userType};
+function renderAllProgs(elId,data,isGold){
+  const el=document.getElementById(elId); if(!el) return;
+  const gc=Array.isArray(data.games)?data.games.length:(data.games||0);
+  const extraMins=(data.extra_study||[]).reduce((a,e)=>a+(e.minutes||0),0);
+  const items=[
+    {label:'詰碁',val:data.tsumego||0,max:100,unit:'問'},
+    {label:'AI研究',val:data.ai_study||0,max:120,unit:'分'},
+    {label:'棋譜並べ',val:data.kifu||0,max:120,unit:'分'},
+    {label:'対局',val:gc,max:10,unit:'局'},
+    {label:'その他学習',val:extraMins,max:120,unit:'分'},
+    {label:'スコア',val:data.score||0,max:100,unit:'点'},
+  ];
+  el.innerHTML=items.map(i=>`<div class="prog-row">
+    <div class="prog-label">${i.label}</div>
+    <div class="prog-bar-wrap"><div class="prog-fill${isGold?' gold':''}" style="width:${Math.min(100,Math.round(i.val/i.max*100))}%"></div></div>
+    <div class="prog-val">${i.val}${i.unit}</div>
+  </div>`).join('');
+}
+
+function renderRadarChart(myData,targetData,targetName){
+  const ctx=document.getElementById('compareRadarChart')?.getContext('2d');
+  if(!ctx) return;
+  if(charts.radar) charts.radar.destroy();
+  const myGC=Array.isArray(myData.games)?myData.games.length:(myData.games||0);
+  const tgGC=Array.isArray(targetData.games)?targetData.games.length:(targetData.games||0);
+  const myExtra=(myData.extra_study||[]).reduce((a,e)=>a+(e.minutes||0),0);
+  const tgExtra=(targetData.extra_study||[]).reduce((a,e)=>a+(e.minutes||0),0);
+  charts.radar=new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:['詰碁(問)','AI研究(分)','棋譜並べ(分)','対局(局)','その他(分)','スコア'],
+      datasets:[
+        {label:'自分',data:[myData.tsumego||0,myData.ai_study||0,myData.kifu||0,myGC,myExtra,myData.score||0],backgroundColor:'rgba(200,168,74,.15)',borderColor:'#c8a84a',pointBackgroundColor:'#c8a84a',pointRadius:4},
+        {label:targetName,data:[targetData.tsumego||0,targetData.ai_study||0,targetData.kifu||0,tgGC,tgExtra,targetData.score||0],backgroundColor:'rgba(74,152,112,.15)',borderColor:'#5cb888',pointBackgroundColor:'#5cb888',pointRadius:4},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#a09880',font:{size:11}}}},scales:{r:{backgroundColor:'rgba(26,30,28,.5)',grid:{color:'#2a3028'},angleLines:{color:'#2a3028'},pointLabels:{color:'#a09880',font:{size:11}},ticks:{color:'#686050',backdropColor:'transparent'}}}}
+  });
+}
+
+let compareLineChart=null;
+async function renderCompareLineChart(uid,name){
+  const ctx=document.getElementById('compareLineChart')?.getContext('2d'); if(!ctx) return;
+  if(compareLineChart) compareLineChart.destroy();
+  const labels=['月','火','水','木','金','土','日'];
+  const myScores=[0,0,0,0,0,0,0];
+  compareLineChart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'自分',data:myScores,borderColor:'#c8a84a',backgroundColor:'rgba(200,168,74,.1)',tension:.4,pointRadius:4},
+      {label:name||'比較対象',data:[0,0,0,0,0,0,0],borderColor:'#5cb888',backgroundColor:'rgba(92,184,136,.08)',tension:.4,pointRadius:4,borderDash:[4,3]},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#a09880',font:{size:11}}}},scales:{x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}},y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'},min:0,max:100}}}
+  });
+}
+
+// ── PROFILE SAVE ──
+window.saveProfile=async()=>{
+  const displayName=$('set-displayname').value.trim(), rank=$('set-rank').value.trim();
+  const typeMap={'👑 棋士（本名）':'pro','アマ強豪':'dan','棋士を目指す':'kyu'};
+  const activeType=document.querySelector('#set-type-opts .toggle-item.active');
+  const userType=typeMap[activeType?.textContent]||currentProfile?.userType||'kyu';
+  let photoURL=currentProfile?.photoURL||'';
+  if(pendingAvatarFile){
+    try{
+      const ref=storageRef(storage,`avatars/${currentUser.uid}`);
+      await uploadBytes(ref,pendingAvatarFile);
+      photoURL=await getDownloadURL(ref);
+      pendingAvatarFile=null;
+    }catch(e){ showToast('画像のアップロードに失敗しました','error'); }
+  }
+  try{
+    await updateDoc(doc(db,'users',currentUser.uid),{displayName,rank,userType,photoURL});
+    currentProfile={...currentProfile,displayName,rank,userType,photoURL};
     updateSidebarUser();
     showToast('✅ プロフィールを保存しました');
-  } catch(e){ showToast('保存に失敗しました','error'); }
+  }catch(e){ showToast('保存失敗','error'); }
 };
-window.setTypeSelect = (el, type) => {
+window.setTypeSelect=(el,type)=>{
   document.querySelectorAll('#set-type-opts .toggle-item').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
 };
+window.handleAvatarChange=(e)=>{
+  const file=e.target.files[0]; if(!file) return;
+  if(file.size>5*1024*1024){showToast('5MB以内の画像を選択してください','error');return;}
+  pendingAvatarFile=file;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const prev=$('settings-avatar-preview');
+    if(prev) prev.innerHTML=`<img src="${ev.target.result}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  };
+  reader.readAsDataURL(file);
+};
 
-// ===== GAME CARDS =====
-window.addGame = () => {
-  const id = ++gameIdCounter;
-  gameList.push({ id, open:true });
-  renderGameList();
-  setTimeout(()=>{
-    const el=document.getElementById('game-card-'+id);
-    if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }, 80);
+// ── GOALS SAVE ──
+window.saveGoals=async()=>{
+  const goals={};
+  ['tsumego','ai_study','kifu','games','total_study'].forEach(k=>{
+    const v=parseInt($('goal-'+k)?.value)||0; if(v>0) goals[k]=v;
+  });
+  try{
+    await updateDoc(doc(db,'users',currentUser.uid),{goals});
+    currentGoals=goals; currentProfile={...currentProfile,goals};
+    showToast('✅ 目標を保存しました！');
+    renderProgressBars();
+  }catch(e){ showToast('保存失敗','error'); }
 };
-window.removeGame = (id) => {
-  gameList = gameList.filter(g=>g.id!==id);
-  renderGameList();
+
+// ── GAME CARDS ──
+window.addGame=()=>{
+  const id=++gameIdCounter; gameList.push({id,open:true}); renderGameList();
+  setTimeout(()=>{const el=document.getElementById('game-card-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});},80);
 };
-window.toggleGameCard = (id) => {
-  const g=gameList.find(g=>g.id===id);
-  if(g){ g.open=!g.open; const card=document.getElementById('game-card-'+id); if(card) card.classList.toggle('open',g.open); }
+window.removeGame=(id)=>{ gameList=gameList.filter(g=>g.id!==id); renderGameList(); };
+window.toggleGameCard=(id)=>{
+  const g=gameList.find(g=>g.id===id); if(g){g.open=!g.open; const card=document.getElementById('game-card-'+id); if(card) card.classList.toggle('open',g.open);}
 };
-window.toggleInline = (el) => {
-  el.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>t.classList.remove('sel'));
-  el.classList.add('sel');
-  const body=el.closest('.game-card-body');
-  if(body){ const oi=body.querySelector('.other-country-input'); if(oi) oi.classList.toggle('show',el.textContent.includes('その他')); }
+window.toggleInline=(el)=>{
+  el.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>t.classList.remove('sel')); el.classList.add('sel');
+  const body=el.closest('.game-card-body'); if(body){const oi=body.querySelector('.other-country-input');if(oi)oi.classList.toggle('show',el.textContent.includes('その他'));}
 };
-window.toggleInlineMulti = (el) => {
+window.toggleInlineMulti=(el)=>{
   el.classList.toggle('sel');
-  const body=el.closest('.game-card-body');
-  if(body){ const oi=body.querySelector('.other-country-input'); if(oi){ const any=Array.from(body.querySelectorAll('.country-toggle')).some(t=>t.classList.contains('sel')&&t.textContent.includes('その他')); oi.classList.toggle('show',any); } }
+  const body=el.closest('.game-card-body'); if(body){const oi=body.querySelector('.other-country-input');if(oi){const any=Array.from(body.querySelectorAll('.country-toggle')).some(t=>t.classList.contains('sel')&&t.textContent.includes('その他'));oi.classList.toggle('show',any);}}
 };
-window.updateGameSummary = (id) => {
+window.updateGameSummary=(id)=>{
   const card=document.getElementById('game-card-'+id); if(!card) return;
   const result=card.querySelector('.result-sel')?.textContent||'?';
   const format=card.querySelector('.format-toggle.sel')?.textContent||'';
@@ -1113,36 +1309,35 @@ window.updateGameSummary = (id) => {
   card.querySelector('.game-card-summary').textContent=`${format} vs ${opp}`;
   const re=card.querySelector('.game-card-result');
   re.textContent=result; re.className='game-card-result';
-  if(result==='勝') re.classList.add('result-win');
-  else if(result==='負') re.classList.add('result-lose');
-  else if(result==='引き分け') re.classList.add('result-draw');
+  if(result==='勝')re.classList.add('result-win');
+  else if(result==='負')re.classList.add('result-lose');
+  else if(result==='引き分け')re.classList.add('result-draw');
   else re.classList.add('result-q');
 };
 
 function collectGameData(id){
   const card=document.getElementById('game-card-'+id); if(!card) return {};
-  const get=(sel,attr='textContent')=>card.querySelector(sel)?.[attr]||'';
-  return {
-    result: card.querySelector('.result-sel')?.textContent||'',
-    format: card.querySelector('.format-toggle.sel')?.textContent||'',
-    timeControl: card.querySelector('.time-toggle.sel')?.textContent||'',
-    opponentName: get('.opp-name-input','value'),
-    opponentLevel: card.querySelector('.level-toggle.sel')?.textContent||'',
-    opponentCountry: Array.from(card.querySelectorAll('.country-toggle.sel')).map(t=>t.textContent).join(','),
-    opponentCountryOther: card.querySelector('.other-country-input input')?.value||'',
-    boardSize: card.querySelector('.board-toggle.sel')?.textContent||'19路',
-    myColor: card.querySelector('.color-toggle.sel')?.textContent||'',
-    commentGood: card.querySelector('.game-good')?.value||'',
-    commentGoodPublic: card.querySelector('.sw-game-good')?.classList.contains('on')||false,
-    commentBad: card.querySelector('.game-bad')?.value||'',
-    commentBadPublic: card.querySelector('.sw-game-bad')?.classList.contains('on')||false,
-    commentFree: card.querySelector('.game-free')?.value||'',
-    commentFreePublic: card.querySelector('.sw-game-free')?.classList.contains('on')||false,
+  return{
+    result:card.querySelector('.result-sel')?.textContent||'',
+    format:card.querySelector('.format-toggle.sel')?.textContent||'',
+    timeControl:card.querySelector('.time-toggle.sel')?.textContent||'',
+    opponentName:card.querySelector('.opp-name-input')?.value||'',
+    opponentLevel:card.querySelector('.level-toggle.sel')?.textContent||'',
+    opponentCountry:Array.from(card.querySelectorAll('.country-toggle.sel')).map(t=>t.textContent).join(', '),
+    opponentCountryOther:card.querySelector('.other-country-input input')?.value||'',
+    boardSize:card.querySelector('.board-toggle.sel')?.textContent||'19路',
+    myColor:card.querySelector('.color-toggle.sel')?.textContent||'',
+    commentGood:card.querySelector('.game-good')?.value||'',
+    commentGoodPublic:card.querySelector('.sw-game-good')?.classList.contains('on')||false,
+    commentBad:card.querySelector('.game-bad')?.value||'',
+    commentBadPublic:card.querySelector('.sw-game-bad')?.classList.contains('on')||false,
+    commentFree:card.querySelector('.game-free')?.value||'',
+    commentFreePublic:card.querySelector('.sw-game-free')?.classList.contains('on')||false,
   };
 }
 
 function renderGameList(){
-  const el=document.getElementById('game-list'); if(!el) return;
+  const el=$('game-list'); if(!el) return;
   el.innerHTML=gameList.map((g,idx)=>`
   <div class="game-card ${g.open?'open':''}" id="game-card-${g.id}">
     <div class="game-card-header" onclick="toggleGameCard(${g.id})">
@@ -1153,15 +1348,15 @@ function renderGameList(){
       <button class="game-card-remove" onclick="event.stopPropagation();removeGame(${g.id})">✕</button>
     </div>
     <div class="game-card-body">
-      <div class="form-group" style="margin-bottom:12px">
-        <div class="form-label">結果</div>
-        <div class="inline-toggle-group">
-          <div class="inline-toggle result-sel sel" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">勝</div>
-          <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">負</div>
-          <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">引き分け</div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">結果</div>
+          <div class="inline-toggle-group">
+            <div class="inline-toggle result-sel sel" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">勝</div>
+            <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">負</div>
+            <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">引き分け</div>
+          </div>
         </div>
-      </div>
-      <div class="form-row" style="margin-bottom:12px">
         <div class="form-group">
           <div class="form-label">対局形式</div>
           <div class="inline-toggle-group">
@@ -1169,6 +1364,8 @@ function renderGameList(){
             <div class="inline-toggle format-toggle" onclick="toggleInline(this);updateGameSummary(${g.id})">対面（リアル）</div>
           </div>
         </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <div class="form-label">時間設定</div>
           <div class="inline-toggle-group">
@@ -1177,8 +1374,15 @@ function renderGameList(){
             <div class="inline-toggle time-toggle" onclick="toggleInline(this)">長碁</div>
           </div>
         </div>
+        <div class="form-group">
+          <div class="form-label">自分の色</div>
+          <div class="inline-toggle-group">
+            <div class="inline-toggle color-toggle sel" onclick="toggleInline(this)">⚫ 黒</div>
+            <div class="inline-toggle color-toggle" onclick="toggleInline(this)">⚪ 白</div>
+          </div>
+        </div>
       </div>
-      <div class="form-row" style="margin-bottom:12px">
+      <div class="form-row">
         <div class="form-group">
           <div class="form-label">相手の名前・ID（任意）</div>
           <input class="form-input opp-name-input" placeholder="例：一力遼、goking88" oninput="updateGameSummary(${g.id})">
@@ -1200,29 +1404,15 @@ function renderGameList(){
           <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🇨🇳 中国人</div>
           <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🇰🇷 韓国人</div>
           <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🇹🇼 台湾人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🌏 その他の国</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🌏 その他</div>
           <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">不明</div>
         </div>
         <div class="other-country-input"><input class="form-input" placeholder="国名を入力（例：アメリカ人、ドイツ人）"></div>
       </div>
-      <div class="form-row" style="margin-bottom:12px">
-        <div class="form-group">
-          <div class="form-label">碁盤サイズ</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle board-toggle sel" onclick="toggleInline(this)">19路</div>
-            <div class="inline-toggle board-toggle" onclick="toggleInline(this)">13路</div>
-            <div class="inline-toggle board-toggle" onclick="toggleInline(this)">9路</div>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-label">自分の色</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle color-toggle sel" onclick="toggleInline(this)">⚫ 黒</div>
-            <div class="inline-toggle color-toggle" onclick="toggleInline(this)">⚪ 白</div>
-          </div>
-        </div>
+      <div class="form-row">
+        <div class="form-group"><div class="form-label">碁盤サイズ</div><div class="inline-toggle-group"><div class="inline-toggle board-toggle sel" onclick="toggleInline(this)">19路</div><div class="inline-toggle board-toggle" onclick="toggleInline(this)">13路</div><div class="inline-toggle board-toggle" onclick="toggleInline(this)">9路</div></div></div>
       </div>
-      <div style="font-size:11px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">📝 この対局のコメント</div>
+      <div style="font-size:11px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin:10px 0 8px;padding-top:8px;border-top:1px solid var(--border)">📝 この対局のコメント</div>
       <div class="form-group" style="margin-bottom:10px">
         <div class="form-label">✅ 良かった点</div>
         <textarea class="form-textarea game-good" placeholder="うまくいった手、読み…" style="min-height:50px"></textarea>
@@ -1242,31 +1432,47 @@ function renderGameList(){
   </div>`).join('');
 }
 
-// ===== NUM INPUTS =====
-const numVals = { tsumego:0, ai_study:0, kifu:0, other:0 };
-window.numChange = (key, delta) => {
-  numVals[key] = Math.max(0, numVals[key]+delta);
-  const el = document.getElementById('val-'+key);
-  if(el) el.textContent = numVals[key];
+// ── EXTRA STUDY ──
+window.addExtraStudy=()=>{
+  const id=++extraStudyCounter;
+  const list=$('extra-study-list'); if(!list) return;
+  const div=document.createElement('div');
+  div.className='extra-study-item'; div.id='extra-item-'+id;
+  div.innerHTML=`
+    <input class="form-input" placeholder="勉強内容（例：棋書を読む、手筋の勉強）" style="flex:1">
+    <input class="form-input extra-study-time" type="number" min="0" placeholder="分" style="width:70px">
+    <button class="extra-remove-btn" onclick="removeExtraStudy(${id})">✕</button>`;
+  list.appendChild(div);
+};
+window.removeExtraStudy=(id)=>{ const el=$('extra-item-'+id); if(el) el.remove(); };
+function getExtraStudyData(){
+  return Array.from(document.querySelectorAll('.extra-study-item')).map(item=>{
+    const inputs=item.querySelectorAll('input');
+    return{name:inputs[0]?.value.trim()||'',minutes:parseInt(inputs[1]?.value)||0};
+  }).filter(e=>e.name);
+}
+
+// ── NUM INPUTS ──
+const numVals={tsumego:0,ai_study:0,kifu:0};
+window.numChange=(key,delta)=>{
+  numVals[key]=Math.max(0,numVals[key]+delta);
+  const el=document.getElementById('val-'+key); if(el) el.textContent=numVals[key];
 };
 
-// ===== TOGGLES =====
-window.toggleTag = (el) => el.classList.toggle('active');
-window.toggleSwitch = (el) => el.classList.toggle('on');
-window.toggleQAForm = () => {
-  const f=document.getElementById('qa-form');
-  f.style.display=f.style.display==='none'?'block':'none';
-};
+// ── TOGGLES ──
+window.toggleTag=(el)=>el.classList.toggle('active');
+window.toggleSwitch=(el)=>el.classList.toggle('on');
+window.toggleQAForm=()=>{ const f=$('qa-form'); f.style.display=f.style.display==='none'?'block':'none'; };
 
-// ===== PANEL SWITCH =====
-const PAGE_TITLES = {dashboard:'ダッシュボード',record:'今日の記録',timeline:'タイムライン',ranking:'ランキング',compare:'比較・分析',follows:'フォロー管理',qa:'Q&A掲示板',settings:'設定'};
-window.showPanel = (name) => {
+// ── PANEL SWITCH ──
+const PAGE_TITLES={dashboard:'ダッシュボード',record:'今日の記録',timeline:'タイムライン',ranking:'ランキング',compare:'比較・分析',follows:'フォロー管理',qa:'Q&A掲示板',settings:'設定・目標'};
+window.showPanel=(name)=>{
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name)?.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const found = Array.from(document.querySelectorAll('.nav-item')).find(n=>n.textContent.trim().startsWith(PAGE_TITLES[name]?.slice(0,3)));
-  if(found) found.classList.add('active');
-  document.getElementById('page-title').textContent=PAGE_TITLES[name]||'';
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.classList.toggle('active',n.textContent.trim().startsWith(PAGE_TITLES[name]?.slice(0,3)));
+  });
+  $('page-title').textContent=PAGE_TITLES[name]||'';
   if(name==='ranking') loadRanking();
   if(name==='follows') loadFollows();
   if(name==='timeline') loadTimeline();
@@ -1274,57 +1480,7 @@ window.showPanel = (name) => {
   if(name==='compare') loadCompare();
 };
 
-// ===== COMPARE =====
-async function loadCompare(){
-  try {
-    // Load top users for compare tabs
-    const snap = await getDocs(query(collection(db,'users'), limit(10)));
-    const tabs = document.getElementById('compare-tabs');
-    const others = snap.docs.filter(d=>d.id!==currentUser?.uid).slice(0,4);
-    tabs.innerHTML = `<div class="compare-tab active" onclick="setCompareTarget(this,'avg',null)">全体平均</div>`
-      + others.map(d=>`<div class="compare-tab" onclick="setCompareTarget(this,'${d.id}','${d.data().displayName}')">${d.data().displayName}</div>`).join('');
-    // My data
-    const me = document.getElementById('cmp-my-name');
-    if(me) me.textContent = currentProfile?.displayName||'自分';
-  } catch(e){}
-}
-window.setCompareTarget = async (el, uid, name) => {
-  document.querySelectorAll('.compare-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('compare-target-name').textContent = name||'全体平均';
-  // Load today's my record
-  try {
-    const today=new Date(); today.setHours(0,0,0,0);
-    const myQ=query(collection(db,'records'),where('uid','==',currentUser.uid),where('date','>=',today),orderBy('date','desc'),limit(1));
-    const mySnap=await getDocs(myQ);
-    const myData=mySnap.empty?{}:mySnap.docs[0].data();
-    document.getElementById('cmp-my-score').textContent=myData.score||0;
-    renderProgs('my-prog', myData, true);
-    if(uid==='avg'){
-      // compute average
-      const allQ=query(collection(db,'records'),where('date','>=',today),orderBy('date','desc'),limit(50));
-      const allSnap=await getDocs(allQ);
-      const all=allSnap.docs.map(d=>d.data());
-      const avg=d=>all.reduce((s,r)=>s+(r[d]||0),0)/Math.max(all.length,1);
-      const avgData={score:Math.round(avg('score')),tsumego:Math.round(avg('tsumego')),ai_study:Math.round(avg('ai_study')),kifu:Math.round(avg('kifu'))};
-      document.getElementById('compare-target-score').textContent=avgData.score||0;
-      renderProgs('target-prog', avgData, false);
-    } else {
-      const tQ=query(collection(db,'records'),where('uid','==',uid),where('date','>=',today),orderBy('date','desc'),limit(1));
-      const tSnap=await getDocs(tQ);
-      const tData=tSnap.empty?{}:tSnap.docs[0].data();
-      document.getElementById('compare-target-score').textContent=tData.score||0;
-      renderProgs('target-prog', tData, false);
-    }
-  } catch(e){}
-};
-function renderProgs(elId, data, isGold){
-  const el=document.getElementById(elId); if(!el) return;
-  const items=[{label:'詰碁(問)',key:'tsumego',max:100},{label:'AI研究(分)',key:'ai_study',max:120},{label:'棋譜並べ(分)',key:'kifu',max:120}];
-  el.innerHTML=items.map(i=>`<div class="prog-row"><div class="prog-label">${i.label}</div><div class="prog-bar-wrap"><div class="prog-fill${isGold?' gold':''}" style="width:${Math.min(100,Math.round((data[i.key]||0)/i.max*100))}%"></div></div><div class="prog-val">${data[i.key]||0}</div></div>`).join('');
-}
-
-// ===== CHARTS =====
+// ── CHARTS ──
 function initCharts(){
   const wc=document.getElementById('weekChart')?.getContext('2d');
   if(wc&&!charts.week){ charts.week=new Chart(wc,{type:'line',data:{labels:['月','火','水','木','金','土','日'],datasets:[{label:'自分',data:[0,0,0,0,0,0,0],borderColor:'#c8a84a',backgroundColor:'rgba(200,168,74,.12)',tension:.4,pointRadius:4},{label:'全体平均',data:[0,0,0,0,0,0,0],borderColor:'#4a9870',backgroundColor:'rgba(74,152,112,.08)',tension:.4,pointRadius:3,borderDash:[4,3]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#a09880',font:{size:11}}}},scales:{x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}},y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'},min:0,max:100}}}}); }
@@ -1336,24 +1492,29 @@ function initCharts(){
   if(rd&&!charts.rankDist){ charts.rankDist=new Chart(rd,{type:'bar',data:{labels:['0-9','10-29','30-49','50-69','70-84','85-94','95-100'],datasets:[{label:'人数',data:[2,5,8,15,12,6,2],backgroundColor:'rgba(74,120,200,.6)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}},y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'}}}}}); }
 }
 
-// ===== MISC UI =====
 function renderProgressBars(){
-  const items=[{label:'詰碁 目標100問',val:numVals.tsumego,max:100},{label:'AI研究 60分',val:numVals.ai_study,max:60},{label:'棋譜並べ 30分',val:numVals.kifu,max:30}];
-  const el=document.getElementById('progress-bars'); if(!el) return;
-  el.innerHTML=items.map(i=>`<div class="prog-row"><div class="prog-label" style="font-size:10px">${i.label}</div><div class="prog-bar-wrap"><div class="prog-fill gold" style="width:${Math.min(100,Math.round(i.val/i.max*100))}%"></div></div><div class="prog-val">${i.val}/${i.max}</div></div>`).join('');
+  const g=currentGoals;
+  const items=[
+    {label:'詰碁',val:numVals.tsumego,max:g.tsumego||50,unit:'問'},
+    {label:'AI研究',val:numVals.ai_study,max:g.ai_study||30,unit:'分'},
+    {label:'棋譜並べ',val:numVals.kifu,max:g.kifu||30,unit:'分'},
+  ];
+  const el=$('progress-bars'); if(!el) return;
+  el.innerHTML=items.map(i=>`<div class="prog-row"><div class="prog-label" style="font-size:10px">${i.label} 目標${i.max}${i.unit}</div><div class="prog-bar-wrap"><div class="prog-fill gold" style="width:${Math.min(100,Math.round(i.val/i.max*100))}%"></div></div><div class="prog-val">${i.val}/${i.max}</div></div>`).join('');
 }
+
 function renderMiniBars(){
   const data=Array.from({length:30},(_,i)=>Math.max(3,Math.floor(Math.sin(i*.5)*15+20+Math.random()*15)));
   const max=Math.max(...data);
-  const el=document.getElementById('mini-bars'); if(!el) return;
+  const el=$('mini-bars'); if(!el) return;
   el.innerHTML=data.map((v,i)=>`<div class="mini-bar-wrap"><div class="mini-bar${i===29?' me':''}" style="height:${Math.round(v/max*56)}px" title="${v}問"></div></div>`).join('');
 }
+
 function renderSettings(){
-  const items=[{label:'詰碁の記録',on:true},{label:'AI研究の時間',on:true},{label:'棋譜並べの時間',on:true},{label:'対局記録',on:true},{label:'AIスコアをランキングに表示',on:true},{label:'フォロー中の通知',on:true},{label:'その他の勉強時間',on:false}];
-  const el=document.getElementById('settings-list'); if(!el) return;
+  const items=[{label:'詰碁の記録',on:true},{label:'AI研究の時間',on:true},{label:'棋譜並べの時間',on:true},{label:'その他学習',on:true},{label:'対局記録',on:true},{label:'AIスコアをランキングに表示',on:true},{label:'フォロー中の通知',on:true}];
+  const el=$('settings-list'); if(!el) return;
   el.innerHTML=items.map(s=>`<div class="setting-item"><div style="font-size:12px">${s.label}</div><div class="toggle-switch${s.on?' on':''}" onclick="toggleSwitch(this)"></div></div>`).join('');
 }
-
 </script>
 </body>
 </html>
