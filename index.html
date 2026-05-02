@@ -386,7 +386,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
   <div class="topbar">
     <div class="page-title" id="page-title">ダッシュボード</div>
     <div class="topbar-actions">
-      <button class="notif-btn">🔔<div class="notif-dot"></div></button>
+      <button class="notif-btn" onclick="showPanel('timeline')">🔔<div class="notif-dot"></div></button>
       <button class="icon-btn primary" onclick="showPanel('record')">＋ 今日の記録</button>
       <button class="icon-btn" onclick="doLogout()">ログアウト</button>
     </div>
@@ -855,11 +855,17 @@ function prefillSettings(){
 async function loadDashboard(){
   if(!currentUser) return;
   try{
-    // createdAtで直近1件を取得（dateフィールドのインデックス不要）
-    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),orderBy('createdAt','desc'),limit(1));
+    // 自分の記録を最大10件取得してJS側で最新1件を使う（複合インデックス不要）
+    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(10));
     const snap=await getDocs(q);
-    if(!snap.empty){
-      const data=snap.docs[0].data();
+    // JS側で最新順にソート
+    const docs=snap.docs.sort((a,b)=>{
+      const ta=a.data().createdAt?.toMillis?.()||0;
+      const tb=b.data().createdAt?.toMillis?.()||0;
+      return tb-ta;
+    });
+    if(docs.length>0){
+      const data=docs[0].data();
       const score=calcScore(data,currentGoals);
       $('dash-score').textContent=score;
       $('dash-score-sub').textContent='本日スコア';
@@ -1027,10 +1033,18 @@ window.doReact=async(rid,ri,btn)=>{
 // ── RANKING ──
 async function loadRanking(){
   try{
-    const q=query(collection(db,'records'),orderBy('createdAt','desc'),limit(50));
+    const q=query(collection(db,'records'),limit(100));
     const snap=await getDocs(q);
+    // JS側で最新順ソート→ユーザーごとに最高スコアを取得
+    const sorted=snap.docs.sort((a,b)=>{
+      const ta=a.data().createdAt?.toMillis?.()||0;
+      const tb=b.data().createdAt?.toMillis?.()||0;
+      return tb-ta;
+    });
     const seen={}, top=[];
-    snap.docs.forEach(d=>{ const r=d.data(); if(!seen[r.uid]){seen[r.uid]=r;top.push(r);} });
+    sorted.forEach(d=>{ const r=d.data(); if(!seen[r.uid]){seen[r.uid]=r;top.push(r);} });
+    // スコア降順
+    top.sort((a,b)=>(b.score||0)-(a.score||0));
     const max=top[0]?.score||1;
     const html=top.map((r,i)=>{
       const isMe=r.uid===currentUser?.uid, nc=i===0?'top1':i===1?'top2':i===2?'top3':'';
@@ -1179,16 +1193,17 @@ window.setCompareTarget=async(el,uid,name)=>{
   el.classList.add('active');
   $('compare-target-name').textContent=name||'全体平均';
   try{
-    // My data（直近1件）
-    const myQ=query(collection(db,'records'),where('uid','==',currentUser.uid),orderBy('createdAt','desc'),limit(1));
+    // My data（複合インデックス不要）
+    const myQ=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(10));
     const mySnap=await getDocs(myQ);
-    const myData=mySnap.empty?{}:mySnap.docs[0].data();
+    const myDocs=mySnap.docs.sort((a,b)=>(b.data().createdAt?.toMillis?.()||0)-(a.data().createdAt?.toMillis?.()||0));
+    const myData=myDocs.length>0?myDocs[0].data():{};
     $('cmp-my-score').textContent=myData.score||0;
     renderAllProgs('my-prog',myData,true);
 
     let targetData={};
     if(uid==='avg'){
-      const allQ=query(collection(db,'records'),orderBy('createdAt','desc'),limit(50));
+      const allQ=query(collection(db,'records'),limit(100));
       const allSnap=await getDocs(allQ);
       const all=allSnap.docs.map(d=>d.data());
       const n=Math.max(all.length,1);
@@ -1196,9 +1211,10 @@ window.setCompareTarget=async(el,uid,name)=>{
       const avgExtra=all.reduce((s,r)=>(r.extra_study||[]).reduce((a,e)=>a+(e.minutes||0),0)+s,0)/n;
       targetData={score:Math.round(all.reduce((s,r)=>s+(r.score||0),0)/n),tsumego:Math.round(all.reduce((s,r)=>s+(r.tsumego||0),0)/n),ai_study:Math.round(all.reduce((s,r)=>s+(r.ai_study||0),0)/n),kifu:Math.round(all.reduce((s,r)=>s+(r.kifu||0),0)/n),games:Math.round(avgGames),extra:Math.round(avgExtra)};
     }else{
-      const tQ=query(collection(db,'records'),where('uid','==',uid),orderBy('createdAt','desc'),limit(1));
+      const tQ=query(collection(db,'records'),where('uid','==',uid),limit(10));
       const tSnap=await getDocs(tQ);
-      targetData=tSnap.empty?{}:tSnap.docs[0].data();
+      const tDocs=tSnap.docs.sort((a,b)=>(b.data().createdAt?.toMillis?.()||0)-(a.data().createdAt?.toMillis?.()||0));
+      targetData=tDocs.length>0?tDocs[0].data():{};
     }
     $('compare-target-score').textContent=targetData.score||0;
     renderAllProgs('target-prog',targetData,false);
