@@ -777,9 +777,23 @@ onAuthStateChanged(auth,async user=>{
   if(user){
     currentUser=user;
     try{
-      const snap=await getDoc(doc(db,'users',user.uid));
-      currentProfile=snap.exists()?snap.data():{displayName:user.displayName||'プレイヤー',rank:'',userType:'kyu',photoURL:'',goals:{}};
-      currentGoals=currentProfile.goals||{};
+      const userRef = doc(db,'users',user.uid);
+      const snap = await getDoc(userRef);
+      if(snap.exists()){
+        currentProfile = snap.data();
+      } else {
+        // Googleログインなどでドキュメントがない場合は自動作成
+        const newProfile = {
+          displayName:user.displayName||'囲碁プレイヤー',
+          email:user.email||'',rank:'',userType:'kyu',
+          photoURL:user.photoURL||'',
+          createdAt:serverTimestamp(),streak:0,totalScore:0,
+          goals:{tsumego:50,ai_study:30,kifu:30,games:3,total_study:60}
+        };
+        await setDoc(userRef, newProfile);
+        currentProfile = newProfile;
+      }
+      currentGoals = currentProfile.goals||{};
     }catch(e){ currentProfile={displayName:user.displayName||'プレイヤー',rank:'',userType:'kyu',photoURL:'',goals:{}}; currentGoals={}; }
     updateSidebarUser();
     $('auth-wall').style.display='none';
@@ -917,9 +931,18 @@ window.submitRecord=async()=>{
     data.score=calcScore(data,currentGoals);
     data.aiComment=genAIComment(data,data.score,currentGoals);
     await addDoc(collection(db,'records'),data);
-    await updateDoc(doc(db,'users',currentUser.uid),{
-      streak:increment(1),totalScore:increment(data.score),lastRecordAt:serverTimestamp()
-    });
+    // ユーザードキュメントがない場合も自動作成
+    const userRef = doc(db,'users',currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    if(userSnap.exists()){
+      await updateDoc(userRef,{streak:increment(1),totalScore:increment(data.score),lastRecordAt:serverTimestamp()});
+    } else {
+      await setDoc(userRef,{
+        displayName:currentProfile?.displayName||currentUser.displayName||'プレイヤー',
+        email:currentUser.email||'',rank:'',userType:'kyu',photoURL:currentProfile?.photoURL||currentUser.photoURL||'',
+        createdAt:serverTimestamp(),streak:1,totalScore:data.score,lastRecordAt:serverTimestamp(),goals:{}
+      });
+    }
     showToast('✅ 記録を保存しました！');
     btn.textContent='✓ 投稿完了！'; btn.style.background='linear-gradient(135deg,var(--jade),#2a7848)';
     setTimeout(()=>{ btn.disabled=false; btn.textContent='記録を投稿する'; btn.style.background=''; showPanel('dashboard'); loadDashboard(); loadTimeline(); },2000);
@@ -1112,14 +1135,14 @@ window.followUser=async(uid,btn)=>{
   try{
     const snap=await getDoc(doc(db,'users',currentUser.uid));
     const following=[...new Set([...(snap.data()?.following||[]),uid])];
-    await updateDoc(doc(db,'users',currentUser.uid),{following});
+    await setDoc(doc(db,'users',currentUser.uid),{following},{merge:true});
     btn.textContent='フォロー中'; btn.classList.add('active'); showToast('フォローしました');
   }catch(e){}
 };
 window.unfollowUser=async(uid,btn)=>{
   try{
     const snap=await getDoc(doc(db,'users',currentUser.uid));
-    await updateDoc(doc(db,'users',currentUser.uid),{following:(snap.data()?.following||[]).filter(id=>id!==uid)});
+    await setDoc(doc(db,'users',currentUser.uid),{following:(snap.data()?.following||[]).filter(id=>id!==uid)},{merge:true});
     btn.textContent='フォロー'; btn.classList.remove('active'); showToast('フォロー解除しました');
   }catch(e){}
 };
@@ -1248,7 +1271,7 @@ window.saveProfile=async()=>{
     }catch(e){ showToast('画像のアップロードに失敗しました','error'); }
   }
   try{
-    await updateDoc(doc(db,'users',currentUser.uid),{displayName,rank,userType,photoURL});
+    await setDoc(doc(db,'users',currentUser.uid),{displayName,rank,userType,photoURL},{merge:true});
     currentProfile={...currentProfile,displayName,rank,userType,photoURL};
     updateSidebarUser();
     showToast('✅ プロフィールを保存しました');
@@ -1277,7 +1300,7 @@ window.saveGoals=async()=>{
     const v=parseInt($('goal-'+k)?.value)||0; if(v>0) goals[k]=v;
   });
   try{
-    await updateDoc(doc(db,'users',currentUser.uid),{goals});
+    await setDoc(doc(db,'users',currentUser.uid),{goals},{merge:true});
     currentGoals=goals; currentProfile={...currentProfile,goals};
     showToast('✅ 目標を保存しました！');
     renderProgressBars();
