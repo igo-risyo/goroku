@@ -623,27 +623,27 @@ import { getFirestore, doc, setDoc, getDoc, collection, addDoc,
          query, orderBy, limit, getDocs, where, updateDoc, increment,
          serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
-  from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
+// Storage不使用（Base64でFirestoreに直接保存）
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDMWj2D93inW4a5yziKyBx9twcQsQzKdl0",
-  authDomain: "kufu-igo.firebaseapp.com",
-  projectId: "kufu-igo",
-  storageBucket: "kufu-igo.firebasestorage.app",
-  messagingSenderId: "810543494533",
-  appId: "1:810543494533:web:c7ae9ccc1769128696c0ec"
+  apiKey: "AIzaSyDK_6NRN-RsdqM4Vqy98FYpQLhupEZiNlk",
+  authDomain: "goroku-8799d.firebaseapp.com",
+  projectId: "goroku-8799d",
+  storageBucket: "goroku-8799d.firebasestorage.app",
+  messagingSenderId: "776305420838",
+  appId: "1:776305420838:web:72d1d9ac484339a05414e7",
+  measurementId: "G-JWJ21C8K96"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
 let currentUser = null, currentProfile = null, currentGoals = {};
 let charts = {}, gameIdCounter = 0, gameList = [], extraStudyCounter = 0;
 let pendingAvatarFile = null;
+let pendingAvatarBase64 = null;
 let selectedUserType = 'dan';
 
 // ── HELPERS ──
@@ -913,6 +913,24 @@ window.submitRecord=async()=>{
   try{
     const tags=Array.from(document.querySelectorAll('#record-tags .toggle-item.active')).map(t=>t.textContent);
     const extra=getExtraStudyData();
+    const newGames=gameList.map(g=>collectGameData(g.id));
+
+    // 本日の既存記録を検索してマージ（追加投稿対応）
+    const existQ=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(10));
+    const existSnap=await getDocs(existQ);
+    const todayStart=new Date(); todayStart.setHours(0,0,0,0);
+    const existDocs=existSnap.docs.filter(d=>{
+      const ct=d.data().createdAt?.toDate?.();
+      return ct && ct>=todayStart;
+    }).sort((a,b)=>(b.data().createdAt?.toMillis?.()||0)-(a.data().createdAt?.toMillis?.()||0));
+
+    const prevData=existDocs.length>0 ? existDocs[0].data() : null;
+    const existDocId=existDocs.length>0 ? existDocs[0].id : null;
+
+    // 対局リスト：既存 + 今回の新しい対局を追加
+    const prevGames=Array.isArray(prevData?.games)?prevData.games:[];
+    const mergedGames=[...prevGames,...newGames];
+
     const data={
       uid:currentUser.uid,
       displayName:currentProfile?.displayName||'',
@@ -920,48 +938,60 @@ window.submitRecord=async()=>{
       rank:currentProfile?.rank||'',
       photoURL:currentProfile?.photoURL||'',
       date:serverTimestamp(),
-      tsumego:numVals.tsumego,
+      // 数値は既存値に今回の入力を加算
+      tsumego:(prevData?.tsumego||0)+numVals.tsumego,
       tsumegoLevel:$('tsumego-level')?.value||'',
-      ai_study:numVals.ai_study,
-      kifu:numVals.kifu,
-      extra_study:extra,
-      games:gameList.map(g=>collectGameData(g.id)),
-      comment_good:$('comment-good').value,
+      ai_study:(prevData?.ai_study||0)+numVals.ai_study,
+      kifu:(prevData?.kifu||0)+numVals.kifu,
+      extra_study:mergeExtraStudy(prevData?.extra_study||[], extra),
+      games:mergedGames,
+      // コメントは入力があれば上書き、なければ既存を保持
+      comment_good:$('comment-good').value||prevData?.comment_good||'',
       comment_good_public:$('sw-good').classList.contains('on'),
-      comment_bad:$('comment-bad').value,
+      comment_bad:$('comment-bad').value||prevData?.comment_bad||'',
       comment_bad_public:$('sw-bad').classList.contains('on'),
-      comment_free:$('comment-free').value,
+      comment_free:$('comment-free').value||prevData?.comment_free||'',
       comment_free_public:$('sw-free').classList.contains('on'),
-      tags,createdAt:serverTimestamp(),
+      tags:[...new Set([...(prevData?.tags||[]),...tags])],
+      updatedAt:serverTimestamp(),
     };
+    if(!existDocId) data.createdAt=serverTimestamp();
     data.score=calcScore(data,currentGoals);
     data.aiComment=genAIComment(data,data.score,currentGoals);
-    await addDoc(collection(db,'records'),data);
-    // ユーザードキュメントがない場合も自動作成
-    const userRef = doc(db,'users',currentUser.uid);
-    const userSnap = await getDoc(userRef);
+
+    if(existDocId){
+      await setDoc(doc(db,'records',existDocId),data,{merge:false});
+    } else {
+      await addDoc(collection(db,'records'),data);
+    }
+
+    // ユーザードキュメント更新
+    const userRef=doc(db,'users',currentUser.uid);
+    const userSnap=await getDoc(userRef);
     if(userSnap.exists()){
-      await updateDoc(userRef,{streak:increment(1),totalScore:increment(data.score),lastRecordAt:serverTimestamp()});
+      await setDoc(userRef,{totalScore:increment(data.score),lastRecordAt:serverTimestamp()},{merge:true});
     } else {
       await setDoc(userRef,{
         displayName:currentProfile?.displayName||currentUser.displayName||'プレイヤー',
-        email:currentUser.email||'',rank:'',userType:'kyu',photoURL:currentProfile?.photoURL||currentUser.photoURL||'',
+        email:currentUser.email||'',rank:'',userType:'kyu',photoURL:'',
         createdAt:serverTimestamp(),streak:1,totalScore:data.score,lastRecordAt:serverTimestamp(),goals:{}
       });
     }
-    showToast('✅ 記録を保存しました！');
-    btn.textContent='✓ 投稿完了！'; btn.style.background='linear-gradient(135deg,var(--jade),#2a7848)';
+
+    showToast('✅ 記録を保存しました！（本日分に合算）');
+    btn.textContent='✓ 保存完了！'; btn.style.background='linear-gradient(135deg,var(--jade),#2a7848)';
     setTimeout(()=>{
-      btn.disabled=false; btn.textContent='記録を投稿する'; btn.style.background='';
-      // フォームリセット（また入力できるように）
+      btn.disabled=false; btn.textContent='追加で記録する'; btn.style.background='';
+      // 入力欄をリセット（追加分をまた入力できるように）
       numVals.tsumego=0; numVals.ai_study=0; numVals.kifu=0;
       ['tsumego','ai_study','kifu'].forEach(k=>{ const el=$('val-'+k); if(el) el.textContent='0'; });
       $('comment-good').value=''; $('comment-bad').value=''; $('comment-free').value='';
       $('extra-study-list').innerHTML='';
-      gameList=[]; gameIdCounter=0; addGame();
+      gameList=[]; gameIdCounter=0; renderGameList();
       document.querySelectorAll('#record-tags .toggle-item').forEach(t=>t.classList.remove('active'));
+      setTimeout(()=>{ if(btn.textContent==='追加で記録する') btn.textContent='記録を投稿する'; },8000);
       loadDashboard(); loadTimeline();
-    },2000);
+    },1500);
   }catch(e){ showToast('保存に失敗: '+e.message,'error'); btn.disabled=false; btn.textContent='記録を投稿する'; }
 };
 
@@ -1286,13 +1316,10 @@ window.saveProfile=async()=>{
   const activeType=document.querySelector('#set-type-opts .toggle-item.active');
   const userType=typeMap[activeType?.textContent]||currentProfile?.userType||'kyu';
   let photoURL=currentProfile?.photoURL||'';
-  if(pendingAvatarFile){
-    try{
-      const ref=storageRef(storage,`avatars/${currentUser.uid}`);
-      await uploadBytes(ref,pendingAvatarFile);
-      photoURL=await getDownloadURL(ref);
-      pendingAvatarFile=null;
-    }catch(e){ showToast('画像のアップロードに失敗しました','error'); }
+  if(pendingAvatarBase64){
+    // Base64をそのままFirestoreに保存（Storage不要）
+    photoURL=pendingAvatarBase64;
+    pendingAvatarBase64=null;
   }
   try{
     await setDoc(doc(db,'users',currentUser.uid),{displayName,rank,userType,photoURL},{merge:true});
@@ -1308,14 +1335,42 @@ window.setTypeSelect=(el,type)=>{
 window.handleAvatarChange=(e)=>{
   const file=e.target.files[0]; if(!file) return;
   if(file.size>5*1024*1024){showToast('5MB以内の画像を選択してください','error');return;}
-  pendingAvatarFile=file;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const prev=$('settings-avatar-preview');
-    if(prev) prev.innerHTML=`<img src="${ev.target.result}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-  };
-  reader.readAsDataURL(file);
+  // プレビュー表示 & 圧縮してBase64保存
+  compressAndPreview(file);
 };
+
+function compressAndPreview(file){
+  const canvas=document.createElement('canvas');
+  const ctx=canvas.getContext('2d');
+  const img=new Image();
+  const url=URL.createObjectURL(file);
+  img.onload=()=>{
+    // 200x200にリサイズ（Firestoreの容量節約）
+    const size=200;
+    canvas.width=size; canvas.height=size;
+    // 正方形にクロップ
+    const min=Math.min(img.width,img.height);
+    const sx=(img.width-min)/2, sy=(img.height-min)/2;
+    ctx.drawImage(img,sx,sy,min,min,0,0,size,size);
+    URL.revokeObjectURL(url);
+    const base64=canvas.toDataURL('image/jpeg',0.7);
+    // プレビュー更新
+    const prev=$('settings-avatar-preview');
+    if(prev) prev.innerHTML=`<img src="${base64}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    // pendingAvatarFileの代わりにBase64を直接保持
+    pendingAvatarBase64=base64;
+  };
+  img.src=url;
+}
+
+async function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=e=>resolve(e.target.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 // ── GOALS SAVE ──
 window.saveGoals=async()=>{
@@ -1330,6 +1385,14 @@ window.saveGoals=async()=>{
     renderProgressBars();
   }catch(e){ showToast('保存失敗','error'); }
 };
+
+// ── EXTRA STUDY MERGE ──
+function mergeExtraStudy(prev, curr){
+  const map={};
+  (prev||[]).forEach(e=>{ if(e.name) map[e.name]=(map[e.name]||0)+e.minutes; });
+  (curr||[]).forEach(e=>{ if(e.name) map[e.name]=(map[e.name]||0)+e.minutes; });
+  return Object.entries(map).map(([name,minutes])=>({name,minutes}));
+}
 
 // ── GAME CARDS ──
 window.addGame=()=>{
