@@ -855,8 +855,8 @@ function prefillSettings(){
 async function loadDashboard(){
   if(!currentUser) return;
   try{
-    const today=new Date(); today.setHours(0,0,0,0);
-    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),where('date','>=',today),orderBy('date','desc'),limit(1));
+    // createdAtで直近1件を取得（dateフィールドのインデックス不要）
+    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),orderBy('createdAt','desc'),limit(1));
     const snap=await getDocs(q);
     if(!snap.empty){
       const data=snap.docs[0].data();
@@ -913,7 +913,7 @@ window.submitRecord=async()=>{
       userType:currentProfile?.userType||'kyu',
       rank:currentProfile?.rank||'',
       photoURL:currentProfile?.photoURL||'',
-      date:new Date(),
+      date:serverTimestamp(),
       tsumego:numVals.tsumego,
       tsumegoLevel:$('tsumego-level')?.value||'',
       ai_study:numVals.ai_study,
@@ -945,7 +945,17 @@ window.submitRecord=async()=>{
     }
     showToast('✅ 記録を保存しました！');
     btn.textContent='✓ 投稿完了！'; btn.style.background='linear-gradient(135deg,var(--jade),#2a7848)';
-    setTimeout(()=>{ btn.disabled=false; btn.textContent='記録を投稿する'; btn.style.background=''; showPanel('dashboard'); loadDashboard(); loadTimeline(); },2000);
+    setTimeout(()=>{
+      btn.disabled=false; btn.textContent='記録を投稿する'; btn.style.background='';
+      // フォームリセット（また入力できるように）
+      numVals.tsumego=0; numVals.ai_study=0; numVals.kifu=0;
+      ['tsumego','ai_study','kifu'].forEach(k=>{ const el=$('val-'+k); if(el) el.textContent='0'; });
+      $('comment-good').value=''; $('comment-bad').value=''; $('comment-free').value='';
+      $('extra-study-list').innerHTML='';
+      gameList=[]; gameIdCounter=0; addGame();
+      document.querySelectorAll('#record-tags .toggle-item').forEach(t=>t.classList.remove('active'));
+      loadDashboard(); loadTimeline();
+    },2000);
   }catch(e){ showToast('保存に失敗: '+e.message,'error'); btn.disabled=false; btn.textContent='記録を投稿する'; }
 };
 
@@ -1017,8 +1027,7 @@ window.doReact=async(rid,ri,btn)=>{
 // ── RANKING ──
 async function loadRanking(){
   try{
-    const today=new Date(); today.setHours(0,0,0,0);
-    const q=query(collection(db,'records'),where('date','>=',today),orderBy('date','desc'),orderBy('score','desc'),limit(30));
+    const q=query(collection(db,'records'),orderBy('createdAt','desc'),limit(50));
     const snap=await getDocs(q);
     const seen={}, top=[];
     snap.docs.forEach(d=>{ const r=d.data(); if(!seen[r.uid]){seen[r.uid]=r;top.push(r);} });
@@ -1170,9 +1179,8 @@ window.setCompareTarget=async(el,uid,name)=>{
   el.classList.add('active');
   $('compare-target-name').textContent=name||'全体平均';
   try{
-    const today=new Date(); today.setHours(0,0,0,0);
-    // My data
-    const myQ=query(collection(db,'records'),where('uid','==',currentUser.uid),where('date','>=',today),orderBy('date','desc'),limit(1));
+    // My data（直近1件）
+    const myQ=query(collection(db,'records'),where('uid','==',currentUser.uid),orderBy('createdAt','desc'),limit(1));
     const mySnap=await getDocs(myQ);
     const myData=mySnap.empty?{}:mySnap.docs[0].data();
     $('cmp-my-score').textContent=myData.score||0;
@@ -1180,7 +1188,7 @@ window.setCompareTarget=async(el,uid,name)=>{
 
     let targetData={};
     if(uid==='avg'){
-      const allQ=query(collection(db,'records'),where('date','>=',today),orderBy('date','desc'),limit(50));
+      const allQ=query(collection(db,'records'),orderBy('createdAt','desc'),limit(50));
       const allSnap=await getDocs(allQ);
       const all=allSnap.docs.map(d=>d.data());
       const n=Math.max(all.length,1);
@@ -1188,7 +1196,7 @@ window.setCompareTarget=async(el,uid,name)=>{
       const avgExtra=all.reduce((s,r)=>(r.extra_study||[]).reduce((a,e)=>a+(e.minutes||0),0)+s,0)/n;
       targetData={score:Math.round(all.reduce((s,r)=>s+(r.score||0),0)/n),tsumego:Math.round(all.reduce((s,r)=>s+(r.tsumego||0),0)/n),ai_study:Math.round(all.reduce((s,r)=>s+(r.ai_study||0),0)/n),kifu:Math.round(all.reduce((s,r)=>s+(r.kifu||0),0)/n),games:Math.round(avgGames),extra:Math.round(avgExtra)};
     }else{
-      const tQ=query(collection(db,'records'),where('uid','==',uid),where('date','>=',today),orderBy('date','desc'),limit(1));
+      const tQ=query(collection(db,'records'),where('uid','==',uid),orderBy('createdAt','desc'),limit(1));
       const tSnap=await getDocs(tQ);
       targetData=tSnap.empty?{}:tSnap.docs[0].data();
     }
