@@ -944,6 +944,18 @@ window.selectType=(el,t)=>{
 };
 function showAuthError(m){ const e=$('auth-err'); e.textContent=m; e.style.display='block'; }
 
+// Firebase接続確認（ページロード時）
+document.addEventListener('DOMContentLoaded', ()=>{
+  // 3秒でFirebaseが応答しない場合はログイン画面を表示
+  setTimeout(()=>{
+    const lo=document.getElementById('loading-overlay');
+    if(lo && !lo.classList.contains('hidden')){
+      console.log('Firebase slow/offline - showing auth');
+      showLoading(false);
+    }
+  }, 5000);
+});
+
 window.doLogin=async()=>{
   const email=$('login-email').value.trim(), pass=$('login-pass').value;
   if(!email||!pass){showAuthError('メールアドレスとパスワードを入力してください');return;}
@@ -984,6 +996,17 @@ window.doGoogleLogin=async()=>{
 window.doLogout=async()=>{ await signOut(auth); currentUser=null; currentProfile=null; };
 
 // ── AUTH STATE ──
+// 10秒後に強制的にローディングを解除（Firebase接続失敗時の保険）
+setTimeout(()=>{
+  const lo=document.getElementById('loading-overlay');
+  if(lo&&!lo.classList.contains('hidden')){
+    showLoading(false);
+    // ログイン画面を表示
+    const aw=document.getElementById('auth-wall');
+    if(aw) aw.style.display='flex';
+  }
+},10000);
+
 onAuthStateChanged(auth,async user=>{
   if(user){
     currentUser=user;
@@ -1979,8 +2002,6 @@ function initMascot(todayData, goals){
     mascotMsgIndex=(mascotMsgIndex+1)%msgs.length;
     if(!mascotVisible) showMascot(msgs);
   }, 30*60*1000);
-}
-
 }
 </script>
 </body>
