@@ -673,35 +673,104 @@ function avatarHTML(profile, size=32){
 // ── SCORE ──
 function calcScore(data, goals={}){
   let s=0;
-  s+=Math.min((data.tsumego||0)*0.8,40);
-  s+=Math.min((data.ai_study||0)*0.3,20);
-  s+=Math.min((data.kifu||0)*0.25,15);
+
+  // 詰碁：逓増方式（やるほど効率よく点が増える）
+  // 1問目〜10問: 1問1.5点, 11〜30問: 1問1.2点, 31問〜: 1問1.0点
+  const t=data.tsumego||0;
+  if(t<=10) s+=t*1.5;
+  else if(t<=30) s+=10*1.5+(t-10)*1.2;
+  else s+=10*1.5+20*1.2+(t-30)*1.0;
+  s=Math.min(s,40);
+
+  // AI研究：15分以上で加速
+  const ai=data.ai_study||0;
+  if(ai<=15) s+=ai*0.8;
+  else s+=15*0.8+(ai-15)*0.5;
+  s=Math.min(s,Math.min(s,s+20)); // max 20pt
+
+  // 棋譜並べ
+  const ki=data.kifu||0;
+  s+=Math.min(ki*0.4,15);
+
+  // 対局：逓増方式（1局3pt→2局+5pt→3局+6pt→以降+4pt）
   const gc=Array.isArray(data.games)?data.games.length:(data.games||0);
-  s+=Math.min(gc*3,15);
+  if(gc>=1) s+=3;
+  if(gc>=2) s+=5;
+  if(gc>=3) s+=6;
+  if(gc>3)  s+=(gc-3)*4;
+  s=Math.min(s,s); // 対局は上限なし（やるほど増える）
+
+  // その他学習
   const extraMins=(data.extra_study||[]).reduce((a,e)=>a+(e.minutes||0),0);
-  s+=Math.min(extraMins*0.1,10);
-  if(data.comment_good) s+=3; if(data.comment_bad) s+=3; if(data.comment_free) s+=2;
+  s+=Math.min(extraMins*0.3,15);
+
+  // コメント記録ボーナス
+  if(data.comment_good) s+=5;
+  if(data.comment_bad) s+=5;
+  if(data.comment_free) s+=3;
+
+  // 記録しただけでも最低10点
+  const hasAnyRecord=(t>0||ai>0||ki>0||gc>0||extraMins>0);
+  if(hasAnyRecord) s=Math.max(s,10);
+
   return Math.min(Math.round(s),100);
 }
 
 function genAIComment(data, score, goals={}){
   const gc=Array.isArray(data.games)?data.games.length:0;
+  const ai=data.ai_study||0;
+  const t=data.tsumego||0;
+  const ki=data.kifu||0;
+  const extra=(data.extra_study||[]).reduce((a,e)=>a+(e.minutes||0),0);
   let parts=[];
-  if(score>=90) parts.push('今日は非常に充実した学習でした！');
-  else if(score>=70) parts.push('良い学習ができています。');
-  else if(score>=40) parts.push('コツコツ積み上げていきましょう。');
-  else parts.push('今日の記録がつけられました。');
-  if(data.tsumego>=50) parts.push(`詰碁${data.tsumego}問は素晴らしいです。`);
-  else if(data.tsumego>0) parts.push(`詰碁${data.tsumego}問、お疲れ様。`);
-  if(data.ai_study>=30) parts.push('AI研究で新しい手法を習得できています。');
-  if(gc>0) parts.push(`対局${gc}局の実戦経験が直結します。`);
-  // goal evaluation
-  if(Object.keys(goals).length){
-    const g_t=goals.tsumego||0, g_ai=goals.ai_study||0;
-    if(g_t&&data.tsumego<g_t) parts.push(`詰碁目標まであと${g_t-data.tsumego}問。`);
-    if(g_ai&&data.ai_study<g_ai) parts.push(`AI研究目標まであと${g_ai-data.ai_study}分。`);
-    if((!g_t||data.tsumego>=g_t)&&(!g_ai||data.ai_study>=g_ai)) parts.push('全目標達成おめでとう！🎉');
+
+  // 総合評価
+  if(score>=85) parts.push('今日は非常に素晴らしい学習でした！🎉');
+  else if(score>=65) parts.push('良い学習ができています！');
+  else if(score>=40) parts.push('着実に積み上げています。');
+  else if(score>=15) parts.push('今日も記録できました。');
+  else parts.push('記録お疲れ様でした。');
+
+  // 各項目のポジティブ評価
+  if(t>=50) parts.push(`詰碁${t}問は圧巻です！`);
+  else if(t>=20) parts.push(`詰碁${t}問、しっかり取り組めました。`);
+  else if(t>0) parts.push(`詰碁${t}問からスタート。`);
+
+  if(ai>=60) parts.push('AI研究をたっぷり取り組めました。');
+  else if(ai>=30) parts.push('AI研究もバッチリです。');
+  else if(ai>0) parts.push(`AI研究${ai}分、お疲れ様。`);
+
+  if(gc>=3) parts.push(`対局${gc}局、実戦経験が棋力に直結します！`);
+  else if(gc>0) parts.push(`対局${gc}局打ちました。`);
+
+  if(ki>0) parts.push(`棋譜並べ${ki}分、プロの感覚を吸収中。`);
+
+  // 不足している項目を優しく提案
+  const suggestions=[];
+  if(t===0) suggestions.push('詰碁（5問だけでもOK）');
+  else if(t<10) suggestions.push(`詰碁をあと${10-t}問`);
+
+  if(ai===0) suggestions.push('AI研究（15分〜）');
+  if(gc===0) suggestions.push('対局を1局');
+  if(ki===0&&gc>0) suggestions.push('棋譜並べ（30分〜）');
+  if(extra===0&&t>0&&ai>0) suggestions.push('その他の勉強も記録してみましょう');
+
+  if(suggestions.length>0){
+    const pick=suggestions.slice(0,2);
+    parts.push(`💡 次はいかがでしょう？${pick.join('、')}にチャレンジ！`);
   }
+
+  // 目標との比較
+  if(Object.keys(goals).length){
+    const g_t=goals.tsumego||0, g_ai=goals.ai_study||0, g_g=goals.games||0;
+    const allOK=(!g_t||t>=g_t)&&(!g_ai||ai>=g_ai)&&(!g_g||gc>=g_g);
+    if(allOK&&(g_t||g_ai||g_g)) parts.push('🏆 本日の全目標達成！');
+    else{
+      if(g_t&&t<g_t) parts.push(`詰碁目標まであと${g_t-t}問。`);
+      if(g_ai&&ai<g_ai) parts.push(`AI研究目標まであと${g_ai-ai}分。`);
+    }
+  }
+
   return parts.join(' ');
 }
 
@@ -852,14 +921,37 @@ function prefillSettings(){
 }
 
 // ── DASHBOARD ──
+// 日付が変わったら表示をリセット（自動日次リセット）
+function checkDayReset(){
+  const today=new Date().toDateString();
+  const last=localStorage.getItem('goroku_last_date');
+  if(last && last!==today){
+    // 日付が変わった→ダッシュボードの数値をリセット表示
+    $('dash-score').textContent='—';
+    $('dash-score-sub').textContent='今日はまだ記録がありません';
+    $('dash-streak').textContent=currentProfile?.streak||0;
+    $('dash-tsumego').textContent='0';
+    $('dash-games').textContent='0';
+    $('ai-score-val').textContent='—';
+    $('ai-comment-text').textContent='新しい一日のスタートです！今日も記録をつけましょう。💪';
+    $('goal-progress-card').style.display='none';
+  }
+  localStorage.setItem('goroku_last_date', today);
+}
+
 async function loadDashboard(){
   if(!currentUser) return;
+  checkDayReset();
   try{
-    // 自分の記録を最大10件取得してJS側で最新1件を使う（複合インデックス不要）
-    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(10));
+    // 自分の記録を最大20件取得してJS側で本日分を絞り込む
+    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(20));
     const snap=await getDocs(q);
-    // JS側で最新順にソート
-    const docs=snap.docs.sort((a,b)=>{
+    // 本日分のみ絞り込み→最新順ソート
+    const todayStart=new Date(); todayStart.setHours(0,0,0,0);
+    const docs=snap.docs.filter(d=>{
+      const ct=d.data().createdAt?.toDate?.();
+      return ct && ct>=todayStart;
+    }).sort((a,b)=>{
       const ta=a.data().createdAt?.toMillis?.()||0;
       const tb=b.data().createdAt?.toMillis?.()||0;
       return tb-ta;
