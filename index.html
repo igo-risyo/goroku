@@ -297,6 +297,63 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 .toast.success{border-color:var(--jade);color:var(--jade2);}
 .toast.error{border-color:var(--red);color:#e87070;}
 
+/* ===== GOROKU MASCOT ===== */
+.mascot-wrap{
+  position:fixed;bottom:24px;right:24px;z-index:9000;
+  display:flex;flex-direction:column;align-items:flex-end;gap:8px;
+  pointer-events:none;
+}
+.mascot-bubble{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:12px 12px 4px 12px;
+  padding:12px 14px;max-width:240px;min-width:160px;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+  pointer-events:all;
+  animation:bubbleIn .35s cubic-bezier(.34,1.56,.64,1) both;
+  position:relative;
+}
+@keyframes bubbleIn{from{opacity:0;transform:scale(.8) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mascot-bubble.hiding{animation:bubbleOut .25s ease both;}
+@keyframes bubbleOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85) translateY(6px)}}
+.mascot-bubble-text{font-size:12px;color:var(--text);line-height:1.65;margin-bottom:8px;padding-right:16px;}
+.mascot-bubble-close{
+  position:absolute;top:8px;right:10px;
+  background:none;border:none;color:var(--text3);
+  cursor:pointer;font-size:13px;line-height:1;padding:0;
+  transition:color .15s;pointer-events:all;
+}
+.mascot-bubble-close:hover{color:var(--red);}
+.mascot-bubble-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.mascot-like-btn{
+  display:flex;align-items:center;gap:4px;
+  background:none;border:1px solid var(--border2);
+  border-radius:20px;padding:3px 10px;
+  color:var(--text3);font-size:11px;cursor:pointer;
+  transition:all .15s;pointer-events:all;
+}
+.mascot-like-btn:hover{border-color:var(--gold);color:var(--gold);}
+.mascot-like-btn.liked{border-color:var(--gold);color:var(--gold);background:rgba(200,168,74,.1);}
+.mascot-next-btn{
+  background:none;border:none;color:var(--text3);
+  font-size:10px;cursor:pointer;transition:color .15s;
+  pointer-events:all;letter-spacing:.05em;
+}
+.mascot-next-btn:hover{color:var(--jade2);}
+.mascot-body{
+  pointer-events:all;cursor:pointer;
+  animation:mascotFloat 3s ease-in-out infinite;
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.4));
+  width:72px;height:72px;
+  align-self:flex-end;
+}
+@keyframes mascotFloat{
+  0%,100%{transform:translateY(0) rotate(-2deg);}
+  50%{transform:translateY(-6px) rotate(2deg);}
+}
+.mascot-body:hover{animation:none;transform:scale(1.08);}
+.mascot-body svg{width:72px;height:72px;}
+.mascot-hidden{display:none!important;}
+
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
@@ -436,7 +493,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
         <div class="form-section">
           <div class="form-title">⚫ 詰碁</div>
           <div class="form-row">
-            <div class="form-group"><div class="form-label">問題数</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('tsumego',-5)">−</button><div class="num-display" id="val-tsumego">0</div><button class="num-btn" onclick="numChange('tsumego',5)">＋</button></div></div>
+            <div class="form-group"><div class="form-label">問題数（1問単位）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('tsumego',-1)">−</button><div class="num-display" id="val-tsumego">0</div><button class="num-btn" onclick="numChange('tsumego',1)">＋</button></div></div>
             <div class="form-group"><div class="form-label">難易度</div><select class="form-select" id="tsumego-level"><option>★☆☆ 初級</option><option selected>★★☆ 中級</option><option>★★★ 上級</option><option>💎 プロ級</option></select></div>
           </div>
         </div>
@@ -614,6 +671,90 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 </div>
 </div>
 
+<!-- ===== GOROKU MASCOT ===== -->
+<div class="mascot-wrap" id="mascot-wrap">
+  <div class="mascot-bubble" id="mascot-bubble" style="display:none">
+    <button class="mascot-bubble-close" onclick="closeMascot()" title="閉じる">✕</button>
+    <div class="mascot-bubble-text" id="mascot-text">やあ！今日も一緒にがんばろう！</div>
+    <div class="mascot-bubble-actions">
+      <button class="mascot-like-btn" id="mascot-like-btn" onclick="likeMascot()">👍 いいね <span id="mascot-like-count">0</span></button>
+      <button class="mascot-next-btn" onclick="nextMascotMsg()">次のアドバイス →</button>
+    </div>
+  </div>
+  <!-- ゆるキャラSVG：碁石AIキャラ「ゴロくん」 -->
+  <div class="mascot-body" id="mascot-body" onclick="toggleMascotBubble()" title="ゴロくんをクリック！">
+    <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="bodyGrad" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stop-color="#4a4a4a"/>
+          <stop offset="100%" stop-color="#1a1a1a"/>
+        </radialGradient>
+        <radialGradient id="shineGrad" cx="35%" cy="30%" r="50%">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.35)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+        </radialGradient>
+        <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(200,168,74,0.4)"/>
+          <stop offset="100%" stop-color="rgba(200,168,74,0)"/>
+        </radialGradient>
+      </defs>
+      <!-- 外周グロー -->
+      <ellipse cx="36" cy="40" rx="28" ry="26" fill="url(#glowGrad)"/>
+      <!-- 本体（黒碁石） -->
+      <ellipse cx="36" cy="38" rx="24" ry="22" fill="url(#bodyGrad)"/>
+      <!-- 光沢 -->
+      <ellipse cx="36" cy="38" rx="24" ry="22" fill="url(#shineGrad)"/>
+      <!-- 光沢ハイライト -->
+      <ellipse cx="29" cy="28" rx="7" ry="5" fill="rgba(255,255,255,0.18)" transform="rotate(-20,29,28)"/>
+      <!-- AI回路模様（金色） -->
+      <g stroke="#c8a84a" stroke-width="1" fill="none" opacity="0.7">
+        <line x1="24" y1="38" x2="48" y2="38"/>
+        <line x1="36" y1="26" x2="36" y2="50"/>
+        <circle cx="36" cy="38" r="5" stroke-width="1.5"/>
+        <circle cx="24" cy="38" r="2"/>
+        <circle cx="48" cy="38" r="2"/>
+        <circle cx="36" cy="26" r="2"/>
+        <circle cx="36" cy="50" r="2"/>
+        <line x1="27" y1="29" x2="31" y2="33"/>
+        <line x1="45" y1="29" x2="41" y2="33"/>
+        <line x1="27" y1="47" x2="31" y2="43"/>
+        <line x1="45" y1="47" x2="41" y2="43"/>
+        <circle cx="27" cy="29" r="1.5"/>
+        <circle cx="45" cy="29" r="1.5"/>
+        <circle cx="27" cy="47" r="1.5"/>
+        <circle cx="45" cy="47" r="1.5"/>
+      </g>
+      <!-- 目（左） -->
+      <ellipse cx="29" cy="34" rx="3.5" ry="4" fill="white"/>
+      <ellipse cx="29" cy="34" rx="2" ry="2.5" fill="#1a6aff"/>
+      <ellipse cx="29" cy="34" rx="1" ry="1.2" fill="#000d33"/>
+      <ellipse cx="28" cy="32.5" rx="0.7" ry="0.7" fill="white"/>
+      <!-- 目（右） -->
+      <ellipse cx="43" cy="34" rx="3.5" ry="4" fill="white"/>
+      <ellipse cx="43" cy="34" rx="2" ry="2.5" fill="#1a6aff"/>
+      <ellipse cx="43" cy="34" rx="1" ry="1.2" fill="#000d33"/>
+      <ellipse cx="42" cy="32.5" rx="0.7" ry="0.7" fill="white"/>
+      <!-- 口（にっこり） -->
+      <path d="M30 43 Q36 48 42 43" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <!-- ほっぺ -->
+      <ellipse cx="24" cy="41" rx="3" ry="2" fill="rgba(255,100,100,0.35)"/>
+      <ellipse cx="48" cy="41" rx="3" ry="2" fill="rgba(255,100,100,0.35)"/>
+      <!-- アンテナ（AI感） -->
+      <line x1="36" y1="16" x2="36" y2="22" stroke="#c8a84a" stroke-width="1.5"/>
+      <circle cx="36" cy="14" r="3" fill="#c8a84a"/>
+      <circle cx="36" cy="14" r="1.5" fill="#e0c070"/>
+      <!-- 小さな手（碁石っぽい突起） -->
+      <ellipse cx="14" cy="42" rx="5" ry="4" fill="url(#bodyGrad)"/>
+      <ellipse cx="14" cy="42" rx="5" ry="4" fill="url(#shineGrad)"/>
+      <ellipse cx="58" cy="42" rx="5" ry="4" fill="url(#bodyGrad)"/>
+      <ellipse cx="58" cy="42" rx="5" ry="4" fill="url(#shineGrad)"/>
+      <!-- 名前タグ -->
+      <rect x="24" y="56" width="24" height="11" rx="5" fill="#c8a84a"/>
+      <text x="36" y="65" text-anchor="middle" font-size="7" font-family="sans-serif" font-weight="bold" fill="#1a1a1a">ゴロ</text>
+    </svg>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword,
@@ -677,10 +818,11 @@ function calcScore(data, goals={}){
   // 詰碁：逓増方式（やるほど効率よく点が増える）
   // 1問目〜10問: 1問1.5点, 11〜30問: 1問1.2点, 31問〜: 1問1.0点
   const t=data.tsumego||0;
+  // 詰碁：逓増・上限なし
   if(t<=10) s+=t*1.5;
   else if(t<=30) s+=10*1.5+(t-10)*1.2;
   else s+=10*1.5+20*1.2+(t-30)*1.0;
-  s=Math.min(s,40);
+  // 上限撤廃（たくさん解くほど点数増加）
 
   // AI研究：15分以上で加速
   const ai=data.ai_study||0;
@@ -895,6 +1037,8 @@ async function initApp(){
   await loadDashboard();
   loadTimeline();
   prefillSettings();
+  // ゴロくん起動（5秒後に自動表示）
+  startMascot(null);
 }
 
 function prefillSettings(){
@@ -974,6 +1118,11 @@ async function loadDashboard(){
   }catch(e){ console.log('Dashboard:',e.message); }
   renderProgressBars();
   initCharts();
+}
+
+// ダッシュボード表示時にゴロくん起動（initAppから呼ぶ）
+function startMascot(todayData){
+  initMascot(todayData, currentGoals);
 }
 
 function renderGoalProgress(data){
@@ -1716,6 +1865,122 @@ function renderSettings(){
   const items=[{label:'詰碁の記録',on:true},{label:'AI研究の時間',on:true},{label:'棋譜並べの時間',on:true},{label:'その他学習',on:true},{label:'対局記録',on:true},{label:'AIスコアをランキングに表示',on:true},{label:'フォロー中の通知',on:true}];
   const el=$('settings-list'); if(!el) return;
   el.innerHTML=items.map(s=>`<div class="setting-item"><div style="font-size:12px">${s.label}</div><div class="toggle-switch${s.on?' on':''}" onclick="toggleSwitch(this)"></div></div>`).join('');
+}
+
+// ===== MASCOT (ゴロくん) =====
+let mascotLikes = 0;
+let mascotLiked = false;
+let mascotMsgIndex = 0;
+let mascotVisible = false;
+let mascotMessages = [
+  '今日も一緒にがんばろう！💪',
+  '詰碁を5問だけ解いてみよう！小さな積み重ねが大切だよ。',
+  'AI研究は15分からでOK！新しい手筋が見つかるよ🤖',
+  '対局を1局打ってみよう！実戦が一番の勉強だよ⚔️',
+  '棋譜並べで一流棋士の感覚を盗もう！📖',
+  '今日の反省を書いておくと、明日の自分が助かるよ✍️',
+  '目標の詰碁問数まであと少し！ファイトー！⚫',
+  'ちょっと休憩したあとは詰碁タイム！頭がリフレッシュされてるよ。',
+  '連続記録を続けてる？習慣化が最大の武器だよ🔥',
+  'AI研究で見つけた新手を対局で試してみよう！',
+  'みんなのタイムラインを見て刺激をもらおう！📢',
+  '今日の良かった点をコメントに残しておこう😊',
+];
+
+function buildMascotMessages(data, goals){
+  const msgs=[...mascotMessages];
+  if(!data) return msgs;
+  const gc=Array.isArray(data.games)?data.games.length:0;
+  const t=data.tsumego||0, ai=data.ai_study||0, ki=data.kifu||0;
+  const g=goals||{};
+  // 不足項目を先頭に追加
+  if(t===0) msgs.unshift('詰碁がまだゼロだよ！1問から始めよう⚫');
+  else if(g.tsumego&&t<g.tsumego) msgs.unshift(`詰碁目標まであと${g.tsumego-t}問！もう少し！`);
+  if(ai===0) msgs.unshift('AI研究をやってみよう！新しい発見があるよ🤖');
+  if(gc===0) msgs.unshift('今日の対局はまだ？1局だけでも実戦経験を！⚔️');
+  if(ki===0&&gc>0) msgs.unshift('棋譜並べも取り入れてみよう！プロの感覚が身につくよ📖');
+  return msgs;
+}
+
+function showMascot(msgs){
+  const bubble=document.getElementById('mascot-bubble');
+  const textEl=document.getElementById('mascot-text');
+  if(!bubble||!textEl) return;
+  mascotMessages=msgs||mascotMessages;
+  textEl.textContent=mascotMessages[mascotMsgIndex%mascotMessages.length];
+  bubble.style.display='block';
+  bubble.classList.remove('hiding');
+  mascotVisible=true;
+  // いいねリセット
+  mascotLiked=false;
+  const likeBtn=document.getElementById('mascot-like-btn');
+  if(likeBtn) likeBtn.classList.remove('liked');
+}
+
+window.toggleMascotBubble=()=>{
+  const bubble=document.getElementById('mascot-bubble');
+  if(!bubble) return;
+  if(mascotVisible){ closeMascot(); }
+  else { showMascot(); }
+};
+
+window.closeMascot=()=>{
+  const bubble=document.getElementById('mascot-bubble');
+  if(!bubble) return;
+  bubble.classList.add('hiding');
+  setTimeout(()=>{ bubble.style.display='none'; bubble.classList.remove('hiding'); },250);
+  mascotVisible=false;
+};
+
+window.nextMascotMsg=()=>{
+  mascotMsgIndex=(mascotMsgIndex+1)%mascotMessages.length;
+  const textEl=document.getElementById('mascot-text');
+  if(textEl){
+    textEl.style.opacity='0';
+    setTimeout(()=>{
+      textEl.textContent=mascotMessages[mascotMsgIndex];
+      textEl.style.transition='opacity .3s';
+      textEl.style.opacity='1';
+    },150);
+  }
+  // いいねリセット
+  mascotLiked=false;
+  const likeBtn=document.getElementById('mascot-like-btn');
+  if(likeBtn) likeBtn.classList.remove('liked');
+};
+
+window.likeMascot=()=>{
+  if(mascotLiked) return;
+  mascotLiked=true;
+  mascotLikes++;
+  const btn=document.getElementById('mascot-like-btn');
+  const cnt=document.getElementById('mascot-like-count');
+  if(btn) btn.classList.add('liked');
+  if(cnt) cnt.textContent=mascotLikes;
+  // ゴロくんをぴょんぴょんさせる
+  const body=document.getElementById('mascot-body');
+  if(body){
+    body.style.animation='none';
+    body.style.transform='scale(1.2) rotate(10deg)';
+    setTimeout(()=>{
+      body.style.transform='scale(1) rotate(-5deg)';
+      setTimeout(()=>{ body.style.transform=''; body.style.animation=''; },200);
+    },200);
+  }
+};
+
+// ゴロくんを定期的に表示（ダッシュボード表示時）
+function initMascot(todayData, goals){
+  const msgs=buildMascotMessages(todayData, goals);
+  // 5秒後に自動表示
+  setTimeout(()=>{ if(!mascotVisible) showMascot(msgs); }, 5000);
+  // 30分ごとに提案を更新
+  setInterval(()=>{
+    mascotMsgIndex=(mascotMsgIndex+1)%msgs.length;
+    if(!mascotVisible) showMascot(msgs);
+  }, 30*60*1000);
+}
+
 }
 </script>
 </body>
