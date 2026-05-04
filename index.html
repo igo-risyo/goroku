@@ -1265,7 +1265,7 @@ async function loadQA(){
       const myReact=q.myReactions?.[currentUser?.uid]??-1;
       let reactHTML='';
       REACTIONS.forEach(function(rx,ri){
-        reactHTML+='<button class="reaction-btn '+(myReact===ri?'active':'')+'" onclick="doReactQA(''+qid+'','+ri+',this)">'+rx+' <span>'+(reactions[ri]||0)+'</span></button>';
+        reactHTML+='<button class="reaction-btn '+(myReact===ri?'active':'')+'" data-qid="'+qid+'" data-ri="'+ri+'" onclick="doReactQA(this.dataset.qid,this.dataset.ri,this)">'+rx+' <span>'+(reactions[ri]||0)+'</span></button>';
       });
       const imgHTML=q.photoURL?'<img src="'+q.photoURL+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':'<span>'+avatarLetter(q.displayName)+'</span>';
       const proIcon=q.userType==='pro'?'<div class="crown-badge" style="font-size:10px">👑</div>':'';
@@ -2065,6 +2065,7 @@ window.submitQA=async()=>{
 };
 window.doReactQA=async(qid,ri,btn)=>{
   if(!currentUser) return;
+  ri=Number(ri); // data属性は文字列のためnumberに変換
   try{
     const ref=doc(db,'questions',qid), snap=await getDoc(ref); if(!snap.exists()) return;
     const data=snap.data(), myReacts=data.myReactions||{}, prev=myReacts[currentUser.uid]??-1;
