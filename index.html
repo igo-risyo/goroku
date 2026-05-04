@@ -358,38 +358,6 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 ::-webkit-scrollbar-track{background:var(--bg2);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 /* ===== GROUP & QA ===== */
-/* DRAFT SAVE */
-.draft-bar{
-  position:fixed;bottom:0;left:220px;right:0;
-  background:var(--bg2);border-top:1px solid var(--border2);
-  padding:8px 24px;display:flex;align-items:center;gap:12px;
-  z-index:90;transform:translateY(100%);transition:transform .3s;
-}
-.draft-bar.show{transform:translateY(0);}
-.draft-bar-text{font-size:11px;color:var(--text3);flex:1;}
-.draft-bar-time{font-size:10px;color:var(--jade2);}
-@media(max-width:680px){.draft-bar{left:0;bottom:56px;}}
-
-/* HISTORY */
-.history-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
-.history-item-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.history-date{font-size:13px;font-weight:600;font-family:'Zen Antique',serif;color:var(--gold2);}
-.history-score{font-size:20px;font-weight:700;font-family:'Zen Antique',serif;color:var(--jade2);margin-left:auto;}
-.history-stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;}
-.history-stat{font-size:11px;color:var(--text3);}
-.history-stat span{color:var(--text2);font-weight:500;}
-.history-comment{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px;padding:8px;background:var(--bg4);border-radius:3px;}
-.history-actions{display:flex;gap:8px;padding-top:8px;border-top:1px solid var(--border);}
-.history-edit-btn{padding:4px 12px;border:1px solid var(--border2);background:transparent;color:var(--text2);border-radius:3px;cursor:pointer;font-size:11px;transition:all .15s;}
-.history-edit-btn:hover{border-color:var(--gold);color:var(--gold);}
-.history-delete-btn{padding:4px 12px;border:1px solid var(--border2);background:transparent;color:var(--text3);border-radius:3px;cursor:pointer;font-size:11px;transition:all .15s;}
-.history-delete-btn:hover{border-color:var(--red);color:var(--red);}
-
-/* EDIT MODAL */
-.edit-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:none;align-items:center;justify-content:center;padding:16px;}
-.edit-modal.show{display:flex;}
-.edit-modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;padding:20px;}
-
 .group-card{background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;margin-bottom:8px;transition:border-color .15s;}
 .group-card:hover{border-color:var(--border2);}
 .group-card-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
@@ -504,23 +472,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
     <div class="auth-form active" id="form-login">
       <input class="auth-input" id="login-email" type="email" placeholder="メールアドレス">
       <input class="auth-input" id="login-pass" type="password" placeholder="パスワード">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
-        <input type="checkbox" id="remember-me" style="width:15px;height:15px;accent-color:var(--gold);cursor:pointer">
-        ログイン情報を保存する
-      </label>
+
       <button class="auth-btn" onclick="doLogin()">ログイン</button>
-      <div style="text-align:center">
-        <button onclick="showResetForm()" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;text-decoration:underline">パスワードを忘れた方はこちら</button>
-      </div>
-      <!-- パスワードリセットフォーム -->
-      <div id="reset-form" style="display:none;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:14px;margin-top:4px">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">登録したメールアドレスにリセットリンクを送ります</div>
-        <input class="auth-input" id="reset-email" type="email" placeholder="メールアドレス" style="margin-bottom:8px">
-        <div style="display:flex;gap:8px">
-          <button class="auth-btn" onclick="doPasswordReset()" style="flex:1;padding:9px;font-size:13px">送信</button>
-          <button onclick="hideResetForm()" style="flex:1;padding:9px;background:var(--bg4);border:1px solid var(--border2);border-radius:4px;color:var(--text2);cursor:pointer;font-size:13px">キャンセル</button>
-        </div>
-      </div>
+
       <div class="auth-divider">または</div>
       <button class="auth-google-btn" onclick="doGoogleLogin()"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-8 20-20 0-1.3-.2-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5.1l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.6-2.9-11.3-7H6.3C9.7 39.7 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.4l6.2 5.2C40.9 35.5 44 30.2 44 24c0-1.3-.2-2.7-.4-4z"/></svg> Googleでログイン</button>
     </div>
@@ -544,50 +498,6 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 
 <!-- APP -->
 <div id="app-content" style="display:none">
-<!-- 下書き保存バー -->
-<div class="draft-bar" id="draft-bar">
-  <div class="draft-bar-text">📝 入力中の内容を下書き保存しています</div>
-  <div class="draft-bar-time" id="draft-bar-time"></div>
-  <button onclick="clearDraft()" style="font-size:10px;padding:3px 10px;border:1px solid var(--border2);background:transparent;color:var(--text3);border-radius:3px;cursor:pointer">クリア</button>
-</div>
-
-<!-- 編集モーダル -->
-<div class="edit-modal" id="edit-modal">
-  <div class="edit-modal-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div style="font-size:14px;font-weight:600;color:var(--gold)">記録を編集</div>
-      <button onclick="closeEditModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer">✕</button>
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <div class="form-label">詰碁（問）</div>
-      <input class="form-input" id="edit-tsumego" type="number" min="0">
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <div class="form-label">AI研究（分）</div>
-      <input class="form-input" id="edit-ai_study" type="number" min="0">
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <div class="form-label">棋譜並べ（分）</div>
-      <input class="form-input" id="edit-kifu" type="number" min="0">
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <div class="form-label">✅ 良かった点</div>
-      <textarea class="form-textarea" id="edit-comment-good" style="min-height:60px"></textarea>
-    </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <div class="form-label">⚠️ 反省点</div>
-      <textarea class="form-textarea" id="edit-comment-bad" style="min-height:60px"></textarea>
-    </div>
-    <div class="form-group" style="margin-bottom:16px">
-      <div class="form-label">💭 自由メモ</div>
-      <textarea class="form-textarea" id="edit-comment-free" style="min-height:60px"></textarea>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="submit-btn" onclick="saveEdit()" style="flex:1;margin-top:0">保存する</button>
-      <button onclick="closeEditModal()" style="flex:1;padding:12px;border:1px solid var(--border2);background:transparent;color:var(--text2);border-radius:4px;cursor:pointer;font-size:13px">キャンセル</button>
-    </div>
-  </div>
-</div>
 
 <div class="app">
 <aside class="sidebar">
@@ -597,7 +507,6 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
       <div class="nav-label">メイン</div>
       <div class="nav-item active" onclick="showPanel('dashboard')"><span class="nav-icon">🏠</span><span class="nav-text"> ダッシュボード</span></div>
       <div class="nav-item" onclick="showPanel('record')"><span class="nav-icon">✏️</span><span class="nav-text"> 今日の記録</span></div>
-      <div class="nav-item" onclick="showPanel('history')"><span class="nav-icon">📋</span><span class="nav-text"> 過去の記録</span></div>
       <div class="nav-item" onclick="showPanel('timeline')"><span class="nav-icon">📢</span><span class="nav-text"> タイムライン</span></div>
       <div class="nav-item" onclick="showPanel('ranking')"><span class="nav-icon">🏆</span><span class="nav-text"> ランキング</span></div>
     </div>
@@ -787,35 +696,6 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
         <div class="follow-grid" id="follow-list"><div style="color:var(--text3);font-size:12px">読み込み中...</div></div>
       </div>
       <div class="card"><div class="card-title">📈 フォロー中のスコア推移</div><div class="chart-wrap"><canvas id="followChart"></canvas></div></div>
-    </div>
-
-    <!-- HISTORY -->
-    <div class="panel" id="panel-history">
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-title">🔍 絞り込み</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-          <input type="month" id="history-month" class="form-input" style="width:160px" onchange="loadHistory()">
-          <select class="form-select" id="history-tag" style="width:140px" onchange="loadHistory()">
-            <option value="">すべてのタグ</option>
-            <option>詰碁</option>
-            <option>AI研究</option>
-            <option>棋譜並べ</option>
-            <option>対局</option>
-            <option>自己ベスト</option>
-          </select>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="compare-tab active" onclick="setHistorySort(this,'new')">新しい順</button>
-          <button class="compare-tab" onclick="setHistorySort(this,'old')">古い順</button>
-          <button class="compare-tab" onclick="setHistorySort(this,'score')">スコア順</button>
-        </div>
-      </div>
-      <div id="history-list">
-        <div style="color:var(--text3);font-size:12px;padding:20px;text-align:center">読み込み中...</div>
-      </div>
-      <div style="text-align:center;margin-top:12px">
-        <button id="history-load-more" onclick="loadMoreHistory()" style="display:none;padding:10px 24px;border:1px solid var(--border2);background:transparent;color:var(--text2);border-radius:4px;cursor:pointer;font-size:12px">さらに読み込む</button>
-      </div>
     </div>
 
     <!-- HEATMAP -->
@@ -1131,12 +1011,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword,
-         createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut,
-         sendPasswordResetEmail }
+         createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc,
          query, orderBy, limit, getDocs, where, updateDoc, increment,
-         serverTimestamp, deleteDoc }
+         serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 // Storage不使用（Base64でFirestoreに直接保存）
 
@@ -1318,239 +1197,9 @@ window.selectType=(el,t)=>{
 };
 function showAuthError(m){ const e=$('auth-err'); e.textContent=m; e.style.display='block'; }
 
-// ===== PASSWORD RESET =====
-window.showResetForm=()=>{
-  document.getElementById('reset-form').style.display='block';
-  document.getElementById('reset-email').value=document.getElementById('login-email').value||'';
-};
-window.hideResetForm=()=>{ document.getElementById('reset-form').style.display='none'; };
-window.doPasswordReset=async()=>{
-  const email=document.getElementById('reset-email').value.trim();
-  if(!email){showAuthError('メールアドレスを入力してください');return;}
-  try{
-    await sendPasswordResetEmail(auth,email);
-    document.getElementById('reset-form').innerHTML='<div style="color:var(--jade2);font-size:12px;text-align:center;padding:8px">✅ リセットメールを送信しました！メールを確認してください。</div>';
-  }catch(e){
-    showAuthError('送信に失敗しました。メールアドレスを確認してください。');
-  }
-};
-
-// ===== DRAFT SAVE（下書き自動保存） =====
-let draftTimer=null;
-const DRAFT_KEY='goroku_draft';
-
-function saveDraft(){
-  const draft={
-    tsumego:numVals.tsumego,
-    ai_study:numVals.ai_study,
-    kifu:numVals.kifu,
-    comment_good:document.getElementById('comment-good')?.value||'',
-    comment_bad:document.getElementById('comment-bad')?.value||'',
-    comment_free:document.getElementById('comment-free')?.value||'',
-    savedAt:new Date().toISOString(),
-  };
-  const hasContent=draft.tsumego>0||draft.ai_study>0||draft.kifu>0||draft.comment_good||draft.comment_bad||draft.comment_free;
-  if(!hasContent) return;
-  localStorage.setItem(DRAFT_KEY,JSON.stringify(draft));
-  const bar=document.getElementById('draft-bar');
-  const timeEl=document.getElementById('draft-bar-time');
-  if(bar) bar.classList.add('show');
-  if(timeEl) timeEl.textContent='最終保存: '+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
-}
-
-function loadDraft(){
-  try{
-    const raw=localStorage.getItem(DRAFT_KEY);
-    if(!raw) return;
-    const draft=JSON.parse(raw);
-    // 24時間以内の下書きのみ復元
-    const saved=new Date(draft.savedAt);
-    if((Date.now()-saved.getTime())>24*60*60*1000){ localStorage.removeItem(DRAFT_KEY); return; }
-    if(confirm('前回の入力中の下書きがあります。復元しますか？')){
-      numVals.tsumego=draft.tsumego||0;
-      numVals.ai_study=draft.ai_study||0;
-      numVals.kifu=draft.kifu||0;
-      ['tsumego','ai_study','kifu'].forEach(k=>{ const el=document.getElementById('val-'+k); if(el) el.textContent=numVals[k]; });
-      if(draft.comment_good) document.getElementById('comment-good').value=draft.comment_good;
-      if(draft.comment_bad) document.getElementById('comment-bad').value=draft.comment_bad;
-      if(draft.comment_free) document.getElementById('comment-free').value=draft.comment_free;
-      const bar=document.getElementById('draft-bar');
-      if(bar) bar.classList.add('show');
-      showToast('📝 下書きを復元しました');
-    }
-  }catch(e){}
-}
-
-window.clearDraft=()=>{
-  localStorage.removeItem(DRAFT_KEY);
-  const bar=document.getElementById('draft-bar');
-  if(bar) bar.classList.remove('show');
-  showToast('下書きをクリアしました');
-};
-
-function startDraftAutoSave(){
-  // 入力フィールドの変更を監視
-  ['comment-good','comment-bad','comment-free'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.addEventListener('input',()=>{ clearTimeout(draftTimer); draftTimer=setTimeout(saveDraft,2000); });
-  });
-  // 数値変更時も保存（既存numChangeに影響しない方式）
-  document.addEventListener('click', e=>{
-    if(e.target.classList.contains('num-btn')){
-      clearTimeout(draftTimer); draftTimer=setTimeout(saveDraft,2000);
-    }
-  });
-}
-
-// ===== HISTORY（過去の記録一覧） =====
-let historyDocs=[];
-let historySort='new';
-let historyLastDoc=null;
-
-window.setHistorySort=(el,sort)=>{
-  document.querySelectorAll('#panel-history .compare-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  historySort=sort;
-  historyLastDoc=null;
-  loadHistory();
-};
-
-async function loadHistory(){
-  const el=document.getElementById('history-list'); if(!el) return;
-  el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:20px;text-align:center">読み込み中...</div>';
-  historyLastDoc=null;
-  try{
-    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(50));
-    const snap=await getDocs(q);
-    let docs=snap.docs.map(d=>({id:d.id,...d.data()}));
-    // フィルタ
-    const monthVal=document.getElementById('history-month')?.value;
-    const tagVal=document.getElementById('history-tag')?.value;
-    if(monthVal){
-      docs=docs.filter(d=>{
-        const ct=d.createdAt?.toDate?.();
-        if(!ct) return false;
-        const m=ct.toISOString().slice(0,7);
-        return m===monthVal;
-      });
-    }
-    if(tagVal) docs=docs.filter(d=>(d.tags||[]).includes(tagVal));
-    // ソート
-    if(historySort==='new') docs.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
-    if(historySort==='old') docs.sort((a,b)=>(a.createdAt?.toMillis?.()||0)-(b.createdAt?.toMillis?.()||0));
-    if(historySort==='score') docs.sort((a,b)=>(b.score||0)-(a.score||0));
-    historyDocs=docs;
-    renderHistory(docs);
-  }catch(e){ el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:20px">読み込みに失敗しました</div>'; }
-}
-
-function renderHistory(docs){
-  const el=document.getElementById('history-list'); if(!el) return;
-  if(!docs.length){
-    el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:20px;text-align:center">記録がありません</div>';
-    return;
-  }
-  let html='';
-  docs.forEach(r=>{
-    const ct=r.createdAt?.toDate?.();
-    const dateStr=ct?ct.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'}):'日付不明';
-    const gc=Array.isArray(r.games)?r.games.length:0;
-    const extra=(r.extra_study||[]).map(function(e){return e.name+':'+e.minutes+'分';}).join('・');
-    const isToday=ct&&ct.toDateString()===new Date().toDateString();
-    const comments=[];
-    if(r.comment_good) comments.push('良: '+r.comment_good);
-    if(r.comment_bad) comments.push('反: '+r.comment_bad);
-    if(r.comment_free) comments.push('メモ: '+r.comment_free);
-    const commentHTML=comments.length?'<div class="history-comment">'+comments.join('<br>')+'</div>':'';
-    const tags=(r.tags||[]).map(function(t){return '<span class="feed-tag">'+t+'</span>';}).join('');
-    const statsArr=[];
-    if(r.tsumego) statsArr.push('<div class="history-stat">詰碁 <span>'+r.tsumego+'問</span></div>');
-    if(r.ai_study) statsArr.push('<div class="history-stat">AI研究 <span>'+r.ai_study+'分</span></div>');
-    if(r.kifu) statsArr.push('<div class="history-stat">棋譜並べ <span>'+r.kifu+'分</span></div>');
-    if(gc) statsArr.push('<div class="history-stat">対局 <span>'+gc+'局</span></div>');
-    if(extra) statsArr.push('<div class="history-stat">その他 <span>'+extra+'</span></div>');
-    html+='<div class="history-item">';
-    html+='<div class="history-item-header">';
-    html+='<div><div class="history-date">'+dateStr+(isToday?' 今日':'')+'</div>';
-    html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">'+tags+'</div></div>';
-    html+='<div class="history-score">'+(r.score||0)+'点</div></div>';
-    html+='<div class="history-stats">'+statsArr.join('')+'</div>';
-    html+=commentHTML;
-    html+='<div class="history-actions">';
-    html+='<button class="history-edit-btn" data-rid="'+r.id+'" onclick="openEditModal(this.dataset.rid)">編集</button>';
-    html+='<button class="history-delete-btn" data-rid="'+r.id+'" onclick="deleteRecord(this.dataset.rid)">削除</button>';
-    html+='</div></div>';
-  });
-  el.innerHTML=html;
-}
-
-// ===== EDIT RECORD =====
-let editingRecordId=null;
-window.openEditModal=async(rid)=>{
-  editingRecordId=rid;
-  const snap=await getDoc(doc(db,'records',rid));
-  if(!snap.exists()) return;
-  const r=snap.data();
-  document.getElementById('edit-tsumego').value=r.tsumego||0;
-  document.getElementById('edit-ai_study').value=r.ai_study||0;
-  document.getElementById('edit-kifu').value=r.kifu||0;
-  document.getElementById('edit-comment-good').value=r.comment_good||'';
-  document.getElementById('edit-comment-bad').value=r.comment_bad||'';
-  document.getElementById('edit-comment-free').value=r.comment_free||'';
-  document.getElementById('edit-modal').classList.add('show');
-};
-window.closeEditModal=()=>{
-  document.getElementById('edit-modal').classList.remove('show');
-  editingRecordId=null;
-};
-window.saveEdit=async()=>{
-  if(!editingRecordId) return;
-  try{
-    const updateData={
-      tsumego:parseInt(document.getElementById('edit-tsumego').value)||0,
-      ai_study:parseInt(document.getElementById('edit-ai_study').value)||0,
-      kifu:parseInt(document.getElementById('edit-kifu').value)||0,
-      comment_good:document.getElementById('edit-comment-good').value,
-      comment_bad:document.getElementById('edit-comment-bad').value,
-      comment_free:document.getElementById('edit-comment-free').value,
-      updatedAt:serverTimestamp(),
-    };
-    updateData.score=calcScore(updateData,currentGoals);
-    updateData.aiComment=genAIComment(updateData,updateData.score,currentGoals);
-    await setDoc(doc(db,'records',editingRecordId),updateData,{merge:true});
-    closeEditModal();
-    showToast('✅ 記録を更新しました！');
-    loadHistory();
-    loadDashboard();
-  }catch(e){ showToast('更新に失敗しました','error'); }
-};
-
-// ===== DELETE RECORD =====
-window.deleteRecord=async(rid)=>{
-  if(!confirm('この記録を削除しますか？
-この操作は元に戻せません。')) return;
-  try{
-    await deleteDoc(doc(db,'records',rid));
-    showToast('🗑️ 記録を削除しました');
-    loadHistory();
-    loadDashboard();
-    loadTimeline();
-  }catch(e){ showToast('削除に失敗しました','error'); }
-};
-
 // Firebase接続確認（ページロード時）
 document.addEventListener('DOMContentLoaded', ()=>{
-  // 保存済みログイン情報を自動入力
-  const savedEmail=localStorage.getItem('goroku_saved_email');
-  const savedPass=localStorage.getItem('goroku_saved_pass');
-  if(savedEmail&&savedPass){
-    const emailEl=document.getElementById('login-email');
-    const passEl=document.getElementById('login-pass');
-    const rememberEl=document.getElementById('remember-me');
-    if(emailEl) emailEl.value=savedEmail;
-    if(passEl) passEl.value=savedPass;
-    if(rememberEl) rememberEl.checked=true;
-  }
+
   // 3秒でFirebaseが応答しない場合はログイン画面を強制表示
   setTimeout(()=>{
     const lo=document.getElementById('loading-overlay');
@@ -2003,18 +1652,7 @@ function scheduleStudyReminder(){
 window.doLogin=async()=>{
   const email=$('login-email').value.trim(), pass=$('login-pass').value;
   if(!email||!pass){showAuthError('メールアドレスとパスワードを入力してください');return;}
-  try{
-    showLoading(true);
-    await signInWithEmailAndPassword(auth,email,pass);
-    // チェックボックスがONなら保存
-    if($('remember-me')?.checked){
-      localStorage.setItem('goroku_saved_email', email);
-      localStorage.setItem('goroku_saved_pass', pass);
-    } else {
-      localStorage.removeItem('goroku_saved_email');
-      localStorage.removeItem('goroku_saved_pass');
-    }
-  }
+  try{ showLoading(true); await signInWithEmailAndPassword(auth,email,pass); }
   catch(e){ showLoading(false); showAuthError('ログインに失敗しました。'); }
 };
 window.doSignup=async()=>{
@@ -2115,13 +1753,6 @@ async function initApp(){
   await loadDashboard();
   loadTimeline();
   prefillSettings();
-  // 下書き読み込み
-  loadDraft();
-  // 自動保存開始
-  startDraftAutoSave();
-  // 今月をデフォルト選択
-  const monthInput=document.getElementById('history-month');
-  if(monthInput) monthInput.value=new Date().toISOString().slice(0,7);
   // ゴロくん起動（5秒後に自動表示）
   startMascot(null);
   // 毎日通知リマインダー設定
@@ -2308,8 +1939,6 @@ window.submitRecord=async()=>{
       });
     }
 
-    localStorage.removeItem('goroku_draft');
-    document.getElementById('draft-bar')?.classList.remove('show');
     showToast('✅ 記録を保存しました！（本日分に合算）');
     btn.textContent='✓ 保存完了！'; btn.style.background='linear-gradient(135deg,var(--jade),#2a7848)';
     setTimeout(()=>{
@@ -2886,7 +2515,7 @@ window.toggleSwitch=(el)=>el.classList.toggle('on');
 window.toggleQAForm=()=>{ const f=$('qa-form'); f.style.display=f.style.display==='none'?'block':'none'; };
 
 // ── PANEL SWITCH ──
-const PAGE_TITLES={dashboard:'ダッシュボード',record:'今日の記録',history:'過去の記録',timeline:'タイムライン',ranking:'ランキング',compare:'比較・分析',follows:'フォロー管理',qa:'Q&A掲示板',heatmap:'カレンダー・レポート',groups:'グループ',settings:'設定・目標'};
+const PAGE_TITLES={dashboard:'ダッシュボード',record:'今日の記録',timeline:'タイムライン',ranking:'ランキング',compare:'比較・分析',follows:'フォロー管理',qa:'Q&A掲示板',heatmap:'カレンダー・レポート',groups:'グループ',settings:'設定・目標'};
 window.showPanel=(name)=>{
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name)?.classList.add('active');
@@ -2900,7 +2529,6 @@ window.showPanel=(name)=>{
   if(name==='qa') loadQA();
   if(name==='compare') loadCompare();
   if(name==='heatmap'){ loadHeatmap(); loadWeeklyReport(); initAccuracyChart(); }
-  if(name==='history') loadHistory();
   if(name==='groups') loadGroups();
 };
 
@@ -3275,91 +2903,25 @@ function initMascot(todayData, goals){
   }, 30*60*1000);
 }
 
-// ===== GOROKU PUBLIC API（ブリッジ用） =====
-window._goroku = {
-  doLogin, doSignup, doGoogleLogin, doLogout, doPasswordReset,
-  showResetForm, hideResetForm, showPanel, switchAuthTab, selectType,
-  toggleTag, toggleSwitch, toggleQAForm,
-  addGame, removeGame, toggleGameCard, toggleInline, toggleInlineMulti,
-  toggleInlineCountry, updateGameSummary,
-  numChange, numChangeTsumego, addExtraStudy, removeExtraStudy,
-  submitRecord, saveTsumegoAccuracy, saveProfile, saveGoals, saveEdit,
-  setTypeSelect, handleAvatarChange,
-  doReact, doReactQA, searchUsers, followUser, unfollowUser,
-  setCompareTarget, setQAFilter, toggleAnswers,
-  openAnswerModal, closeAnswerModal, submitAnswer, likeAnswer, setBestAnswer,
-  submitQA, toggleCreateGroup, singleSelectToggle, createGroup,
-  searchGroups, joinGroup, leaveGroup, openGroupDetail, closeGroupDetail,
-  sendGroupChat, setHistorySort, openEditModal, closeEditModal,
-  deleteRecord, clearDraft,
-  toggleMascotBubble, closeMascot, nextMascotMsg, likeMascot,
+// HTMLのonclickから呼べるようにwindowに登録
+const fns = {
+  doLogin,doSignup,doGoogleLogin,doLogout,
+  showPanel,switchAuthTab,selectType,
+  toggleTag,toggleSwitch,toggleQAForm,
+  addGame,removeGame,toggleGameCard,
+  toggleInline,toggleInlineMulti,toggleInlineCountry,updateGameSummary,
+  numChange,numChangeTsumego,addExtraStudy,removeExtraStudy,
+  submitRecord,saveTsumegoAccuracy,
+  saveProfile,saveGoals,setTypeSelect,handleAvatarChange,
+  doReact,doReactQA,
+  searchUsers,followUser,unfollowUser,
+  setCompareTarget,setQAFilter,
+  toggleAnswers,openAnswerModal,closeAnswerModal,submitAnswer,likeAnswer,setBestAnswer,
+  submitQA,
+  toggleCreateGroup,singleSelectToggle,createGroup,searchGroups,
+  joinGroup,leaveGroup,openGroupDetail,closeGroupDetail,sendGroupChat,
+  toggleMascotBubble,closeMascot,nextMascotMsg,likeMascot,
 };
+Object.entries(fns).forEach(([k,v])=>{ window[k]=v; });
+
 </script>
-<!-- ブリッジ：type="module"内の関数をHTMLのonclickから呼べるようにする -->
-<script>
-function doLogin(){ window._goroku && window._goroku.doLogin(); }
-function doSignup(){ window._goroku && window._goroku.doSignup(); }
-function doGoogleLogin(){ window._goroku && window._goroku.doGoogleLogin(); }
-function doLogout(){ window._goroku && window._goroku.doLogout(); }
-function doPasswordReset(){ window._goroku && window._goroku.doPasswordReset(); }
-function showResetForm(){ window._goroku && window._goroku.showResetForm(); }
-function hideResetForm(){ window._goroku && window._goroku.hideResetForm(); }
-function showPanel(n){ window._goroku && window._goroku.showPanel(n); }
-function switchAuthTab(t){ window._goroku && window._goroku.switchAuthTab(t); }
-function selectType(el,t){ window._goroku && window._goroku.selectType(el,t); }
-function toggleTag(el){ window._goroku && window._goroku.toggleTag(el); }
-function toggleSwitch(el){ window._goroku && window._goroku.toggleSwitch(el); }
-function toggleQAForm(){ window._goroku && window._goroku.toggleQAForm(); }
-function addGame(){ window._goroku && window._goroku.addGame(); }
-function removeGame(id){ window._goroku && window._goroku.removeGame(id); }
-function toggleGameCard(id){ window._goroku && window._goroku.toggleGameCard(id); }
-function toggleInline(el){ window._goroku && window._goroku.toggleInline(el); }
-function toggleInlineMulti(el){ window._goroku && window._goroku.toggleInlineMulti(el); }
-function toggleInlineCountry(el){ window._goroku && window._goroku.toggleInlineCountry(el); }
-function updateGameSummary(id){ window._goroku && window._goroku.updateGameSummary(id); }
-function numChange(k,d){ window._goroku && window._goroku.numChange(k,d); }
-function numChangeTsumego(k,d){ window._goroku && window._goroku.numChangeTsumego(k,d); }
-function addExtraStudy(){ window._goroku && window._goroku.addExtraStudy(); }
-function removeExtraStudy(id){ window._goroku && window._goroku.removeExtraStudy(id); }
-function submitRecord(){ window._goroku && window._goroku.submitRecord(); }
-function saveTsumegoAccuracy(){ window._goroku && window._goroku.saveTsumegoAccuracy(); }
-function saveProfile(){ window._goroku && window._goroku.saveProfile(); }
-function saveGoals(){ window._goroku && window._goroku.saveGoals(); }
-function saveEdit(){ window._goroku && window._goroku.saveEdit(); }
-function setTypeSelect(el,t){ window._goroku && window._goroku.setTypeSelect(el,t); }
-function handleAvatarChange(e){ window._goroku && window._goroku.handleAvatarChange(e); }
-function doReact(rid,ri,btn){ window._goroku && window._goroku.doReact(rid,ri,btn); }
-function doReactQA(qid,ri,btn){ window._goroku && window._goroku.doReactQA(qid,ri,btn); }
-function searchUsers(){ window._goroku && window._goroku.searchUsers(); }
-function followUser(uid,btn){ window._goroku && window._goroku.followUser(uid,btn); }
-function unfollowUser(uid,btn){ window._goroku && window._goroku.unfollowUser(uid,btn); }
-function setCompareTarget(el,uid,name){ window._goroku && window._goroku.setCompareTarget(el,uid,name); }
-function setQAFilter(el,f){ window._goroku && window._goroku.setQAFilter(el,f); }
-function toggleAnswers(qid){ window._goroku && window._goroku.toggleAnswers(qid); }
-function openAnswerModal(qid){ window._goroku && window._goroku.openAnswerModal(qid); }
-function closeAnswerModal(){ window._goroku && window._goroku.closeAnswerModal(); }
-function submitAnswer(){ window._goroku && window._goroku.submitAnswer(); }
-function likeAnswer(aid,qid,btn){ window._goroku && window._goroku.likeAnswer(aid,qid,btn); }
-function setBestAnswer(qid,aid){ window._goroku && window._goroku.setBestAnswer(qid,aid); }
-function submitQA(){ window._goroku && window._goroku.submitQA(); }
-function toggleCreateGroup(){ window._goroku && window._goroku.toggleCreateGroup(); }
-function singleSelectToggle(el,gid){ window._goroku && window._goroku.singleSelectToggle(el,gid); }
-function createGroup(){ window._goroku && window._goroku.createGroup(); }
-function searchGroups(){ window._goroku && window._goroku.searchGroups(); }
-function joinGroup(gid){ window._goroku && window._goroku.joinGroup(gid); }
-function leaveGroup(gid){ window._goroku && window._goroku.leaveGroup(gid); }
-function openGroupDetail(gid){ window._goroku && window._goroku.openGroupDetail(gid); }
-function closeGroupDetail(){ window._goroku && window._goroku.closeGroupDetail(); }
-function sendGroupChat(){ window._goroku && window._goroku.sendGroupChat(); }
-function setHistorySort(el,s){ window._goroku && window._goroku.setHistorySort(el,s); }
-function openEditModal(rid){ window._goroku && window._goroku.openEditModal(rid); }
-function closeEditModal(){ window._goroku && window._goroku.closeEditModal(); }
-function deleteRecord(rid){ window._goroku && window._goroku.deleteRecord(rid); }
-function clearDraft(){ window._goroku && window._goroku.clearDraft(); }
-function toggleMascotBubble(){ window._goroku && window._goroku.toggleMascotBubble(); }
-function closeMascot(){ window._goroku && window._goroku.closeMascot(); }
-function nextMascotMsg(){ window._goroku && window._goroku.nextMascotMsg(); }
-function likeMascot(){ window._goroku && window._goroku.likeMascot(); }
-</script>
-</body>
-</html>
