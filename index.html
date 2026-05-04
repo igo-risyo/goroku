@@ -1541,6 +1541,14 @@ window.deleteRecord=async(rid)=>{
 
 // Firebase接続確認（ページロード時）
 document.addEventListener('DOMContentLoaded', ()=>{
+  // ページ読み込み直後にloading-overlayを非表示→auth-wallを表示
+  // Firebase初期化が完了したらonAuthStateChangedが制御を引き継ぐ
+  showLoading(false);
+  const aw=document.getElementById('auth-wall');
+  const ac=document.getElementById('app-content');
+  if(aw) aw.style.display='flex';
+  if(ac) ac.style.display='none';
+
   // 保存済みログイン情報を自動入力
   const savedEmail=localStorage.getItem('goroku_saved_email');
   const savedPass=localStorage.getItem('goroku_saved_pass');
@@ -1552,14 +1560,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(passEl) passEl.value=savedPass;
     if(rememberEl) rememberEl.checked=true;
   }
-  // 5秒でFirebaseが応答しない場合はログイン画面を表示
+  // 3秒でFirebaseが応答しない場合はログイン画面を強制表示
   setTimeout(()=>{
     const lo=document.getElementById('loading-overlay');
     if(lo && !lo.classList.contains('hidden')){
-      console.log('Firebase slow/offline - showing auth');
       showLoading(false);
+      const aw=document.getElementById('auth-wall');
+      if(aw) aw.style.display='flex';
+      const ac=document.getElementById('app-content');
+      if(ac) ac.style.display='none';
     }
-  }, 5000);
+  }, 3000);
   // プッシュ通知の許可リクエスト（ページロード3秒後）
   setTimeout(()=>{ requestNotificationPermission(); }, 3000);
 });
