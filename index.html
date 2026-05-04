@@ -1805,19 +1805,21 @@ async function loadDashboard(){
   if(!currentUser) return;
   checkDayReset();
   try{
-    // 自分の記録を最大20件取得してJS側で本日分を絞り込む
-    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(20));
+    // 自分の記録を取得（本日分を優先、なければ最新1件）
+    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(30));
     const snap=await getDocs(q);
-    // 本日分のみ絞り込み→最新順ソート
-    const todayStart=new Date(); todayStart.setHours(0,0,0,0);
-    const docs=snap.docs.filter(d=>{
-      const ct=d.data().createdAt?.toDate?.();
-      return ct && ct>=todayStart;
-    }).sort((a,b)=>{
+    const allDocs=snap.docs.sort((a,b)=>{
       const ta=a.data().createdAt?.toMillis?.()||0;
       const tb=b.data().createdAt?.toMillis?.()||0;
       return tb-ta;
     });
+    // 本日分を優先して取得
+    const todayStart=new Date(); todayStart.setHours(0,0,0,0);
+    const todayDocs=allDocs.filter(d=>{
+      const ct=d.data().createdAt?.toDate?.();
+      return ct && ct>=todayStart;
+    });
+    const docs=todayDocs.length>0?todayDocs:[];
     if(docs.length>0){
       const data=docs[0].data();
       const score=calcScore(data,currentGoals);
@@ -1951,8 +1953,9 @@ window.submitRecord=async()=>{
       gameList=[]; gameIdCounter=0; renderGameList();
       document.querySelectorAll('#record-tags .toggle-item').forEach(t=>t.classList.remove('active'));
       setTimeout(()=>{ if(btn.textContent==='追加で記録する') btn.textContent='記録を投稿する'; },8000);
-      loadDashboard(); loadTimeline();
-    },1500);
+      // Firestoreの書き込み完了を待ってから読み込む
+      setTimeout(()=>{ loadDashboard(); loadTimeline(); }, 1500);
+    },1000);
   }catch(e){ showToast('保存に失敗: '+e.message,'error'); btn.disabled=false; btn.textContent='記録を投稿する'; }
 };
 
@@ -2439,13 +2442,13 @@ function renderGameList(){
       <div class="form-row">
         <div class="form-group">
           <div class="form-label">相手の名前・ID（任意）</div>
-          <input class="form-input opp-name-input" placeholder="例：一力遼、goking88" oninput="updateGameSummary(${g.id})">
+          <input class="form-input opp-name-input" placeholder="例：プロ棋士A、goking88" oninput="updateGameSummary(${g.id})">
         </div>
         <div class="form-group">
           <div class="form-label">相手のレベル</div>
           <div class="inline-toggle-group">
-            <div class="inline-toggle level-toggle" onclick="toggleInline(this)">プロ</div>
-            <div class="inline-toggle level-toggle sel" onclick="toggleInline(this)">アマ強豪</div>
+            <div class="inline-toggle level-toggle sel" onclick="toggleInline(this)">プロ</div>
+            <div class="inline-toggle level-toggle" onclick="toggleInline(this)">アマ強豪</div>
             <div class="inline-toggle level-toggle" onclick="toggleInline(this)">アマ一般</div>
             <div class="inline-toggle level-toggle" onclick="toggleInline(this)">初心者</div>
           </div>
