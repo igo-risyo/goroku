@@ -1446,43 +1446,42 @@ async function loadHistory(){
 
 function renderHistory(docs){
   const el=document.getElementById('history-list'); if(!el) return;
-  if(!docs.length){ el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:20px;text-align:center">記録がありません</div>'; return; }
-  el.innerHTML=docs.map(r=>{
+  if(!docs.length){
+    el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:20px;text-align:center">記録がありません</div>';
+    return;
+  }
+  let html='';
+  docs.forEach(r=>{
     const ct=r.createdAt?.toDate?.();
     const dateStr=ct?ct.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'}):'日付不明';
     const gc=Array.isArray(r.games)?r.games.length:0;
-    const extra=(r.extra_study||[]).map(e=>`${e.name}:${e.minutes}分`).join('・');
-    const pubComment=[
-      r.comment_good?`✅ ${r.comment_good}`:'',
-      r.comment_bad?`⚠️ ${r.comment_bad}`:'',
-      r.comment_free?`💭 ${r.comment_free}`:'',
-    ].filter(Boolean).join('
-');
+    const extra=(r.extra_study||[]).map(function(e){return e.name+':'+e.minutes+'分';}).join('・');
     const isToday=ct&&ct.toDateString()===new Date().toDateString();
-    return `<div class="history-item">
-      <div class="history-item-header">
-        <div>
-          <div class="history-date">${dateStr}${isToday?' 🔵 今日':''}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
-            ${(r.tags||[]).map(t=>`<span class="feed-tag">${t}</span>`).join('')}
-          </div>
-        </div>
-        <div class="history-score">${r.score||0}点</div>
-      </div>
-      <div class="history-stats">
-        ${r.tsumego?`<div class="history-stat">詰碁 <span>${r.tsumego}問</span></div>`:''}
-        ${r.ai_study?`<div class="history-stat">AI研究 <span>${r.ai_study}分</span></div>`:''}
-        ${r.kifu?`<div class="history-stat">棋譜並べ <span>${r.kifu}分</span></div>`:''}
-        ${gc?`<div class="history-stat">対局 <span>${gc}局</span></div>`:''}
-        ${extra?`<div class="history-stat">その他 <span>${extra}</span></div>`:''}
-      </div>
-      ${pubComment?`<div class="history-comment" style="white-space:pre-line">${pubComment}</div>`:''}
-      <div class="history-actions">
-        <button class="history-edit-btn" onclick="openEditModal('${r.id}')">✏️ 編集</button>
-        <button class="history-delete-btn" onclick="deleteRecord('${r.id}')">🗑️ 削除</button>
-      </div>
-    </div>`;
-  }).join('');
+    const comments=[];
+    if(r.comment_good) comments.push('良: '+r.comment_good);
+    if(r.comment_bad) comments.push('反: '+r.comment_bad);
+    if(r.comment_free) comments.push('メモ: '+r.comment_free);
+    const commentHTML=comments.length?'<div class="history-comment">'+comments.join('<br>')+'</div>':'';
+    const tags=(r.tags||[]).map(function(t){return '<span class="feed-tag">'+t+'</span>';}).join('');
+    const statsArr=[];
+    if(r.tsumego) statsArr.push('<div class="history-stat">詰碁 <span>'+r.tsumego+'問</span></div>');
+    if(r.ai_study) statsArr.push('<div class="history-stat">AI研究 <span>'+r.ai_study+'分</span></div>');
+    if(r.kifu) statsArr.push('<div class="history-stat">棋譜並べ <span>'+r.kifu+'分</span></div>');
+    if(gc) statsArr.push('<div class="history-stat">対局 <span>'+gc+'局</span></div>');
+    if(extra) statsArr.push('<div class="history-stat">その他 <span>'+extra+'</span></div>');
+    html+='<div class="history-item">';
+    html+='<div class="history-item-header">';
+    html+='<div><div class="history-date">'+dateStr+(isToday?' 今日':'')+'</div>';
+    html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">'+tags+'</div></div>';
+    html+='<div class="history-score">'+(r.score||0)+'点</div></div>';
+    html+='<div class="history-stats">'+statsArr.join('')+'</div>';
+    html+=commentHTML;
+    html+='<div class="history-actions">';
+    html+='<button class="history-edit-btn" onclick="openEditModal(''+r.id+'')">編集</button>';
+    html+='<button class="history-delete-btn" onclick="deleteRecord(''+r.id+'')">削除</button>';
+    html+='</div></div>';
+  });
+  el.innerHTML=html;
 }
 
 // ===== EDIT RECORD =====
@@ -1618,31 +1617,35 @@ async function loadQA(){
     if(currentQAFilter==='pro') docs=docs.filter(d=>d.data().hasProAnswer);
     if(!docs.length){el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center">該当する質問がありません</div>';return;}
     const REACTIONS=['すごい😆','いいね👍','まずまず👌','んー😒'];
-    el.innerHTML=docs.map(d=>{
-      const q=d.data(),qid=d.id;
+    let qaHtml='';
+    docs.forEach(d=>{
+      const q=d.data(), qid=d.id;
       const reactions=q.reactions||{0:0,1:0,2:0,3:0};
       const myReact=q.myReactions?.[currentUser?.uid]??-1;
-      const reactHTML=REACTIONS.map((rx,ri)=>`<button class="reaction-btn ${myReact===ri?'active':''}" onclick="doReactQA('${qid}',${ri},this)">${rx} <span>${reactions[ri]||0}</span></button>`).join('');
-      const imgHTML=q.photoURL?`<img src="${q.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(q.displayName)}</span>`;
-      const isOwner=q.uid===currentUser?.uid;
-      const proIcon=q.userType==='pro'?'<div class="crown-badge" style="font-size:10px">&#128081;</div>':'';
-      return `<div class="feed-item" id="qa-item-${qid}">
-        <div class="feed-header">
-          <div class="avatar-wrap"><div class="avatar ${typeClass(q.userType)}" style="width:28px;height:28px;font-size:12px">${imgHTML}</div>${proIcon}</div>
-          <div class="feed-name">${q.displayName||'匿名'}${q.userType==='pro'?'<span class="pro-crown">&#128081;</span>':''}</div>
-          <div class="feed-time">${timeAgo(q.createdAt)}</div>
-        </div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)">${q.title}</div>
-        <div class="feed-content">${q.body||''}</div>
-        <div class="feed-tags">${(q.tags||[]).map(t=>`<span class="feed-tag">${t}</span>`).join('')}</div>
-        <div class="reactions" style="margin-bottom:8px">${reactHTML}</div>
-        <div style="padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-          <button onclick="toggleAnswers('${qid}')" style="font-size:11px;color:var(--jade2);background:none;border:none;cursor:pointer">&#128172; ${q.answers||0}件の回答を見る</button>
-          <button onclick="openAnswerModal('${qid}')" style="font-size:11px;padding:4px 12px;border:1px solid var(--jade);border-radius:4px;background:transparent;color:var(--jade2);cursor:pointer">回答する</button>
-        </div>
-        <div id="answers-${qid}" style="display:none;margin-top:10px"></div>
-      </div>`;
-    }).join('');
+      let reactHTML='';
+      REACTIONS.forEach(function(rx,ri){
+        reactHTML+='<button class="reaction-btn '+(myReact===ri?'active':'')+'" onclick="doReactQA(''+qid+'','+ri+',this)">'+rx+' <span>'+(reactions[ri]||0)+'</span></button>';
+      });
+      const imgHTML=q.photoURL?'<img src="'+q.photoURL+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':'<span>'+avatarLetter(q.displayName)+'</span>';
+      const proIcon=q.userType==='pro'?'<div class="crown-badge" style="font-size:10px">👑</div>':'';
+      const tags=(q.tags||[]).map(function(t){return '<span class="feed-tag">'+t+'</span>';}).join('');
+      qaHtml+='<div class="feed-item" id="qa-item-'+qid+'">';
+      qaHtml+='<div class="feed-header">';
+      qaHtml+='<div class="avatar-wrap"><div class="avatar '+typeClass(q.userType)+'" style="width:28px;height:28px;font-size:12px">'+imgHTML+'</div>'+proIcon+'</div>';
+      qaHtml+='<div class="feed-name">'+(q.displayName||'匿名')+(q.userType==='pro'?'<span class="pro-crown">👑</span>':'')+'</div>';
+      qaHtml+='<div class="feed-time">'+timeAgo(q.createdAt)+'</div></div>';
+      qaHtml+='<div style="font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)">'+(q.title||'')+'</div>';
+      qaHtml+='<div class="feed-content">'+(q.body||'')+'</div>';
+      qaHtml+='<div class="feed-tags">'+tags+'</div>';
+      qaHtml+='<div class="reactions" style="margin-bottom:8px">'+reactHTML+'</div>';
+      qaHtml+='<div style="padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">';
+      qaHtml+='<button onclick="toggleAnswers(''+qid+'')" style="font-size:11px;color:var(--jade2);background:none;border:none;cursor:pointer">💬 '+(q.answers||0)+'件の回答を見る</button>';
+      qaHtml+='<button onclick="openAnswerModal(''+qid+'')" style="font-size:11px;padding:4px 12px;border:1px solid var(--jade);border-radius:4px;background:transparent;color:var(--jade2);cursor:pointer">回答する</button>';
+      qaHtml+='</div>';
+      qaHtml+='<div id="answers-'+qid+'" style="display:none;margin-top:10px"></div>';
+      qaHtml+='</div>';
+    });
+    el.innerHTML=qaHtml;
   }catch(e){ console.log('QA:',e.message); }
 }
 
@@ -1660,28 +1663,30 @@ window.toggleAnswers=async(qid)=>{
     const qDoc=await getDoc(doc(db,'questions',qid));
     const qOwner=qDoc.data()?.uid;
     const bestId=qDoc.data()?.bestAnswerId||'';
-    el.innerHTML=snap.docs.map(d=>{
-      const a=d.data(),aid=d.id;
+    let ansHtml='';
+    snap.docs.forEach(function(d){
+      const a=d.data(), aid=d.id;
       const isBest=aid===bestId;
       const isOwner=qOwner===currentUser?.uid;
-      const imgHTML=a.photoURL?`<img src="${a.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(a.displayName)}</span>`;
+      const imgHTML=a.photoURL?'<img src="'+a.photoURL+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':'<span>'+avatarLetter(a.displayName)+'</span>';
       const proTag=a.userType==='pro'?'<span class="best-badge" style="background:var(--gold)">棋士</span>':'';
       const bestTag=isBest?'<span class="best-badge">ベスト回答</span>':'';
       const myLike=(a.likedBy||[]).includes(currentUser?.uid);
-      return `<div class="answer-card ${isBest?'best':''}">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <div class="avatar-wrap"><div class="avatar ${typeClass(a.userType)}" style="width:24px;height:24px;font-size:10px">${imgHTML}</div>${a.userType==='pro'?'<div class="crown-badge" style="font-size:9px;top:-5px">👑</div>':''}</div>
-          <div style="font-size:11px;font-weight:600">${a.displayName||'匿名'}${proTag}${bestTag}</div>
-          <div style="font-size:10px;color:var(--text3);margin-left:auto">${timeAgo(a.createdAt)}</div>
-        </div>
-        <div style="font-size:12px;color:var(--text2);line-height:1.7">${a.body||''}</div>
-        <div class="answer-actions">
-          <button class="answer-like-btn ${myLike?'liked':''}" onclick="likeAnswer('${aid}','${qid}',this)">👍 <span>${(a.likedBy||[]).length}</span></button>
-          ${isOwner&&!isBest?`<button class="best-btn" onclick="setBestAnswer('${qid}','${aid}')">✅ ベスト回答に選ぶ</button>`:''}
-          ${isBest?'<span style="font-size:10px;color:var(--gold)">✅ 質問者が選んだベスト回答</span>':''}
-        </div>
-      </div>`;
-    }).join('');
+      const likeCount=(a.likedBy||[]).length;
+      ansHtml+='<div class="answer-card '+(isBest?'best':'')+'">';
+      ansHtml+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+      ansHtml+='<div class="avatar-wrap"><div class="avatar '+typeClass(a.userType)+'" style="width:24px;height:24px;font-size:10px">'+imgHTML+'</div>'+(a.userType==='pro'?'<div class="crown-badge" style="font-size:9px;top:-5px">👑</div>':'')+'</div>';
+      ansHtml+='<div style="font-size:11px;font-weight:600">'+(a.displayName||'匿名')+proTag+bestTag+'</div>';
+      ansHtml+='<div style="font-size:10px;color:var(--text3);margin-left:auto">'+timeAgo(a.createdAt)+'</div>';
+      ansHtml+='</div>';
+      ansHtml+='<div style="font-size:12px;color:var(--text2);line-height:1.7">'+(a.body||'')+'</div>';
+      ansHtml+='<div class="answer-actions">';
+      ansHtml+='<button class="answer-like-btn '+(myLike?'liked':'')+'" onclick="likeAnswer(''+aid+'',''+qid+'',this)">👍 <span>'+likeCount+'</span></button>';
+      if(isOwner&&!isBest) ansHtml+='<button class="best-btn" onclick="setBestAnswer(''+qid+'',''+aid+'')">ベスト回答に選ぶ</button>';
+      if(isBest) ansHtml+='<span style="font-size:10px;color:var(--gold)">質問者が選んだベスト回答</span>';
+      ansHtml+='</div></div>';
+    });
+    el.innerHTML=ansHtml;
   }catch(e){ el.innerHTML='<div style="color:var(--text3);font-size:11px">読み込み失敗</div>'; }
 };
 
@@ -3090,68 +3095,57 @@ async function loadHeatmap(){
 async function loadWeeklyReport(){
   const el=document.getElementById('weekly-report-content'); if(!el) return;
   try{
-    // 先週のデータ取得
     const now=new Date();
     const dayOfWeek=now.getDay()||7;
     const lastMonday=new Date(now); lastMonday.setDate(now.getDate()-dayOfWeek-6); lastMonday.setHours(0,0,0,0);
     const lastSunday=new Date(now); lastSunday.setDate(now.getDate()-dayOfWeek); lastSunday.setHours(23,59,59,999);
     const q=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(50));
     const snap=await getDocs(q);
-    const weekDocs=snap.docs.filter(d=>{
+    const weekDocs=snap.docs.filter(function(d){
       const ct=d.data().createdAt?.toDate?.();
       return ct&&ct>=lastMonday&&ct<=lastSunday;
     });
-    if(weekDocs.length===0){
+    if(!weekDocs.length){
       el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px">先週の記録がありません</div>';
       return;
     }
-    const weekData=weekDocs.map(d=>d.data());
-    const totalTsumego=weekData.reduce((s,r)=>s+(r.tsumego||0),0);
-    const totalAI=weekData.reduce((s,r)=>s+(r.ai_study||0),0);
-    const totalKifu=weekData.reduce((s,r)=>s+(r.kifu||0),0);
-    const totalGames=weekData.reduce((s,r)=>s+(Array.isArray(r.games)?r.games.length:0),0);
-    const avgScore=Math.round(weekData.reduce((s,r)=>s+(r.score||0),0)/weekData.length);
+    const weekData=weekDocs.map(function(d){return d.data();});
+    const totalTsumego=weekData.reduce(function(s,r){return s+(r.tsumego||0);},0);
+    const totalAI=weekData.reduce(function(s,r){return s+(r.ai_study||0);},0);
+    const totalKifu=weekData.reduce(function(s,r){return s+(r.kifu||0);},0);
+    const totalGames=weekData.reduce(function(s,r){return s+(Array.isArray(r.games)?r.games.length:0);},0);
+    const avgScore=Math.round(weekData.reduce(function(s,r){return s+(r.score||0);},0)/weekData.length);
     const recordDays=weekDocs.length;
-    // AIコメント生成
     let weekComment='';
-    if(recordDays>=6) weekComment='毎日コツコツ取り組めた素晴らしい1週間でした！🏆';
+    if(recordDays>=6) weekComment='毎日コツコツ取り組めた素晴らしい1週間でした！';
     else if(recordDays>=4) weekComment='良いペースで継続できています。';
     else if(recordDays>=2) weekComment='少しペースを上げると更に成長できます。';
     else weekComment='来週はもう少し記録を増やしてみましょう。';
     if(totalTsumego>200) weekComment+=' 詰碁の量が特に素晴らしいです！';
     if(totalAI>120) weekComment+=' AI研究もしっかり取り組めています。';
-    // 来週の提案
     let suggestion='';
     if(totalKifu===0) suggestion='来週は棋譜並べにも挑戦してみましょう。';
     else if(totalTsumego<50) suggestion='来週は詰碁をもう少し増やしてみましょう。';
     else if(totalGames<5) suggestion='来週は対局数を増やしてみましょう。';
     else suggestion='この調子を維持しましょう！';
-    el.innerHTML=`
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-        <div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">
-          <div style="font-size:20px;font-weight:700;color:var(--gold2);font-family:'Zen Antique',serif">${avgScore}</div>
-          <div style="font-size:10px;color:var(--text3)">平均スコア</div>
-        </div>
-        <div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">
-          <div style="font-size:20px;font-weight:700;color:var(--jade2);font-family:'Zen Antique',serif">${recordDays}/7</div>
-          <div style="font-size:10px;color:var(--text3)">記録日数</div>
-        </div>
-        <div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">
-          <div style="font-size:20px;font-weight:700;color:#7aa0e8;font-family:'Zen Antique',serif">${totalTsumego}</div>
-          <div style="font-size:10px;color:var(--text3)">詰碁合計（問）</div>
-        </div>
-        <div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">
-          <div style="font-size:20px;font-weight:700;color:#e87070;font-family:'Zen Antique',serif">${totalGames}</div>
-          <div style="font-size:10px;color:var(--text3)">対局合計（局）</div>
-        </div>
-      </div>
-      <div style="font-size:12px;color:var(--text2);line-height:1.7;background:rgba(200,168,74,.06);border:1px solid rgba(200,168,74,.15);border-radius:4px;padding:10px">
-        🤖 ${weekComment}<br>💡 ${suggestion}
-      </div>
-      <div style="margin-top:8px;display:flex;gap:12px;font-size:11px;color:var(--text3)">
-        <span>AI研究: ${totalAI}分</span>
-        <span>棋譜並べ: ${totalKifu}分</span>
-      </div>`;
+    let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
+    html+='<div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">';
+    html+='<div style="font-size:20px;font-weight:700;color:var(--gold2)">'+avgScore+'</div>';
+    html+='<div style="font-size:10px;color:var(--text3)">平均スコア</div></div>';
+    html+='<div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">';
+    html+='<div style="font-size:20px;font-weight:700;color:var(--jade2)">'+recordDays+'/7</div>';
+    html+='<div style="font-size:10px;color:var(--text3)">記録日数</div></div>';
+    html+='<div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">';
+    html+='<div style="font-size:20px;font-weight:700;color:#7aa0e8">'+totalTsumego+'</div>';
+    html+='<div style="font-size:10px;color:var(--text3)">詰碁合計（問）</div></div>';
+    html+='<div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">';
+    html+='<div style="font-size:20px;font-weight:700;color:#e87070">'+totalGames+'</div>';
+    html+='<div style="font-size:10px;color:var(--text3)">対局合計（局）</div></div></div>';
+    html+='<div style="font-size:12px;color:var(--text2);line-height:1.7;background:rgba(200,168,74,.06);border:1px solid rgba(200,168,74,.15);border-radius:4px;padding:10px">';
+    html+='AI: '+weekComment+' / '+suggestion+'</div>';
+    html+='<div style="margin-top:8px;display:flex;gap:12px;font-size:11px;color:var(--text3)">';
+    html+='<span>AI研究: '+totalAI+'分</span><span>棋譜並べ: '+totalKifu+'分</span></div>';
+    el.innerHTML=html;
   }catch(e){ console.log('WeeklyReport:',e.message); el.innerHTML='<div style="color:var(--text3);font-size:12px">読み込みに失敗しました</div>'; }
 }
 
