@@ -1280,8 +1280,8 @@ async function loadQA(){
       qaHtml+='<div class="feed-tags">'+tags+'</div>';
       qaHtml+='<div class="reactions" style="margin-bottom:8px">'+reactHTML+'</div>';
       qaHtml+='<div style="padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">';
-      qaHtml+='<button onclick="toggleAnswers(''+qid+'')" style="font-size:11px;color:var(--jade2);background:none;border:none;cursor:pointer">💬 '+(q.answers||0)+'件の回答を見る</button>';
-      qaHtml+='<button onclick="openAnswerModal(''+qid+'')" style="font-size:11px;padding:4px 12px;border:1px solid var(--jade);border-radius:4px;background:transparent;color:var(--jade2);cursor:pointer">回答する</button>';
+      qaHtml+='<button data-qid="'+qid+'" onclick="toggleAnswers(this.dataset.qid)" style="font-size:11px;color:var(--jade2);background:none;border:none;cursor:pointer">💬 '+(q.answers||0)+'件の回答を見る</button>';
+      qaHtml+='<button data-qid="'+qid+'" onclick="openAnswerModal(this.dataset.qid)" style="font-size:11px;padding:4px 12px;border:1px solid var(--jade);border-radius:4px;background:transparent;color:var(--jade2);cursor:pointer">回答する</button>';
       qaHtml+='</div>';
       qaHtml+='<div id="answers-'+qid+'" style="display:none;margin-top:10px"></div>';
       qaHtml+='</div>';
@@ -1322,8 +1322,8 @@ window.toggleAnswers=async(qid)=>{
       ansHtml+='</div>';
       ansHtml+='<div style="font-size:12px;color:var(--text2);line-height:1.7">'+(a.body||'')+'</div>';
       ansHtml+='<div class="answer-actions">';
-      ansHtml+='<button class="answer-like-btn '+(myLike?'liked':'')+'" onclick="likeAnswer(''+aid+'',''+qid+'',this)">👍 <span>'+likeCount+'</span></button>';
-      if(isOwner&&!isBest) ansHtml+='<button class="best-btn" onclick="setBestAnswer(''+qid+'',''+aid+'')">ベスト回答に選ぶ</button>';
+      ansHtml+='<button class="answer-like-btn '+(myLike?'liked':'')+'" data-aid="'+aid+'" data-qid="'+qid+'" onclick="likeAnswer(this.dataset.aid,this.dataset.qid,this)">👍 <span>'+likeCount+'</span></button>';
+      if(isOwner&&!isBest) ansHtml+='<button class="best-btn" data-qid="'+qid+'" data-aid="'+aid+'" onclick="setBestAnswer(this.dataset.qid,this.dataset.aid)">ベスト回答に選ぶ</button>';
       if(isBest) ansHtml+='<span style="font-size:10px;color:var(--gold)">質問者が選んだベスト回答</span>';
       ansHtml+='</div></div>';
     });
@@ -1477,7 +1477,7 @@ async function loadGroups(){
         ${g.desc?`<div style="font-size:11px;color:var(--text2);margin-bottom:8px">${g.desc}</div>`:''}
         <div class="group-actions">
           <button class="group-btn primary" onclick="openGroupDetail('${gid}')">グループを見る</button>
-          ${g.ownerUid!==currentUser.uid?`<button class="group-btn" onclick="leaveGroup('${gid}')">退出</button>`:''}
+          ${g.ownerUid!==currentUser.uid?'<button class="group-btn" data-gid="'+gid+'" onclick="leaveGroup(this.dataset.gid)">退出</button>':''}
         </div>
       </div>`;
     }).join('');
@@ -1977,7 +1977,10 @@ async function loadTimeline(){
       ].filter(Boolean).join(' / ');
       const reactions=r.reactions||{0:0,1:0,2:0,3:0};
       const myReact=r.myReactions?.[currentUser?.uid]??-1;
-      const reactHTML=REACTIONS.map((rx,ri)=>`<button class="reaction-btn ${myReact===ri?'active':''}" onclick="doReact('${rid}',${ri},this)">${rx} <span>${reactions[ri]||0}</span></button>`).join('');
+      let reactHTML='';
+  REACTIONS.forEach(function(rx,ri){
+    reactHTML+='<button class="reaction-btn '+(myReact===ri?'active':'')+'" data-rid="'+rid+'" data-ri="'+ri+'" onclick="doReact(this.dataset.rid,this.dataset.ri,this)">'+rx+' <span>'+(reactions[ri]||0)+'</span></button>';
+  });
       const imgHTML=r.photoURL?`<img src="${r.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(r.displayName)}</span>`;
       const extraHTML=(r.extra_study||[]).map(e=>`<div class="feed-stat">${e.name} <span>${e.minutes}分</span></div>`).join('');
       return `<div class="feed-item">
@@ -2139,7 +2142,7 @@ async function loadCompare(){
     const tabs=$('compare-tabs');
     const others=snap.docs.filter(d=>d.id!==currentUser?.uid).slice(0,4);
     tabs.innerHTML=`<div class="compare-tab active" onclick="setCompareTarget(this,'avg',null)">全体平均</div>`
-      +others.map(d=>`<div class="compare-tab" onclick="setCompareTarget(this,'${d.id}','${d.data().displayName}')">${d.data().displayName}${d.data().userType==='pro'?'👑':''}</div>`).join('');
+      +others.map(d=>'<div class="compare-tab" data-uid="'+d.id+'" data-name="'+d.data().displayName+'" onclick="setCompareTarget(this,this.dataset.uid,this.dataset.name)">'+d.data().displayName+(d.data().userType==='pro'?'👑':'')+'</div>').join('');
     $('cmp-my-name').textContent=currentProfile?.displayName||'自分';
     $('cmp-crown').style.display=currentProfile?.userType==='pro'?'block':'none';
     const cmpAv=$('cmp-my-avatar');
