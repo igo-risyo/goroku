@@ -357,7 +357,98 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg2);}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-@media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr);}.grid2{grid-template-columns:1fr;}.form-row-3{grid-template-columns:1fr 1fr;}}
+/* ===== GROUP & QA ===== */
+.group-card{background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;margin-bottom:8px;transition:border-color .15s;}
+.group-card:hover{border-color:var(--border2);}
+.group-card-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.group-icon{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--jade),#2a6840);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.group-name{font-size:13px;font-weight:600;}
+.group-meta{font-size:10px;color:var(--text3);}
+.group-badge{font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(74,152,112,.15);color:var(--jade2);border:1px solid rgba(74,152,112,.3);}
+.group-actions{display:flex;gap:6px;margin-top:8px;}
+.group-btn{padding:5px 12px;border-radius:3px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:11px;transition:all .15s;}
+.group-btn:hover{border-color:var(--jade);color:var(--jade2);}
+.group-btn.primary{background:linear-gradient(135deg,var(--jade),#2a6840);color:#fff;border-color:transparent;}
+/* 回答カード */
+.answer-card{background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:12px;margin-top:8px;}
+.answer-card.best{border-color:var(--gold);background:rgba(200,168,74,.06);}
+.best-badge{display:inline-block;background:var(--gold);color:#1a1208;font-size:9px;padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px;}
+.answer-actions{display:flex;gap:8px;margin-top:8px;align-items:center;}
+.answer-like-btn{display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;font-size:11px;transition:all .15s;}
+.answer-like-btn:hover{border-color:var(--gold);color:var(--gold);}
+.answer-like-btn.liked{border-color:var(--gold);color:var(--gold);}
+.best-btn{padding:3px 10px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;font-size:11px;transition:all .15s;}
+.best-btn:hover{border-color:var(--gold);color:var(--gold);}
+/* グループチャット */
+.chat-msg{margin-bottom:8px;}
+.chat-msg-header{display:flex;align-items:center;gap:6px;margin-bottom:2px;}
+.chat-msg-name{font-size:10px;font-weight:600;color:var(--text2);}
+.chat-msg-time{font-size:9px;color:var(--text3);}
+.chat-msg-body{font-size:12px;color:var(--text);line-height:1.5;padding-left:4px;}
+.chat-msg.mine .chat-msg-body{color:var(--jade2);}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .grid2{grid-template-columns:1fr;}
+  .form-row-3{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:680px){
+  /* サイドバーを非表示→下部タブバーに */
+  .sidebar{
+    width:100%;height:56px;
+    top:auto;bottom:0;left:0;
+    flex-direction:row;
+    border-right:none;border-top:1px solid var(--border);
+    z-index:200;
+  }
+  .logo{display:none;}
+  .nav{
+    display:flex;flex-direction:row;
+    padding:0;overflow-x:auto;overflow-y:hidden;
+    flex:1;align-items:center;
+    scrollbar-width:none;
+  }
+  .nav::-webkit-scrollbar{display:none;}
+  .nav-group{display:contents;}
+  .nav-label{display:none;}
+  .nav-item{
+    flex-direction:column;gap:2px;
+    padding:6px 10px;min-width:52px;
+    font-size:9px;border-left:none;border-top:2px solid transparent;
+    text-align:center;white-space:nowrap;
+  }
+  .nav-item.active{border-left:none;border-top-color:var(--gold);}
+  .nav-icon{font-size:18px;width:auto;}
+  .user-card{display:none;}
+  .main{margin-left:0;margin-bottom:56px;}
+  .topbar{padding:0 14px;height:46px;}
+  .page-title{font-size:14px;}
+  .content{padding:12px 14px;}
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .stat-val{font-size:22px;}
+  .card{padding:12px;}
+  .form-row{grid-template-columns:1fr;}
+  .compare-grid{grid-template-columns:1fr;}
+  .follow-grid{grid-template-columns:1fr;}
+  .auth-box{padding:24px 20px;}
+  .mascot-wrap{bottom:70px;right:12px;}
+  .mascot-bubble{max-width:200px;}
+  .mascot-body svg{width:56px;height:56px;}
+  /* ボトムナビのテキスト短縮 */
+  .nav-item .nav-text{display:none;}
+  /* ゲームカードを横並びに */
+  .game-card-body .form-row{grid-template-columns:1fr 1fr;}
+  /* タイムライン */
+  .feed-stats{gap:8px;}
+  .reactions{gap:4px;}
+  .reaction-btn{padding:3px 7px;font-size:11px;}
+}
+@media(max-width:380px){
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .stat-val{font-size:20px;}
+  .nav-item{padding:6px 7px;min-width:44px;}
+}
 </style>
 </head>
 <body>
@@ -411,20 +502,22 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
   <nav class="nav">
     <div class="nav-group">
       <div class="nav-label">メイン</div>
-      <div class="nav-item active" onclick="showPanel('dashboard')"><span class="nav-icon">🏠</span> ダッシュボード</div>
-      <div class="nav-item" onclick="showPanel('record')"><span class="nav-icon">✏️</span> 今日の記録</div>
-      <div class="nav-item" onclick="showPanel('timeline')"><span class="nav-icon">📢</span> タイムライン</div>
-      <div class="nav-item" onclick="showPanel('ranking')"><span class="nav-icon">🏆</span> ランキング</div>
+      <div class="nav-item active" onclick="showPanel('dashboard')"><span class="nav-icon">🏠</span><span class="nav-text"> ダッシュボード</span></div>
+      <div class="nav-item" onclick="showPanel('record')"><span class="nav-icon">✏️</span><span class="nav-text"> 今日の記録</span></div>
+      <div class="nav-item" onclick="showPanel('timeline')"><span class="nav-icon">📢</span><span class="nav-text"> タイムライン</span></div>
+      <div class="nav-item" onclick="showPanel('ranking')"><span class="nav-icon">🏆</span><span class="nav-text"> ランキング</span></div>
     </div>
     <div class="nav-group">
       <div class="nav-label">分析・比較</div>
-      <div class="nav-item" onclick="showPanel('compare')"><span class="nav-icon">⚖️</span> 比較</div>
-      <div class="nav-item" onclick="showPanel('follows')"><span class="nav-icon">👁️</span> フォロー中</div>
-      <div class="nav-item" onclick="showPanel('qa')"><span class="nav-icon">💬</span> Q&A掲示板</div>
+      <div class="nav-item" onclick="showPanel('compare')"><span class="nav-icon">⚖️</span><span class="nav-text"> 比較</span></div>
+      <div class="nav-item" onclick="showPanel('follows')"><span class="nav-icon">👁️</span><span class="nav-text"> フォロー中</span></div>
+      <div class="nav-item" onclick="showPanel('qa')"><span class="nav-icon">💬</span><span class="nav-text"> Q&A</span></div>
+      <div class="nav-item" onclick="showPanel('heatmap')"><span class="nav-icon">📅</span><span class="nav-text"> カレンダー</span></div>
+      <div class="nav-item" onclick="showPanel('groups')"><span class="nav-icon">👥</span><span class="nav-text"> グループ</span></div>
     </div>
     <div class="nav-group">
       <div class="nav-label">設定</div>
-      <div class="nav-item" onclick="showPanel('settings')"><span class="nav-icon">⚙️</span> 設定・目標</div>
+      <div class="nav-item" onclick="showPanel('settings')"><span class="nav-icon">⚙️</span><span class="nav-text"> 設定</span></div>
     </div>
   </nav>
   <div class="user-card" onclick="showPanel('settings')">
@@ -602,18 +695,175 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
       <div class="card"><div class="card-title">📈 フォロー中のスコア推移</div><div class="chart-wrap"><canvas id="followChart"></canvas></div></div>
     </div>
 
+    <!-- HEATMAP -->
+    <div class="panel" id="panel-heatmap">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">📅 学習カレンダー（過去1年）</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">濃いほど学習量が多い日</div>
+        <div id="heatmap-container" style="overflow-x:auto;padding-bottom:8px"></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:flex-end">
+          <span style="font-size:10px;color:var(--text3)">少</span>
+          <div style="display:flex;gap:3px">
+            <div style="width:12px;height:12px;border-radius:2px;background:var(--bg4)"></div>
+            <div style="width:12px;height:12px;border-radius:2px;background:rgba(74,152,112,.25)"></div>
+            <div style="width:12px;height:12px;border-radius:2px;background:rgba(74,152,112,.5)"></div>
+            <div style="width:12px;height:12px;border-radius:2px;background:rgba(74,152,112,.75)"></div>
+            <div style="width:12px;height:12px;border-radius:2px;background:#5cb888"></div>
+          </div>
+          <span style="font-size:10px;color:var(--text3)">多</span>
+        </div>
+      </div>
+      <!-- 週次レポート -->
+      <div class="card" style="margin-bottom:16px" id="weekly-report-card">
+        <div class="card-title">📊 週次レポート（先週）</div>
+        <div id="weekly-report-content">
+          <div style="color:var(--text3);font-size:12px">読み込み中...</div>
+        </div>
+      </div>
+      <!-- 詰碁正解率 -->
+      <div class="card">
+        <div class="card-title">⚫ 詰碁 正解率トラッキング</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group">
+            <div class="form-label">今日の正解数</div>
+            <div class="num-input-wrap">
+              <button class="num-btn" onclick="numChangeTsumego('correct',-1)">−</button>
+              <div class="num-display" id="val-correct">0</div>
+              <button class="num-btn" onclick="numChangeTsumego('correct',1)">＋</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">今日の挑戦数</div>
+            <div class="num-input-wrap">
+              <button class="num-btn" onclick="numChangeTsumego('attempt',-1)">−</button>
+              <div class="num-display" id="val-attempt">0</div>
+              <button class="num-btn" onclick="numChangeTsumego('attempt',1)">＋</button>
+            </div>
+          </div>
+        </div>
+        <div id="tsumego-accuracy-display" style="text-align:center;padding:12px;background:var(--bg4);border-radius:4px;margin-bottom:12px">
+          <div style="font-size:32px;font-weight:700;font-family:'Zen Antique',serif;color:var(--jade2)" id="accuracy-pct">—%</div>
+          <div style="font-size:11px;color:var(--text3)">本日の正解率</div>
+        </div>
+        <button class="submit-btn" onclick="saveTsumegoAccuracy()" style="margin-top:0">正解率を記録する</button>
+        <div class="card-title" style="margin-top:16px">📈 正解率推移（30日）</div>
+        <div class="chart-wrap-sm"><canvas id="accuracyChart"></canvas></div>
+      </div>
+    </div>
+
     <!-- QA -->
     <div class="panel" id="panel-qa">
+      <!-- Q投稿フォーム -->
       <button class="submit-btn" style="margin-bottom:16px" onclick="toggleQAForm()">＋ 質問・悩みを投稿する</button>
       <div id="qa-form" style="display:none;margin-bottom:16px">
         <div class="card">
           <div class="form-group" style="margin-bottom:10px"><div class="form-label">タイトル</div><input class="form-input" id="qa-title" placeholder="例：序盤の布石でいつも悩んでいます"></div>
           <div class="form-group" style="margin-bottom:10px"><div class="form-label">詳細</div><textarea class="form-textarea" id="qa-body" placeholder="詳しく書くほど良い回答が集まります..."></textarea></div>
-          <div class="form-group" style="margin-bottom:10px"><div class="form-label">タグ</div><div class="toggle-group" id="qa-tags"><div class="toggle-item" onclick="toggleTag(this)">布石</div><div class="toggle-item" onclick="toggleTag(this)">定石</div><div class="toggle-item" onclick="toggleTag(this)">詰碁</div><div class="toggle-item" onclick="toggleTag(this)">対局</div><div class="toggle-item" onclick="toggleTag(this)">勉強法</div><div class="toggle-item" onclick="toggleTag(this)">メンタル</div></div></div>
+          <div class="form-group" style="margin-bottom:10px">
+            <div class="form-label">タグ</div>
+            <div class="toggle-group" id="qa-tags">
+              <div class="toggle-item" onclick="toggleTag(this)">布石</div>
+              <div class="toggle-item" onclick="toggleTag(this)">定石</div>
+              <div class="toggle-item" onclick="toggleTag(this)">詰碁</div>
+              <div class="toggle-item" onclick="toggleTag(this)">対局</div>
+              <div class="toggle-item" onclick="toggleTag(this)">勉強法</div>
+              <div class="toggle-item" onclick="toggleTag(this)">メンタル</div>
+            </div>
+          </div>
           <button class="submit-btn" style="margin-top:4px" onclick="submitQA()">投稿する</button>
         </div>
       </div>
+      <!-- Q&Aフィルタ -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="compare-tab active" onclick="setQAFilter(this,'all')">すべて</button>
+        <button class="compare-tab" onclick="setQAFilter(this,'mine')">自分の質問</button>
+        <button class="compare-tab" onclick="setQAFilter(this,'unanswered')">未回答</button>
+        <button class="compare-tab" onclick="setQAFilter(this,'pro')">棋士が回答</button>
+      </div>
       <div class="feed" id="qa-list"><div style="color:var(--text3);font-size:12px;padding:20px;text-align:center">読み込み中...</div></div>
+      <!-- 回答モーダル -->
+      <div id="answer-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;padding:16px">
+        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-size:14px;font-weight:600;color:var(--gold)">回答する</div>
+            <button onclick="closeAnswerModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer">✕</button>
+          </div>
+          <div id="answer-question-preview" style="background:var(--bg4);border-radius:4px;padding:10px;margin-bottom:12px;font-size:12px;color:var(--text2)"></div>
+          <div class="form-group" style="margin-bottom:12px">
+            <div class="form-label">あなたの回答</div>
+            <textarea class="form-textarea" id="answer-body" placeholder="丁寧に回答しましょう。棋士バッジ付きの回答は特に注目されます。" style="min-height:100px"></textarea>
+          </div>
+          <button class="submit-btn" onclick="submitAnswer()" style="margin-top:0">回答を投稿する</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROUPS -->
+    <div class="panel" id="panel-groups">
+      <!-- グループ作成 -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">👥 グループ・道場・研究会</div>
+        <button class="submit-btn" style="margin-bottom:12px" onclick="toggleCreateGroup()">＋ 新しいグループを作る</button>
+        <div id="create-group-form" style="display:none;margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:10px">
+            <div class="form-label">グループ名</div>
+            <input class="form-input" id="group-name" placeholder="例：〇〇道場、AI研究会">
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
+            <div class="form-label">説明</div>
+            <textarea class="form-textarea" id="group-desc" placeholder="グループの説明、目標など..." style="min-height:60px"></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
+            <div class="form-label">公開設定</div>
+            <div class="toggle-group" id="group-visibility">
+              <div class="toggle-item active" onclick="singleSelectToggle(this,'group-visibility')">公開（誰でも参加可）</div>
+              <div class="toggle-item" onclick="singleSelectToggle(this,'group-visibility')">承認制</div>
+              <div class="toggle-item" onclick="singleSelectToggle(this,'group-visibility')">招待のみ</div>
+            </div>
+          </div>
+          <button class="submit-btn" onclick="createGroup()" style="margin-top:0">グループを作成</button>
+        </div>
+        <!-- グループ検索 -->
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <input class="form-input" id="group-search" placeholder="グループ名で検索..." style="flex:1" onkeydown="if(event.key==='Enter')searchGroups()">
+          <button class="submit-btn" style="width:auto;padding:8px 14px;font-size:12px;margin-top:0" onclick="searchGroups()">検索</button>
+        </div>
+        <div id="group-search-results"></div>
+      </div>
+      <!-- 参加中グループ -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">🏠 参加中のグループ</div>
+        <div id="my-groups-list"><div style="color:var(--text3);font-size:12px">読み込み中...</div></div>
+      </div>
+      <!-- グループ詳細 -->
+      <div id="group-detail" style="display:none">
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <button onclick="closeGroupDetail()" style="background:none;border:1px solid var(--border2);border-radius:4px;color:var(--text2);padding:4px 10px;cursor:pointer;font-size:11px">← 戻る</button>
+            <div style="font-size:15px;font-weight:600" id="gd-name"></div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:10px" id="gd-desc"></div>
+          <div style="display:flex;gap:10px;font-size:11px;color:var(--text3);margin-bottom:14px">
+            <span id="gd-members">メンバー: 0人</span>
+            <span id="gd-type"></span>
+          </div>
+          <!-- グループ内ランキング -->
+          <div class="card-title">🏆 グループ内ランキング（今日）</div>
+          <div id="gd-ranking" class="rank-list"></div>
+          <!-- グループタイムライン -->
+          <div class="card-title" style="margin-top:16px">📢 グループタイムライン</div>
+          <div class="feed" id="gd-timeline" style="margin-top:8px"></div>
+          <!-- グループチャット -->
+          <div class="card-title" style="margin-top:16px">💬 グループチャット</div>
+          <div id="gd-chat" style="margin-top:8px;max-height:200px;overflow-y:auto;background:var(--bg4);border-radius:4px;padding:10px;margin-bottom:8px">
+            <div style="color:var(--text3);font-size:11px;text-align:center">メッセージを読み込み中...</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input class="form-input" id="gd-chat-input" placeholder="メッセージを送る..." onkeydown="if(event.key==='Enter')sendGroupChat()">
+            <button class="submit-btn" style="width:auto;padding:8px 14px;font-size:12px;margin-top:0" onclick="sendGroupChat()">送信</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- SETTINGS -->
@@ -946,7 +1196,7 @@ function showAuthError(m){ const e=$('auth-err'); e.textContent=m; e.style.displ
 
 // Firebase接続確認（ページロード時）
 document.addEventListener('DOMContentLoaded', ()=>{
-  // 3秒でFirebaseが応答しない場合はログイン画面を表示
+  // 5秒でFirebaseが応答しない場合はログイン画面を表示
   setTimeout(()=>{
     const lo=document.getElementById('loading-overlay');
     if(lo && !lo.classList.contains('hidden')){
@@ -954,7 +1204,404 @@ document.addEventListener('DOMContentLoaded', ()=>{
       showLoading(false);
     }
   }, 5000);
+  // プッシュ通知の許可リクエスト（ページロード3秒後）
+  setTimeout(()=>{ requestNotificationPermission(); }, 3000);
 });
+
+function requestNotificationPermission(){
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='default'){
+    // ユーザーがログイン済みの場合のみリクエスト
+    if(currentUser) Notification.requestPermission();
+  }
+}
+
+function sendLocalNotification(title, body){
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='granted'){
+    new Notification(title,{
+      body, icon:'/favicon.ico',
+      badge:'/favicon.ico',
+      tag:'goroku-notification'
+    });
+  }
+}
+
+// 毎日21時に通知（ローカルタイマー）
+// ===== Q&A ENHANCED =====
+let currentQAFilter = 'all';
+let currentAnswerQID = null;
+
+window.setQAFilter=(el,filter)=>{
+  document.querySelectorAll('#panel-qa .compare-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentQAFilter=filter;
+  loadQA();
+};
+
+window.toggleQAForm=()=>{
+  const f=document.getElementById('qa-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+};
+
+// Q&A読み込み（フィルタ対応版）
+
+window.toggleAnswers=async(qid)=>{
+  const el=document.getElementById('answers-'+qid);
+  if(!el) return;
+  if(el.style.display!=='none'){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML='<div style="color:var(--text3);font-size:11px;padding:8px">読み込み中...</div>';
+  try{
+    const q2=query(collection(db,'answers'),where('questionId','==',qid),orderBy('createdAt','asc'));
+    const snap=await getDocs(q2);
+    if(snap.empty){ el.innerHTML='<div style="color:var(--text3);font-size:11px;padding:8px">まだ回答がありません。最初に回答しませんか？</div>'; return; }
+    // 質問オーナーを取得
+    const qDoc=await getDoc(doc(db,'questions',qid));
+    const qOwner=qDoc.data()?.uid;
+    const bestId=qDoc.data()?.bestAnswerId||'';
+    el.innerHTML=snap.docs.map(d=>{
+      const a=d.data(),aid=d.id;
+      const isBest=aid===bestId;
+      const isOwner=qOwner===currentUser?.uid;
+      const imgHTML=a.photoURL?`<img src="${a.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(a.displayName)}</span>`;
+      const proTag=a.userType==='pro'?'<span class="best-badge" style="background:var(--gold)">棋士</span>':'';
+      const bestTag=isBest?'<span class="best-badge">ベスト回答</span>':'';
+      const myLike=(a.likedBy||[]).includes(currentUser?.uid);
+      return `<div class="answer-card ${isBest?'best':''}">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div class="avatar-wrap"><div class="avatar ${typeClass(a.userType)}" style="width:24px;height:24px;font-size:10px">${imgHTML}</div>${a.userType==='pro'?'<div class="crown-badge" style="font-size:9px;top:-5px">👑</div>':''}</div>
+          <div style="font-size:11px;font-weight:600">${a.displayName||'匿名'}${proTag}${bestTag}</div>
+          <div style="font-size:10px;color:var(--text3);margin-left:auto">${timeAgo(a.createdAt)}</div>
+        </div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">${a.body||''}</div>
+        <div class="answer-actions">
+          <button class="answer-like-btn ${myLike?'liked':''}" onclick="likeAnswer('${aid}','${qid}',this)">👍 <span>${(a.likedBy||[]).length}</span></button>
+          ${isOwner&&!isBest?`<button class="best-btn" onclick="setBestAnswer('${qid}','${aid}')">✅ ベスト回答に選ぶ</button>`:''}
+          ${isBest?'<span style="font-size:10px;color:var(--gold)">✅ 質問者が選んだベスト回答</span>':''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ el.innerHTML='<div style="color:var(--text3);font-size:11px">読み込み失敗</div>'; }
+};
+
+window.openAnswerModal=(qid,title,body,isOwner)=>{
+  currentAnswerQID=qid;
+  document.getElementById('answer-modal').style.display='flex';
+  document.getElementById('answer-question-preview').textContent=title;
+  document.getElementById('answer-body').value='';
+};
+window.closeAnswerModal=()=>{ document.getElementById('answer-modal').style.display='none'; currentAnswerQID=null; };
+
+window.submitAnswer=async()=>{
+  const body=document.getElementById('answer-body').value.trim();
+  if(!body||!currentAnswerQID){showToast('回答を入力してください','error');return;}
+  try{
+    await addDoc(collection(db,'answers'),{
+      questionId:currentAnswerQID,
+      uid:currentUser.uid,
+      displayName:currentProfile?.displayName||'',
+      userType:currentProfile?.userType||'kyu',
+      photoURL:currentProfile?.photoURL||'',
+      body, likedBy:[], createdAt:serverTimestamp()
+    });
+    await setDoc(doc(db,'questions',currentAnswerQID),{answers:increment(1),hasProAnswer:currentProfile?.userType==='pro'||false},{merge:true});
+    closeAnswerModal();
+    showToast('✅ 回答を投稿しました！');
+    toggleAnswers(currentAnswerQID);
+    loadQA();
+  }catch(e){ showToast('投稿失敗: '+e.message,'error'); }
+};
+
+window.likeAnswer=async(aid,qid,btn)=>{
+  try{
+    const ref=doc(db,'answers',aid), snap=await getDoc(ref);
+    const liked=snap.data()?.likedBy||[];
+    const myUid=currentUser.uid;
+    let newLiked;
+    if(liked.includes(myUid)){newLiked=liked.filter(u=>u!==myUid);btn.classList.remove('liked');}
+    else{newLiked=[...liked,myUid];btn.classList.add('liked');}
+    await updateDoc(ref,{likedBy:newLiked});
+    btn.querySelector('span').textContent=newLiked.length;
+  }catch(e){}
+};
+
+window.setBestAnswer=async(qid,aid)=>{
+  try{
+    await setDoc(doc(db,'questions',qid),{bestAnswerId:aid},{merge:true});
+    showToast('✅ ベスト回答を選びました！');
+    toggleAnswers(qid);
+  }catch(e){ showToast('失敗','error'); }
+};
+
+// ===== GROUPS =====
+let currentGroupId = null;
+
+window.toggleCreateGroup=()=>{
+  const f=document.getElementById('create-group-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+};
+
+window.singleSelectToggle=(el,groupId)=>{
+  document.querySelectorAll('#'+groupId+' .toggle-item').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+};
+
+window.createGroup=async()=>{
+  const name=document.getElementById('group-name').value.trim();
+  const desc=document.getElementById('group-desc').value.trim();
+  if(!name){showToast('グループ名を入力してください','error');return;}
+  const vis=document.querySelector('#group-visibility .toggle-item.active')?.textContent||'公開';
+  try{
+    const ref=await addDoc(collection(db,'groups'),{
+      name, desc, visibility:vis,
+      ownerUid:currentUser.uid,
+      ownerName:currentProfile?.displayName||'',
+      members:[currentUser.uid],
+      memberCount:1,
+      createdAt:serverTimestamp()
+    });
+    // 自分のユーザードキュメントにグループID追加
+    const userSnap=await getDoc(doc(db,'users',currentUser.uid));
+    const myGroups=userSnap.data()?.groups||[];
+    await setDoc(doc(db,'users',currentUser.uid),{groups:[...new Set([...myGroups,ref.id])]},{merge:true});
+    document.getElementById('group-name').value='';
+    document.getElementById('group-desc').value='';
+    document.getElementById('create-group-form').style.display='none';
+    showToast('✅ グループを作成しました！');
+    loadGroups();
+  }catch(e){ showToast('作成失敗: '+e.message,'error'); }
+};
+
+window.searchGroups=async()=>{
+  const q=document.getElementById('group-search').value.trim();
+  if(!q) return;
+  try{
+    const snap=await getDocs(collection(db,'groups'));
+    const results=snap.docs.filter(d=>d.data().name?.includes(q)||d.data().desc?.includes(q));
+    const el=document.getElementById('group-search-results');
+    if(!results.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px">見つかりませんでした</div>';return;}
+    const userSnap=await getDoc(doc(db,'users',currentUser.uid));
+    const myGroups=userSnap.data()?.groups||[];
+    el.innerHTML=results.map(d=>{
+      const g=d.data(),gid=d.id;
+      const isMember=myGroups.includes(gid)||(g.members||[]).includes(currentUser.uid);
+      return `<div class="group-card">
+        <div class="group-card-header">
+          <div class="group-icon">👥</div>
+          <div>
+            <div class="group-name">${g.name}</div>
+            <div class="group-meta">${g.memberCount||1}人 · ${g.visibility||'公開'}</div>
+          </div>
+          ${g.ownerUid===currentUser.uid?'<span class="group-badge">管理者</span>':''}
+        </div>
+        ${g.desc?`<div style="font-size:11px;color:var(--text2);margin-bottom:8px">${g.desc}</div>`:''}
+        <div class="group-actions">
+          ${isMember
+            ?`<button class="group-btn primary" onclick="openGroupDetail('${gid}')">グループを見る</button>`
+            :`<button class="group-btn primary" onclick="joinGroup('${gid}')">参加する</button>`
+          }
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ showToast('検索失敗','error'); }
+};
+
+async function loadGroups(){
+  const el=document.getElementById('my-groups-list'); if(!el) return;
+  try{
+    const userSnap=await getDoc(doc(db,'users',currentUser.uid));
+    const myGroupIds=userSnap.data()?.groups||[];
+    if(!myGroupIds.length){
+      el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px">まだグループに参加していません。グループを作るか、検索して参加しましょう。</div>';
+      return;
+    }
+    const groupDocs=await Promise.all(myGroupIds.map(gid=>getDoc(doc(db,'groups',gid))));
+    el.innerHTML=groupDocs.filter(d=>d.exists()).map(d=>{
+      const g=d.data(),gid=d.id;
+      return `<div class="group-card">
+        <div class="group-card-header">
+          <div class="group-icon">👥</div>
+          <div style="flex:1">
+            <div class="group-name">${g.name}</div>
+            <div class="group-meta">${g.memberCount||1}人 · ${timeAgo(g.createdAt)}</div>
+          </div>
+          ${g.ownerUid===currentUser.uid?'<span class="group-badge">管理者</span>':''}
+        </div>
+        ${g.desc?`<div style="font-size:11px;color:var(--text2);margin-bottom:8px">${g.desc}</div>`:''}
+        <div class="group-actions">
+          <button class="group-btn primary" onclick="openGroupDetail('${gid}')">グループを見る</button>
+          ${g.ownerUid!==currentUser.uid?`<button class="group-btn" onclick="leaveGroup('${gid}')">退出</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ el.innerHTML='<div style="color:var(--text3);font-size:12px">読み込み失敗</div>'; }
+}
+
+window.joinGroup=async(gid)=>{
+  try{
+    await setDoc(doc(db,'groups',gid),{members:[...(((await getDoc(doc(db,'groups',gid))).data()?.members)||[]),currentUser.uid],memberCount:increment(1)},{merge:true});
+    const userSnap=await getDoc(doc(db,'users',currentUser.uid));
+    const myGroups=userSnap.data()?.groups||[];
+    await setDoc(doc(db,'users',currentUser.uid),{groups:[...new Set([...myGroups,gid])]},{merge:true});
+    showToast('✅ グループに参加しました！');
+    loadGroups(); document.getElementById('group-search-results').innerHTML='';
+  }catch(e){ showToast('参加失敗','error'); }
+};
+
+window.leaveGroup=async(gid)=>{
+  if(!confirm('グループから退出しますか？')) return;
+  try{
+    const snap=await getDoc(doc(db,'groups',gid));
+    const members=(snap.data()?.members||[]).filter(u=>u!==currentUser.uid);
+    await setDoc(doc(db,'groups',gid),{members,memberCount:members.length},{merge:true});
+    const userSnap=await getDoc(doc(db,'users',currentUser.uid));
+    await setDoc(doc(db,'users',currentUser.uid),{groups:(userSnap.data()?.groups||[]).filter(g=>g!==gid)},{merge:true});
+    showToast('グループから退出しました'); loadGroups();
+  }catch(e){ showToast('退出失敗','error'); }
+};
+
+window.openGroupDetail=async(gid)=>{
+  currentGroupId=gid;
+  document.getElementById('group-detail').style.display='block';
+  document.getElementById('my-groups-list').closest('.card').style.display='none';
+  document.querySelector('.card:has(#group-search)').style.display='none';
+  try{
+    const snap=await getDoc(doc(db,'groups',gid));
+    const g=snap.data();
+    document.getElementById('gd-name').textContent=g.name;
+    document.getElementById('gd-desc').textContent=g.desc||'';
+    document.getElementById('gd-members').textContent=`メンバー: ${g.memberCount||1}人`;
+    document.getElementById('gd-type').textContent=g.visibility||'公開';
+    // グループ内ランキング
+    const members=g.members||[];
+    const rankEl=document.getElementById('gd-ranking');
+    if(members.length){
+      const recQ=query(collection(db,'records'),limit(100));
+      const recSnap=await getDocs(recQ);
+      const todayStart=new Date(); todayStart.setHours(0,0,0,0);
+      const memberRecords={};
+      recSnap.docs.forEach(d=>{
+        const r=d.data();
+        const ct=r.createdAt?.toDate?.();
+        if(!ct||ct<todayStart||!members.includes(r.uid)) return;
+        if(!memberRecords[r.uid]||memberRecords[r.uid].score<r.score) memberRecords[r.uid]=r;
+      });
+      const sorted=Object.values(memberRecords).sort((a,b)=>(b.score||0)-(a.score||0));
+      const max=sorted[0]?.score||1;
+      rankEl.innerHTML=sorted.length?sorted.map((r,i)=>{
+        const nc=i===0?'top1':i===1?'top2':i===2?'top3':'';
+        const isMe=r.uid===currentUser?.uid;
+        const imgHTML=r.photoURL?`<img src="${r.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(r.displayName)}</span>`;
+        return `<div class="rank-item ${isMe?'me':''}">
+          <div class="rank-num ${nc}">${i+1}</div>
+          <div class="avatar ${typeClass(r.userType)}" style="width:26px;height:26px;font-size:11px">${imgHTML}</div>
+          <div class="rank-info"><div class="rank-name">${r.displayName}${isMe?' (自分)':''}</div><div class="rank-bar-wrap"><div class="rank-bar" style="width:${Math.round(r.score/max*100)}%"></div></div></div>
+          <div class="rank-score">${r.score}</div>
+        </div>`;
+      }).join(''):'<div style="color:var(--text3);font-size:12px;padding:8px">今日まだ記録がありません</div>';
+    }
+    // グループタイムライン
+    await loadGroupTimeline(gid, members);
+    // チャット読み込み
+    await loadGroupChat(gid);
+  }catch(e){ console.log('GroupDetail:',e.message); }
+};
+
+window.closeGroupDetail=()=>{
+  currentGroupId=null;
+  document.getElementById('group-detail').style.display='none';
+  document.getElementById('my-groups-list').closest('.card').style.display='block';
+  document.querySelector('#panel-groups .card:first-child').style.display='block';
+};
+
+async function loadGroupTimeline(gid, members){
+  const el=document.getElementById('gd-timeline'); if(!el) return;
+  try{
+    const q=query(collection(db,'records'),limit(50));
+    const snap=await getDocs(q);
+    const docs=snap.docs.filter(d=>members.includes(d.data().uid))
+      .sort((a,b)=>(b.data().createdAt?.toMillis?.()||0)-(a.data().createdAt?.toMillis?.()||0))
+      .slice(0,10);
+    if(!docs.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px">まだ記録がありません</div>';return;}
+    el.innerHTML=docs.map(d=>{
+      const r=d.data();
+      const imgHTML=r.photoURL?`<img src="${r.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(r.displayName)}</span>`;
+      const gc=Array.isArray(r.games)?r.games.length:0;
+      const pubComment=[r.comment_good_public&&r.comment_good?r.comment_good:'',r.comment_free_public&&r.comment_free?r.comment_free:''].filter(Boolean).join(' / ');
+      return `<div class="feed-item" style="margin-bottom:8px">
+        <div class="feed-header">
+          <div class="avatar ${typeClass(r.userType)}" style="width:24px;height:24px;font-size:10px">${imgHTML}</div>
+          <div class="feed-name" style="font-size:11px">${r.displayName}</div>
+          <div style="font-size:16px;font-weight:700;color:var(--gold2);margin-left:auto;font-family:'Zen Antique',serif">${r.score||0}点</div>
+          <div class="feed-time">${timeAgo(r.createdAt)}</div>
+        </div>
+        ${pubComment?`<div style="font-size:11px;color:var(--text2);line-height:1.6">${pubComment}</div>`:''}
+        <div class="feed-stats" style="margin-top:6px">
+          ${r.tsumego?`<div class="feed-stat">詰碁 <span>${r.tsumego}問</span></div>`:''}
+          ${gc?`<div class="feed-stat">対局 <span>${gc}局</span></div>`:''}
+          ${r.ai_study?`<div class="feed-stat">AI研究 <span>${r.ai_study}分</span></div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ el.innerHTML='<div style="color:var(--text3);font-size:12px">読み込み失敗</div>'; }
+}
+
+async function loadGroupChat(gid){
+  const el=document.getElementById('gd-chat'); if(!el) return;
+  try{
+    const q=query(collection(db,'groupChats'),where('groupId','==',gid),orderBy('createdAt','asc'),limit(30));
+    const snap=await getDocs(q);
+    if(snap.empty){el.innerHTML='<div style="color:var(--text3);font-size:11px;text-align:center">まだメッセージがありません</div>';return;}
+    el.innerHTML=snap.docs.map(d=>{
+      const m=d.data(), isMe=m.uid===currentUser?.uid;
+      return `<div class="chat-msg ${isMe?'mine':''}">
+        <div class="chat-msg-header">
+          <div class="chat-msg-name">${m.displayName||'匿名'}${m.userType==='pro'?'👑':''}</div>
+          <div class="chat-msg-time">${timeAgo(m.createdAt)}</div>
+        </div>
+        <div class="chat-msg-body">${m.text||''}</div>
+      </div>`;
+    }).join('');
+    el.scrollTop=el.scrollHeight;
+  }catch(e){ el.innerHTML='<div style="color:var(--text3);font-size:11px">読み込み失敗</div>'; }
+}
+
+window.sendGroupChat=async()=>{
+  if(!currentGroupId) return;
+  const input=document.getElementById('gd-chat-input');
+  const text=input?.value.trim();
+  if(!text){showToast('メッセージを入力してください','error');return;}
+  try{
+    await addDoc(collection(db,'groupChats'),{
+      groupId:currentGroupId, uid:currentUser.uid,
+      displayName:currentProfile?.displayName||'',
+      userType:currentProfile?.userType||'kyu',
+      photoURL:currentProfile?.photoURL||'',
+      text, createdAt:serverTimestamp()
+    });
+    input.value='';
+    await loadGroupChat(currentGroupId);
+  }catch(e){ showToast('送信失敗','error'); }
+};
+
+function scheduleStudyReminder(){
+  const now=new Date();
+  const target=new Date();
+  target.setHours(21,0,0,0);
+  if(now>target) target.setDate(target.getDate()+1);
+  const ms=target-now;
+  setTimeout(()=>{
+    const today=localStorage.getItem('goroku_last_date');
+    const todayStr=new Date().toDateString();
+    // 今日まだ記録していない場合に通知
+    if(today!==todayStr){
+      sendLocalNotification('碁録 ゴロくんより🤖','今日の勉強記録をつけましょう！連続記録を続けてください💪');
+    }
+    // 次の日も設定
+    scheduleStudyReminder();
+  }, ms);
+}
 
 window.doLogin=async()=>{
   const email=$('login-email').value.trim(), pass=$('login-pass').value;
@@ -1062,6 +1709,8 @@ async function initApp(){
   prefillSettings();
   // ゴロくん起動（5秒後に自動表示）
   startMascot(null);
+  // 毎日通知リマインダー設定
+  scheduleStudyReminder();
 }
 
 function prefillSettings(){
@@ -1146,6 +1795,8 @@ async function loadDashboard(){
 // ダッシュボード表示時にゴロくん起動（initAppから呼ぶ）
 function startMascot(todayData){
   initMascot(todayData, currentGoals);
+  // スコアに応じてゴロくんの表情を更新
+  if(todayData) updateMascotLevel(todayData.score||0);
 }
 
 function renderGoalProgress(data){
@@ -1839,7 +2490,7 @@ window.toggleSwitch=(el)=>el.classList.toggle('on');
 window.toggleQAForm=()=>{ const f=$('qa-form'); f.style.display=f.style.display==='none'?'block':'none'; };
 
 // ── PANEL SWITCH ──
-const PAGE_TITLES={dashboard:'ダッシュボード',record:'今日の記録',timeline:'タイムライン',ranking:'ランキング',compare:'比較・分析',follows:'フォロー管理',qa:'Q&A掲示板',settings:'設定・目標'};
+const PAGE_TITLES={dashboard:'ダッシュボード',record:'今日の記録',timeline:'タイムライン',ranking:'ランキング',compare:'比較・分析',follows:'フォロー管理',qa:'Q&A掲示板',heatmap:'カレンダー・レポート',groups:'グループ',settings:'設定・目標'};
 window.showPanel=(name)=>{
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name)?.classList.add('active');
@@ -1852,6 +2503,8 @@ window.showPanel=(name)=>{
   if(name==='timeline') loadTimeline();
   if(name==='qa') loadQA();
   if(name==='compare') loadCompare();
+  if(name==='heatmap'){ loadHeatmap(); loadWeeklyReport(); initAccuracyChart(); }
+  if(name==='groups') loadGroups();
 };
 
 // ── CHARTS ──
@@ -1888,6 +2541,218 @@ function renderSettings(){
   const items=[{label:'詰碁の記録',on:true},{label:'AI研究の時間',on:true},{label:'棋譜並べの時間',on:true},{label:'その他学習',on:true},{label:'対局記録',on:true},{label:'AIスコアをランキングに表示',on:true},{label:'フォロー中の通知',on:true}];
   const el=$('settings-list'); if(!el) return;
   el.innerHTML=items.map(s=>`<div class="setting-item"><div style="font-size:12px">${s.label}</div><div class="toggle-switch${s.on?' on':''}" onclick="toggleSwitch(this)"></div></div>`).join('');
+}
+
+// ===== HEATMAP CALENDAR =====
+let tsumegoVals = {correct:0, attempt:0};
+window.numChangeTsumego=(key,delta)=>{
+  tsumegoVals[key]=Math.max(0,tsumegoVals[key]+delta);
+  const el=document.getElementById('val-'+key); if(el) el.textContent=tsumegoVals[key];
+  updateAccuracyDisplay();
+};
+function updateAccuracyDisplay(){
+  const a=tsumegoVals.attempt, c=tsumegoVals.correct;
+  const pct=a>0?Math.round(c/a*100):0;
+  const el=document.getElementById('accuracy-pct');
+  if(el){
+    el.textContent=a>0?pct+'%':'—%';
+    el.style.color=pct>=80?'var(--jade2)':pct>=60?'var(--gold2)':'var(--red)';
+  }
+}
+
+window.saveTsumegoAccuracy=async()=>{
+  if(!currentUser){showToast('ログインが必要です','error');return;}
+  const a=tsumegoVals.attempt, c=tsumegoVals.correct;
+  if(a===0){showToast('挑戦数を入力してください','error');return;}
+  try{
+    const today=new Date().toISOString().split('T')[0];
+    await setDoc(doc(db,'accuracy',currentUser.uid+'_'+today),{
+      uid:currentUser.uid, date:today,
+      correct:c, attempt:a,
+      rate:Math.round(c/a*100),
+      createdAt:serverTimestamp()
+    },{merge:true});
+    showToast('✅ 正解率を記録しました！');
+    initAccuracyChart();
+  }catch(e){ showToast('保存失敗: '+e.message,'error'); }
+};
+
+async function initAccuracyChart(){
+  const ctx=document.getElementById('accuracyChart')?.getContext('2d'); if(!ctx) return;
+  if(charts.accuracy) charts.accuracy.destroy();
+  try{
+    const q2=query(collection(db,'accuracy'),where('uid','==',currentUser.uid),limit(30));
+    const snap=await getDocs(q2);
+    const data=snap.docs.map(d=>d.data()).sort((a,b)=>a.date.localeCompare(b.date));
+    const labels=data.map(d=>d.date.slice(5));
+    const rates=data.map(d=>d.rate);
+    charts.accuracy=new Chart(ctx,{
+      type:'line',
+      data:{labels,datasets:[{
+        label:'正解率(%)',data:rates,
+        borderColor:'#5cb888',backgroundColor:'rgba(92,184,136,.12)',
+        tension:.4,pointRadius:4,pointBackgroundColor:'#5cb888',fill:true
+      }]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050',maxTicksLimit:8}},
+          y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'},min:0,max:100,
+             callback:v=>v+'%'}
+        }
+      }
+    });
+  }catch(e){ console.log('AccuracyChart:',e.message); }
+}
+
+async function loadHeatmap(){
+  const container=document.getElementById('heatmap-container'); if(!container) return;
+  try{
+    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(400));
+    const snap=await getDocs(q);
+    // 日付→スコアのマップ作成
+    const dateMap={};
+    snap.docs.forEach(d=>{
+      const r=d.data();
+      const ct=r.createdAt?.toDate?.();
+      if(!ct) return;
+      const dateStr=ct.toISOString().split('T')[0];
+      if(!dateMap[dateStr]||dateMap[dateStr]<(r.score||0)){
+        dateMap[dateStr]=r.score||0;
+      }
+    });
+    // 過去52週分のカレンダー生成
+    const today=new Date();
+    const weeks=[];
+    // 今日から遡って52週
+    const start=new Date(today);
+    start.setDate(start.getDate()-363);
+    // 月曜始まりに調整
+    start.setDate(start.getDate()-start.getDay()+1);
+    let cur=new Date(start);
+    while(cur<=today){
+      const week=[];
+      for(let d=0;d<7;d++){
+        const dateStr=cur.toISOString().split('T')[0];
+        const score=dateMap[dateStr]||0;
+        const isFuture=cur>today;
+        week.push({date:dateStr, score, isFuture, isToday:dateStr===today.toISOString().split('T')[0]});
+        cur.setDate(cur.getDate()+1);
+      }
+      weeks.push(week);
+    }
+    // SVGカレンダー描画
+    const cellSize=13, gap=2, unit=cellSize+gap;
+    const svgW=weeks.length*unit+40;
+    const svgH=7*unit+30;
+    const months=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    const days=['月','火','水','木','金','土','日'];
+    let svg=`<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:sans-serif">`;
+    // 曜日ラベル
+    [0,2,4,6].forEach(i=>{
+      svg+=`<text x="0" y="${30+i*unit+cellSize*0.8}" font-size="9" fill="#686050">${days[i]}</text>`;
+    });
+    // 月ラベル
+    let lastMonth=-1;
+    weeks.forEach((week,wi)=>{
+      const firstDay=new Date(week[0].date);
+      const m=firstDay.getMonth();
+      if(m!==lastMonth){
+        svg+=`<text x="${40+wi*unit}" y="14" font-size="9" fill="#a09880">${months[m]}</text>`;
+        lastMonth=m;
+      }
+    });
+    // セル描画
+    weeks.forEach((week,wi)=>{
+      week.forEach((day,di)=>{
+        if(day.isFuture) return;
+        const x=40+wi*unit, y=20+di*unit;
+        let color='var(--bg4)';
+        if(day.score>0){
+          const intensity=Math.min(day.score/100,1);
+          if(intensity<0.25) color='rgba(74,152,112,.25)';
+          else if(intensity<0.5) color='rgba(74,152,112,.5)';
+          else if(intensity<0.75) color='rgba(74,152,112,.75)';
+          else color='#5cb888';
+        }
+        const stroke=day.isToday?'#c8a84a':'none';
+        const sw=day.isToday?1.5:0;
+        svg+=`<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" fill="${color}" stroke="${stroke}" stroke-width="${sw}">
+          <title>${day.date}${day.score>0?' スコア:'+day.score+'点':' 記録なし'}</title>
+        </rect>`;
+      });
+    });
+    svg+='</svg>';
+    container.innerHTML=svg;
+  }catch(e){ console.log('Heatmap:',e.message); container.innerHTML='<div style="color:var(--text3);font-size:12px">読み込みに失敗しました</div>'; }
+}
+
+async function loadWeeklyReport(){
+  const el=document.getElementById('weekly-report-content'); if(!el) return;
+  try{
+    // 先週のデータ取得
+    const now=new Date();
+    const dayOfWeek=now.getDay()||7;
+    const lastMonday=new Date(now); lastMonday.setDate(now.getDate()-dayOfWeek-6); lastMonday.setHours(0,0,0,0);
+    const lastSunday=new Date(now); lastSunday.setDate(now.getDate()-dayOfWeek); lastSunday.setHours(23,59,59,999);
+    const q=query(collection(db,'records'),where('uid','==',currentUser.uid),limit(50));
+    const snap=await getDocs(q);
+    const weekDocs=snap.docs.filter(d=>{
+      const ct=d.data().createdAt?.toDate?.();
+      return ct&&ct>=lastMonday&&ct<=lastSunday;
+    });
+    if(weekDocs.length===0){
+      el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:8px">先週の記録がありません</div>';
+      return;
+    }
+    const weekData=weekDocs.map(d=>d.data());
+    const totalTsumego=weekData.reduce((s,r)=>s+(r.tsumego||0),0);
+    const totalAI=weekData.reduce((s,r)=>s+(r.ai_study||0),0);
+    const totalKifu=weekData.reduce((s,r)=>s+(r.kifu||0),0);
+    const totalGames=weekData.reduce((s,r)=>s+(Array.isArray(r.games)?r.games.length:0),0);
+    const avgScore=Math.round(weekData.reduce((s,r)=>s+(r.score||0),0)/weekData.length);
+    const recordDays=weekDocs.length;
+    // AIコメント生成
+    let weekComment='';
+    if(recordDays>=6) weekComment='毎日コツコツ取り組めた素晴らしい1週間でした！🏆';
+    else if(recordDays>=4) weekComment='良いペースで継続できています。';
+    else if(recordDays>=2) weekComment='少しペースを上げると更に成長できます。';
+    else weekComment='来週はもう少し記録を増やしてみましょう。';
+    if(totalTsumego>200) weekComment+=' 詰碁の量が特に素晴らしいです！';
+    if(totalAI>120) weekComment+=' AI研究もしっかり取り組めています。';
+    // 来週の提案
+    let suggestion='';
+    if(totalKifu===0) suggestion='来週は棋譜並べにも挑戦してみましょう。';
+    else if(totalTsumego<50) suggestion='来週は詰碁をもう少し増やしてみましょう。';
+    else if(totalGames<5) suggestion='来週は対局数を増やしてみましょう。';
+    else suggestion='この調子を維持しましょう！';
+    el.innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:var(--gold2);font-family:'Zen Antique',serif">${avgScore}</div>
+          <div style="font-size:10px;color:var(--text3)">平均スコア</div>
+        </div>
+        <div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:var(--jade2);font-family:'Zen Antique',serif">${recordDays}/7</div>
+          <div style="font-size:10px;color:var(--text3)">記録日数</div>
+        </div>
+        <div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#7aa0e8;font-family:'Zen Antique',serif">${totalTsumego}</div>
+          <div style="font-size:10px;color:var(--text3)">詰碁合計（問）</div>
+        </div>
+        <div style="background:var(--bg4);border-radius:4px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#e87070;font-family:'Zen Antique',serif">${totalGames}</div>
+          <div style="font-size:10px;color:var(--text3)">対局合計（局）</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.7;background:rgba(200,168,74,.06);border:1px solid rgba(200,168,74,.15);border-radius:4px;padding:10px">
+        🤖 ${weekComment}<br>💡 ${suggestion}
+      </div>
+      <div style="margin-top:8px;display:flex;gap:12px;font-size:11px;color:var(--text3)">
+        <span>AI研究: ${totalAI}分</span>
+        <span>棋譜並べ: ${totalKifu}分</span>
+      </div>`;
+  }catch(e){ console.log('WeeklyReport:',e.message); el.innerHTML='<div style="color:var(--text3);font-size:12px">読み込みに失敗しました</div>'; }
 }
 
 // ===== MASCOT (ゴロくん) =====
@@ -1938,6 +2803,26 @@ function showMascot(msgs){
   mascotLiked=false;
   const likeBtn=document.getElementById('mascot-like-btn');
   if(likeBtn) likeBtn.classList.remove('liked');
+}
+
+// ゴロくんの表情を学習量で変える
+function updateMascotLevel(score){
+  const body=document.getElementById('mascot-body');
+  if(!body) return;
+  const eyes=body.querySelectorAll('ellipse[fill="#1a6aff"]');
+  const mouth=body.querySelector('path[stroke="white"]');
+  if(score>=80){
+    // ハッピー：目を大きく
+    eyes.forEach(e=>{ e.setAttribute('rx','2.5'); e.setAttribute('ry','3'); });
+    if(mouth) mouth.setAttribute('d','M28 42 Q36 50 44 42');
+  } else if(score>=50){
+    // 普通
+    eyes.forEach(e=>{ e.setAttribute('rx','2'); e.setAttribute('ry','2.5'); });
+  } else if(score>0){
+    // もう少し：目を細く
+    eyes.forEach(e=>{ e.setAttribute('rx','2'); e.setAttribute('ry','1.5'); });
+    if(mouth) mouth.setAttribute('d','M30 44 Q36 46 42 44');
+  }
 }
 
 window.toggleMascotBubble=()=>{
