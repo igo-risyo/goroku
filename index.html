@@ -485,14 +485,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 </head>
 <body>
 
-<div class="loading-overlay" id="loading-overlay">
+<div class="loading-overlay hidden" id="loading-overlay">
   <div class="loading-spinner"></div>
   <div class="loading-text">碁録 読み込み中...</div>
 </div>
 <div class="toast" id="toast"></div>
 
 <!-- AUTH -->
-<div id="auth-wall">
+<div id="auth-wall" style="display:flex">
   <div class="auth-box">
     <div class="auth-logo">碁録</div>
     <div class="auth-sub">GOROKU Platform</div>
@@ -543,7 +543,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 </div>
 
 <!-- APP -->
-<div id="app-content">
+<div id="app-content" style="display:none">
 <!-- 下書き保存バー -->
 <div class="draft-bar" id="draft-bar">
   <div class="draft-bar-text">📝 入力中の内容を下書き保存しています</div>
@@ -1540,14 +1540,6 @@ window.deleteRecord=async(rid)=>{
 
 // Firebase接続確認（ページロード時）
 document.addEventListener('DOMContentLoaded', ()=>{
-  // ページ読み込み直後にloading-overlayを非表示→auth-wallを表示
-  // Firebase初期化が完了したらonAuthStateChangedが制御を引き継ぐ
-  showLoading(false);
-  const aw=document.getElementById('auth-wall');
-  const ac=document.getElementById('app-content');
-  if(aw) aw.style.display='flex';
-  if(ac) ac.style.display='none';
-
   // 保存済みログイン情報を自動入力
   const savedEmail=localStorage.getItem('goroku_saved_email');
   const savedPass=localStorage.getItem('goroku_saved_pass');
