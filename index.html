@@ -1239,12 +1239,45 @@ window.setQAFilter=(el,filter)=>{
   loadQA();
 };
 
-window.toggleQAForm=()=>{
-  const f=document.getElementById('qa-form');
-  f.style.display=f.style.display==='none'?'block':'none';
-};
-
 // Q&A読み込み（フィルタ対応版）
+async function loadQA(){
+  try{
+    const q=query(collection(db,'questions'),orderBy('createdAt','desc'),limit(30));
+    const snap=await getDocs(q);
+    const el=document.getElementById('qa-list');
+    let docs=snap.docs;
+    if(currentQAFilter==='mine') docs=docs.filter(d=>d.data().uid===currentUser?.uid);
+    if(currentQAFilter==='unanswered') docs=docs.filter(d=>!d.data().answers||d.data().answers===0);
+    if(currentQAFilter==='pro') docs=docs.filter(d=>d.data().hasProAnswer);
+    if(!docs.length){el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center">該当する質問がありません</div>';return;}
+    const REACTIONS=['すごい😆','いいね👍','まずまず👌','んー😒'];
+    el.innerHTML=docs.map(d=>{
+      const q=d.data(),qid=d.id;
+      const reactions=q.reactions||{0:0,1:0,2:0,3:0};
+      const myReact=q.myReactions?.[currentUser?.uid]??-1;
+      const reactHTML=REACTIONS.map((rx,ri)=>`<button class="reaction-btn ${myReact===ri?'active':''}" onclick="doReactQA('${qid}',${ri},this)">${rx} <span>${reactions[ri]||0}</span></button>`).join('');
+      const imgHTML=q.photoURL?`<img src="${q.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(q.displayName)}</span>`;
+      const isOwner=q.uid===currentUser?.uid;
+      const proIcon=q.userType==='pro'?'<div class="crown-badge" style="font-size:10px">&#128081;</div>':'';
+      return `<div class="feed-item" id="qa-item-${qid}">
+        <div class="feed-header">
+          <div class="avatar-wrap"><div class="avatar ${typeClass(q.userType)}" style="width:28px;height:28px;font-size:12px">${imgHTML}</div>${proIcon}</div>
+          <div class="feed-name">${q.displayName||'匿名'}${q.userType==='pro'?'<span class="pro-crown">&#128081;</span>':''}</div>
+          <div class="feed-time">${timeAgo(q.createdAt)}</div>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)">${q.title}</div>
+        <div class="feed-content">${q.body||''}</div>
+        <div class="feed-tags">${(q.tags||[]).map(t=>`<span class="feed-tag">${t}</span>`).join('')}</div>
+        <div class="reactions" style="margin-bottom:8px">${reactHTML}</div>
+        <div style="padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <button onclick="toggleAnswers('${qid}')" style="font-size:11px;color:var(--jade2);background:none;border:none;cursor:pointer">&#128172; ${q.answers||0}件の回答を見る</button>
+          <button onclick="openAnswerModal('${qid}')" style="font-size:11px;padding:4px 12px;border:1px solid var(--jade);border-radius:4px;background:transparent;color:var(--jade2);cursor:pointer">回答する</button>
+        </div>
+        <div id="answers-${qid}" style="display:none;margin-top:10px"></div>
+      </div>`;
+    }).join('');
+  }catch(e){ console.log('QA:',e.message); }
+}
 
 window.toggleAnswers=async(qid)=>{
   const el=document.getElementById('answers-'+qid);
@@ -2007,36 +2040,6 @@ async function loadRanking(){
   }catch(e){ console.log('Ranking:',e.message); }
 }
 
-// ── QA ──
-async function loadQA(){
-  try{
-    const q=query(collection(db,'questions'),orderBy('createdAt','desc'),limit(20));
-    const snap=await getDocs(q);
-    const el=$('qa-list');
-    if(snap.empty){el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center">まだ投稿がありません</div>';return;}
-    const REACTIONS=['すごい😆','いいね👍','まずまず👌','んー😒'];
-    el.innerHTML=snap.docs.map(d=>{
-      const q=d.data(),qid=d.id, reactions=q.reactions||{0:0,1:0,2:0,3:0},myReact=q.myReactions?.[currentUser?.uid]??-1;
-      const reactHTML=REACTIONS.map((rx,ri)=>`<button class="reaction-btn ${myReact===ri?'active':''}" onclick="doReactQA('${qid}',${ri},this)">${rx} <span>${reactions[ri]||0}</span></button>`).join('');
-      const imgHTML=q.photoURL?`<img src="${q.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<span>${avatarLetter(q.displayName)}</span>`;
-      return `<div class="feed-item">
-        <div class="feed-header">
-          <div class="avatar-wrap"><div class="avatar ${typeClass(q.userType)}" style="width:28px;height:28px;font-size:12px">${imgHTML}</div>${q.userType==='pro'?'<div class="crown-badge" style="font-size:10px">👑</div>':''}</div>
-          <div class="feed-name">${q.displayName||'匿名'}</div>
-          <div class="feed-time">${timeAgo(q.createdAt)}</div>
-        </div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)">${q.title}</div>
-        <div class="feed-content">${q.body||''}</div>
-        <div class="feed-tags">${(q.tags||[]).map(t=>`<span class="feed-tag">${t}</span>`).join('')}</div>
-        <div class="reactions">${reactHTML}</div>
-        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;color:var(--jade2)">💬 ${q.answers||0}件の回答</span>
-          <button style="font-size:11px;padding:4px 12px;border:1px solid var(--jade);border-radius:4px;background:transparent;color:var(--jade2);cursor:pointer">回答する</button>
-        </div>
-      </div>`;
-    }).join('');
-  }catch(e){ console.log('QA:',e.message); }
-}
 window.submitQA=async()=>{
   const title=$('qa-title').value.trim(), body=$('qa-body').value.trim();
   if(!title){showToast('タイトルを入力してください','error');return;}
@@ -2322,6 +2325,15 @@ window.toggleInline=(el)=>{
   el.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>t.classList.remove('sel')); el.classList.add('sel');
   const body=el.closest('.game-card-body'); if(body){const oi=body.querySelector('.other-country-input');if(oi)oi.classList.toggle('show',el.textContent.includes('その他'));}
 };
+window.toggleInlineCountry=(el)=>{
+  // 国籍は単一選択
+  el.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>t.classList.remove('sel'));
+  el.classList.add('sel');
+  // その他の場合のみテキスト入力欄を表示
+  const body=el.closest('.game-card-body');
+  if(body){ const oi=body.querySelector('.other-country-input'); if(oi) oi.classList.toggle('show',el.textContent.includes('その他')); }
+};
+
 window.toggleInlineMulti=(el)=>{
   el.classList.toggle('sel');
   const body=el.closest('.game-card-body'); if(body){const oi=body.querySelector('.other-country-input');if(oi){const any=Array.from(body.querySelectorAll('.country-toggle')).some(t=>t.classList.contains('sel')&&t.textContent.includes('その他'));oi.classList.toggle('show',any);}}
@@ -2425,12 +2437,12 @@ function renderGameList(){
       <div class="form-group" style="margin-bottom:12px">
         <div class="form-label">相手の国籍（複数可）</div>
         <div class="inline-toggle-group">
-          <div class="inline-toggle country-toggle sel" onclick="toggleInlineMulti(this)">🇯🇵 日本人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🇨🇳 中国人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🇰🇷 韓国人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🇹🇼 台湾人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">🌏 その他</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineMulti(this)">不明</div>
+          <div class="inline-toggle country-toggle sel" onclick="toggleInlineCountry(this)">🇯🇵 日本人</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇨🇳 中国人</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇰🇷 韓国人</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇹🇼 台湾人</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🌏 その他</div>
+          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">不明</div>
         </div>
         <div class="other-country-input"><input class="form-input" placeholder="国名を入力（例：アメリカ人、ドイツ人）"></div>
       </div>
