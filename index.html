@@ -1477,8 +1477,8 @@ function renderHistory(docs){
     html+='<div class="history-stats">'+statsArr.join('')+'</div>';
     html+=commentHTML;
     html+='<div class="history-actions">';
-    html+='<button class="history-edit-btn" onclick="openEditModal(''+r.id+'')">編集</button>';
-    html+='<button class="history-delete-btn" onclick="deleteRecord(''+r.id+'')">削除</button>';
+    html+='<button class="history-edit-btn" data-rid="'+r.id+'" onclick="openEditModal(this.dataset.rid)">編集</button>';
+    html+='<button class="history-delete-btn" data-rid="'+r.id+'" onclick="deleteRecord(this.dataset.rid)">削除</button>';
     html+='</div></div>';
   });
   el.innerHTML=html;
@@ -3274,6 +3274,92 @@ function initMascot(todayData, goals){
     if(!mascotVisible) showMascot(msgs);
   }, 30*60*1000);
 }
+
+// ===== GOROKU PUBLIC API（ブリッジ用） =====
+window._goroku = {
+  doLogin, doSignup, doGoogleLogin, doLogout, doPasswordReset,
+  showResetForm, hideResetForm, showPanel, switchAuthTab, selectType,
+  toggleTag, toggleSwitch, toggleQAForm,
+  addGame, removeGame, toggleGameCard, toggleInline, toggleInlineMulti,
+  toggleInlineCountry, updateGameSummary,
+  numChange, numChangeTsumego, addExtraStudy, removeExtraStudy,
+  submitRecord, saveTsumegoAccuracy, saveProfile, saveGoals, saveEdit,
+  setTypeSelect, handleAvatarChange,
+  doReact, doReactQA, searchUsers, followUser, unfollowUser,
+  setCompareTarget, setQAFilter, toggleAnswers,
+  openAnswerModal, closeAnswerModal, submitAnswer, likeAnswer, setBestAnswer,
+  submitQA, toggleCreateGroup, singleSelectToggle, createGroup,
+  searchGroups, joinGroup, leaveGroup, openGroupDetail, closeGroupDetail,
+  sendGroupChat, setHistorySort, openEditModal, closeEditModal,
+  deleteRecord, clearDraft,
+  toggleMascotBubble, closeMascot, nextMascotMsg, likeMascot,
+};
+</script>
+<!-- ブリッジ：type="module"内の関数をHTMLのonclickから呼べるようにする -->
+<script>
+function doLogin(){ window._goroku && window._goroku.doLogin(); }
+function doSignup(){ window._goroku && window._goroku.doSignup(); }
+function doGoogleLogin(){ window._goroku && window._goroku.doGoogleLogin(); }
+function doLogout(){ window._goroku && window._goroku.doLogout(); }
+function doPasswordReset(){ window._goroku && window._goroku.doPasswordReset(); }
+function showResetForm(){ window._goroku && window._goroku.showResetForm(); }
+function hideResetForm(){ window._goroku && window._goroku.hideResetForm(); }
+function showPanel(n){ window._goroku && window._goroku.showPanel(n); }
+function switchAuthTab(t){ window._goroku && window._goroku.switchAuthTab(t); }
+function selectType(el,t){ window._goroku && window._goroku.selectType(el,t); }
+function toggleTag(el){ window._goroku && window._goroku.toggleTag(el); }
+function toggleSwitch(el){ window._goroku && window._goroku.toggleSwitch(el); }
+function toggleQAForm(){ window._goroku && window._goroku.toggleQAForm(); }
+function addGame(){ window._goroku && window._goroku.addGame(); }
+function removeGame(id){ window._goroku && window._goroku.removeGame(id); }
+function toggleGameCard(id){ window._goroku && window._goroku.toggleGameCard(id); }
+function toggleInline(el){ window._goroku && window._goroku.toggleInline(el); }
+function toggleInlineMulti(el){ window._goroku && window._goroku.toggleInlineMulti(el); }
+function toggleInlineCountry(el){ window._goroku && window._goroku.toggleInlineCountry(el); }
+function updateGameSummary(id){ window._goroku && window._goroku.updateGameSummary(id); }
+function numChange(k,d){ window._goroku && window._goroku.numChange(k,d); }
+function numChangeTsumego(k,d){ window._goroku && window._goroku.numChangeTsumego(k,d); }
+function addExtraStudy(){ window._goroku && window._goroku.addExtraStudy(); }
+function removeExtraStudy(id){ window._goroku && window._goroku.removeExtraStudy(id); }
+function submitRecord(){ window._goroku && window._goroku.submitRecord(); }
+function saveTsumegoAccuracy(){ window._goroku && window._goroku.saveTsumegoAccuracy(); }
+function saveProfile(){ window._goroku && window._goroku.saveProfile(); }
+function saveGoals(){ window._goroku && window._goroku.saveGoals(); }
+function saveEdit(){ window._goroku && window._goroku.saveEdit(); }
+function setTypeSelect(el,t){ window._goroku && window._goroku.setTypeSelect(el,t); }
+function handleAvatarChange(e){ window._goroku && window._goroku.handleAvatarChange(e); }
+function doReact(rid,ri,btn){ window._goroku && window._goroku.doReact(rid,ri,btn); }
+function doReactQA(qid,ri,btn){ window._goroku && window._goroku.doReactQA(qid,ri,btn); }
+function searchUsers(){ window._goroku && window._goroku.searchUsers(); }
+function followUser(uid,btn){ window._goroku && window._goroku.followUser(uid,btn); }
+function unfollowUser(uid,btn){ window._goroku && window._goroku.unfollowUser(uid,btn); }
+function setCompareTarget(el,uid,name){ window._goroku && window._goroku.setCompareTarget(el,uid,name); }
+function setQAFilter(el,f){ window._goroku && window._goroku.setQAFilter(el,f); }
+function toggleAnswers(qid){ window._goroku && window._goroku.toggleAnswers(qid); }
+function openAnswerModal(qid){ window._goroku && window._goroku.openAnswerModal(qid); }
+function closeAnswerModal(){ window._goroku && window._goroku.closeAnswerModal(); }
+function submitAnswer(){ window._goroku && window._goroku.submitAnswer(); }
+function likeAnswer(aid,qid,btn){ window._goroku && window._goroku.likeAnswer(aid,qid,btn); }
+function setBestAnswer(qid,aid){ window._goroku && window._goroku.setBestAnswer(qid,aid); }
+function submitQA(){ window._goroku && window._goroku.submitQA(); }
+function toggleCreateGroup(){ window._goroku && window._goroku.toggleCreateGroup(); }
+function singleSelectToggle(el,gid){ window._goroku && window._goroku.singleSelectToggle(el,gid); }
+function createGroup(){ window._goroku && window._goroku.createGroup(); }
+function searchGroups(){ window._goroku && window._goroku.searchGroups(); }
+function joinGroup(gid){ window._goroku && window._goroku.joinGroup(gid); }
+function leaveGroup(gid){ window._goroku && window._goroku.leaveGroup(gid); }
+function openGroupDetail(gid){ window._goroku && window._goroku.openGroupDetail(gid); }
+function closeGroupDetail(){ window._goroku && window._goroku.closeGroupDetail(); }
+function sendGroupChat(){ window._goroku && window._goroku.sendGroupChat(); }
+function setHistorySort(el,s){ window._goroku && window._goroku.setHistorySort(el,s); }
+function openEditModal(rid){ window._goroku && window._goroku.openEditModal(rid); }
+function closeEditModal(){ window._goroku && window._goroku.closeEditModal(); }
+function deleteRecord(rid){ window._goroku && window._goroku.deleteRecord(rid); }
+function clearDraft(){ window._goroku && window._goroku.clearDraft(); }
+function toggleMascotBubble(){ window._goroku && window._goroku.toggleMascotBubble(); }
+function closeMascot(){ window._goroku && window._goroku.closeMascot(); }
+function nextMascotMsg(){ window._goroku && window._goroku.nextMascotMsg(); }
+function likeMascot(){ window._goroku && window._goroku.likeMascot(); }
 </script>
 </body>
 </html>
