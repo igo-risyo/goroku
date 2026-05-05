@@ -516,6 +516,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
       <div class="nav-item" onclick="showPanel('follows')"><span class="nav-icon">👁️</span><span class="nav-text"> フォロー中</span></div>
       <div class="nav-item" onclick="showPanel('qa')"><span class="nav-icon">💬</span><span class="nav-text"> Q&A</span></div>
       <div class="nav-item" onclick="showPanel('heatmap')"><span class="nav-icon">📅</span><span class="nav-text"> カレンダー</span></div>
+      <div class="nav-item" onclick="showPanel('history')"><span class="nav-icon">📊</span><span class="nav-text"> 過去の記録</span></div>
       <div class="nav-item" onclick="showPanel('groups')"><span class="nav-icon">👥</span><span class="nav-text"> グループ</span></div>
     </div>
     <div class="nav-group">
@@ -831,6 +832,37 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
           <button class="submit-btn" onclick="saveEdit()" style="margin-top:0">保存する</button>
         </div>
       </div>
+
+    <!-- HISTORY -->
+    <div class="panel" id="panel-history">
+      <!-- 期間タブ -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button class="compare-tab active" onclick="setHistoryRange(this,7)">直近7日</button>
+        <button class="compare-tab" onclick="setHistoryRange(this,30)">直近30日</button>
+        <button class="compare-tab" onclick="setHistoryRange(this,90)">直近3ヶ月</button>
+        <button class="compare-tab" onclick="setHistoryRange(this,365)">過去1年</button>
+      </div>
+      <!-- スコア推移 -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">📈 AIスコア推移</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="histScoreChart"></canvas></div>
+      </div>
+      <!-- 学習量グラフ -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">⚫ 詰碁・AI研究・棋譜並べ</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="histStudyChart"></canvas></div>
+      </div>
+      <!-- 対局数グラフ -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">⚔️ 対局数</div>
+        <div class="chart-wrap" style="height:160px"><canvas id="histGameChart"></canvas></div>
+      </div>
+      <!-- 累計サマリー -->
+      <div class="card">
+        <div class="card-title">📋 期間サマリー</div>
+        <div id="history-summary" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:4px"></div>
+      </div>
+    </div>
 
     <!-- GROUPS -->
     <div class="panel" id="panel-groups">
@@ -2661,7 +2693,7 @@ window.toggleSwitch=(el)=>el.classList.toggle('on');
 window.toggleQAForm=()=>{ const f=$('qa-form'); f.style.display=f.style.display==='none'?'block':'none'; };
 
 // ── PANEL SWITCH ──
-const PAGE_TITLES={dashboard:'ダッシュボード',record:'今日の記録',timeline:'タイムライン',ranking:'ランキング',compare:'比較・分析',follows:'フォロー管理',qa:'Q&A掲示板',heatmap:'カレンダー・レポート',groups:'グループ',settings:'設定・目標'};
+const PAGE_TITLES={dashboard:'ダッシュボード',record:'今日の記録',timeline:'タイムライン',ranking:'ランキング',compare:'比較・分析',follows:'フォロー管理',qa:'Q&A掲示板',heatmap:'カレンダー・レポート',history:'過去の記録グラフ',groups:'グループ',settings:'設定・目標'};
 window.showPanel=(name)=>{
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name)?.classList.add('active');
@@ -2676,6 +2708,7 @@ window.showPanel=(name)=>{
   if(name==='compare') loadCompare();
   if(name==='heatmap'){ loadHeatmap(); loadWeeklyReport(); initAccuracyChart(); }
   if(name==='groups') loadGroups();
+  if(name==='history') loadHistory(historyDays);
 };
 
 // ── CHARTS ──
@@ -3099,6 +3132,125 @@ window.saveEdit=async()=>{
   }catch(e){ showToast('保存失敗: '+e.message,'error'); }
 };
 
+// ── HISTORY CHARTS ──
+let historyDays = 30;
+let histCharts = {};
+
+window.setHistoryRange=(el,days)=>{
+  document.querySelectorAll('#panel-history .compare-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  historyDays = days;
+  loadHistory(days);
+};
+
+async function loadHistory(days=30){
+  if(!currentUser) return;
+  try{
+    const snap = await getDocs(query(collection(db,'records'), where('uid','==',currentUser.uid), limit(400)));
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    cutoff.setHours(0,0,0,0);
+
+    // 日付ごとに集計
+    const dayMap = {};
+    snap.docs.forEach(d=>{
+      const r = d.data();
+      const ct = r.createdAt?.toDate?.();
+      if(!ct || ct < cutoff) return;
+      const key = ct.toISOString().split('T')[0];
+      if(!dayMap[key] || dayMap[key].score < (r.score||0)) {
+        dayMap[key] = {
+          score: r.score||0,
+          tsumego: r.tsumego||0,
+          ai_study: r.ai_study||0,
+          kifu: r.kifu||0,
+          games: Array.isArray(r.games)?r.games.length:(r.games||0),
+        };
+      }
+    });
+
+    // 日付ラベルを生成（cutoffから今日まで）
+    const labels = [], scores = [], tsumegoArr = [], aiArr = [], kifuArr = [], gamesArr = [];
+    const cur = new Date(cutoff);
+    const today = new Date();
+    today.setHours(23,59,59,999);
+    while(cur <= today){
+      const key = cur.toISOString().split('T')[0];
+      const d = dayMap[key] || {score:0,tsumego:0,ai_study:0,kifu:0,games:0};
+      // ラベルは短く
+      const m = cur.getMonth()+1, day = cur.getDate();
+      labels.push(days<=30 ? m+'/'+day : (day===1?m+'月':''));
+      scores.push(d.score);
+      tsumegoArr.push(d.tsumego);
+      aiArr.push(d.ai_study);
+      kifuArr.push(d.kifu);
+      gamesArr.push(d.games);
+      cur.setDate(cur.getDate()+1);
+    }
+
+    const chartOpts = {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#a09880',font:{size:11}}}},
+      scales:{
+        x:{grid:{color:'#1a1e1c'},ticks:{color:'#686050',maxTicksLimit:days<=7?7:days<=30?10:12,maxRotation:0}},
+        y:{grid:{color:'#1a1e1c'},ticks:{color:'#686050'},beginAtZero:true}
+      }
+    };
+
+    // スコアチャート
+    const sc = document.getElementById('histScoreChart')?.getContext('2d');
+    if(sc){ if(histCharts.score) histCharts.score.destroy();
+      histCharts.score = new Chart(sc,{type:'line',data:{labels,datasets:[{
+        label:'AIスコア',data:scores,borderColor:'#c8a84a',backgroundColor:'rgba(200,168,74,.12)',
+        tension:.3,pointRadius:days<=30?3:1,fill:true,pointBackgroundColor:'#c8a84a'
+      }]},options:{...chartOpts,scales:{...chartOpts.scales,y:{...chartOpts.scales.y,max:100}}}});
+    }
+
+    // 学習量チャート
+    const stc = document.getElementById('histStudyChart')?.getContext('2d');
+    if(stc){ if(histCharts.study) histCharts.study.destroy();
+      histCharts.study = new Chart(stc,{type:'bar',data:{labels,datasets:[
+        {label:'詰碁(問)',data:tsumegoArr,backgroundColor:'rgba(200,168,74,.7)',borderRadius:2},
+        {label:'AI研究(分)',data:aiArr,backgroundColor:'rgba(74,152,112,.7)',borderRadius:2},
+        {label:'棋譜並べ(分)',data:kifuArr,backgroundColor:'rgba(74,120,200,.7)',borderRadius:2},
+      ]},options:chartOpts});
+    }
+
+    // 対局数チャート
+    const gc = document.getElementById('histGameChart')?.getContext('2d');
+    if(gc){ if(histCharts.game) histCharts.game.destroy();
+      histCharts.game = new Chart(gc,{type:'bar',data:{labels,datasets:[{
+        label:'対局数',data:gamesArr,backgroundColor:'rgba(200,80,80,.7)',borderRadius:2
+      }]},options:chartOpts});
+    }
+
+    // サマリー
+    const totalDays = Object.keys(dayMap).length;
+    const totalScore = scores.reduce((a,b)=>a+b,0);
+    const avgScore = totalDays>0 ? Math.round(totalScore/totalDays) : 0;
+    const totalTsumego = tsumegoArr.reduce((a,b)=>a+b,0);
+    const totalAI = aiArr.reduce((a,b)=>a+b,0);
+    const totalKifu = kifuArr.reduce((a,b)=>a+b,0);
+    const totalGames = gamesArr.reduce((a,b)=>a+b,0);
+    const maxScore = Math.max(...scores);
+
+    document.getElementById('history-summary').innerHTML = [
+      {label:'記録した日数',val:totalDays+'日',color:'var(--gold2)'},
+      {label:'平均スコア',val:avgScore+'点',color:'var(--gold2)'},
+      {label:'最高スコア',val:maxScore+'点',color:'var(--jade2)'},
+      {label:'詰碁合計',val:totalTsumego+'問',color:'#7aa0e8'},
+      {label:'AI研究合計',val:totalAI+'分',color:'var(--jade2)'},
+      {label:'棋譜並べ合計',val:totalKifu+'分',color:'#7aa0e8'},
+      {label:'対局合計',val:totalGames+'局',color:'#e87070'},
+      {label:'1日平均詰碁',val:(totalDays>0?Math.round(totalTsumego/totalDays):0)+'問',color:'var(--text2)'},
+    ].map(s=>`<div style="background:var(--bg4);border-radius:5px;padding:10px;text-align:center;border:1px solid var(--border)">
+      <div style="font-size:18px;font-weight:700;color:${s.color};font-family:'Zen Antique',serif">${s.val}</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${s.label}</div>
+    </div>`).join('');
+
+  }catch(e){ console.log('History:',e.message); }
+}
+
 // HTMLのonclickから呼べるようにwindowに登録
 const fns = {
   doLogin,doSignup,doGoogleLogin,doLogout,
@@ -3118,6 +3270,7 @@ const fns = {
   joinGroup,leaveGroup,openGroupDetail,closeGroupDetail,sendGroupChat,
   toggleMascotBubble,closeMascot,nextMascotMsg,likeMascot,
   openEditModal,closeEditModal,saveEdit,
+  setHistoryRange,
 };
 Object.entries(fns).forEach(([k,v])=>{ window[k]=v; });
 
