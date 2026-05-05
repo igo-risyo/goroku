@@ -2423,105 +2423,72 @@ function collectGameData(id){
 }
 
 function buildGameCard(id,idx){
-  const num=idx||gameList.findIndex(g=>g.id===id)+1;
-  return `<div class="game-card open" id="game-card-${id}">
-    <div class="game-card-header" onclick="toggleGameCard(${id})">
-      <div class="game-card-num">第${num}局</div>
-      <div class="game-card-summary">対局詳細を入力してください</div>
-      <div class="game-card-result result-q">?</div>
-      <div class="game-card-chevron">▼</div>
-      <button class="game-card-remove" onclick="event.stopPropagation();removeGame(${id})">✕</button>
-    </div>
-    <div class="game-card-body">
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">結果</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle result-sel sel" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${id})">勝</div>
-            <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${id})">負</div>
-            <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${id})">引き分け</div>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-label">対局形式</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle format-toggle sel" onclick="toggleInline(this);updateGameSummary(${id})">ネット対局</div>
-            <div class="inline-toggle format-toggle" onclick="toggleInline(this);updateGameSummary(${id})">対面（リアル）</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">時間設定</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle time-toggle sel" onclick="toggleInline(this)">早碁</div>
-            <div class="inline-toggle time-toggle" onclick="toggleInline(this)">普通碁</div>
-            <div class="inline-toggle time-toggle" onclick="toggleInline(this)">長碁</div>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-label">自分の色</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle color-toggle sel" onclick="toggleInline(this)">⚫ 黒</div>
-            <div class="inline-toggle color-toggle" onclick="toggleInline(this)">⚪ 白</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">相手の名前・ID（任意）</div>
-          <input class="form-input opp-name-input" placeholder="例：プロ棋士A、goking88" oninput="updateGameSummary(${id})">
-        </div>
-        <div class="form-group">
-          <div class="form-label">相手のレベル</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle level-toggle sel" onclick="toggleInline(this)">プロ</div>
-            <div class="inline-toggle level-toggle" onclick="toggleInline(this)">アマ強豪</div>
-            <div class="inline-toggle level-toggle" onclick="toggleInline(this)">アマ一般</div>
-            <div class="inline-toggle level-toggle" onclick="toggleInline(this)">初心者</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-group" style="margin-bottom:12px">
-        <div class="form-label">相手の国籍</div>
-        <div class="inline-toggle-group">
-          <div class="inline-toggle country-toggle sel" onclick="toggleInlineCountry(this)">🇯🇵 日本人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇨🇳 中国人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇰🇷 韓国人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇹🇼 台湾人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🌏 その他</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">不明</div>
-        </div>
-        <div class="other-country-input"><input class="form-input" placeholder="国名を入力（例：アメリカ人、ドイツ人）"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">碁盤サイズ</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle board-toggle sel" onclick="toggleInline(this)">19路</div>
-            <div class="inline-toggle board-toggle" onclick="toggleInline(this)">13路</div>
-            <div class="inline-toggle board-toggle" onclick="toggleInline(this)">9路</div>
-          </div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin:10px 0 8px;padding-top:8px;border-top:1px solid var(--border)">📝 この対局のコメント</div>
-      <div class="form-group" style="margin-bottom:10px">
-        <div class="form-label">✅ 良かった点</div>
-        <textarea class="form-textarea game-good" placeholder="うまくいった手、読み…" style="min-height:50px"></textarea>
-        <div class="public-toggle-row"><div class="toggle-switch on sw-game-good" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div>
-      </div>
-      <div class="form-group" style="margin-bottom:10px">
-        <div class="form-label">⚠️ 反省点・敗因</div>
-        <textarea class="form-textarea game-bad" placeholder="ミス、見落とし…" style="min-height:50px"></textarea>
-        <div class="public-toggle-row"><div class="toggle-switch sw-game-bad" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">💭 自由メモ</div>
-        <textarea class="form-textarea game-free" placeholder="感想、気づき…" style="min-height:50px"></textarea>
-        <div class="public-toggle-row"><div class="toggle-switch on sw-game-free" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div>
-      </div>
-    </div>
-  </div>`;
+  const num=idx||gameList.findIndex(function(g){return g.id===id;})+1;
+  var h='';
+  h+='<div class="game-card open" id="game-card-'+id+'">';
+  h+='<div class="game-card-header" onclick="toggleGameCard('+id+')">';
+  h+='<div class="game-card-num">第'+num+'局</div>';
+  h+='<div class="game-card-summary">対局詳細を入力してください</div>';
+  h+='<div class="game-card-result result-q">?</div>';
+  h+='<div class="game-card-chevron">▼</div>';
+  h+='<button class="game-card-remove" onclick="event.stopPropagation();removeGame('+id+')">✕</button>';
+  h+='</div><div class="game-card-body">';
+  h+='<div class="form-row">';
+  h+='<div class="form-group"><div class="form-label">結果</div><div class="inline-toggle-group">';
+  var rOn="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(function(t){t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary("+id+")";
+  h+='<div class="inline-toggle result-sel sel" onclick="'+rOn+'">勝</div>';
+  h+='<div class="inline-toggle" onclick="'+rOn+'">負</div>';
+  h+='<div class="inline-toggle" onclick="'+rOn+'">引き分け</div>';
+  h+='</div></div>';
+  h+='<div class="form-group"><div class="form-label">対局形式</div><div class="inline-toggle-group">';
+  h+='<div class="inline-toggle format-toggle sel" onclick="toggleInline(this);updateGameSummary('+id+')">ネット対局</div>';
+  h+='<div class="inline-toggle format-toggle" onclick="toggleInline(this);updateGameSummary('+id+')">対面（リアル）</div>';
+  h+='</div></div></div>';
+  h+='<div class="form-row">';
+  h+='<div class="form-group"><div class="form-label">時間設定</div><div class="inline-toggle-group">';
+  h+='<div class="inline-toggle time-toggle sel" onclick="toggleInline(this)">早碁</div>';
+  h+='<div class="inline-toggle time-toggle" onclick="toggleInline(this)">普通碁</div>';
+  h+='<div class="inline-toggle time-toggle" onclick="toggleInline(this)">長碁</div>';
+  h+='</div></div>';
+  h+='<div class="form-group"><div class="form-label">自分の色</div><div class="inline-toggle-group">';
+  h+='<div class="inline-toggle color-toggle sel" onclick="toggleInline(this)">⚫ 黒</div>';
+  h+='<div class="inline-toggle color-toggle" onclick="toggleInline(this)">⚪ 白</div>';
+  h+='</div></div></div>';
+  h+='<div class="form-row">';
+  h+='<div class="form-group"><div class="form-label">相手の名前・ID（任意）</div>';
+  h+='<input class="form-input opp-name-input" placeholder="例：プロ棋士A、goking88" oninput="updateGameSummary('+id+')"></div>';
+  h+='<div class="form-group"><div class="form-label">相手のレベル</div><div class="inline-toggle-group">';
+  h+='<div class="inline-toggle level-toggle sel" onclick="toggleInline(this)">プロ</div>';
+  h+='<div class="inline-toggle level-toggle" onclick="toggleInline(this)">アマ強豪</div>';
+  h+='<div class="inline-toggle level-toggle" onclick="toggleInline(this)">アマ一般</div>';
+  h+='<div class="inline-toggle level-toggle" onclick="toggleInline(this)">初心者</div>';
+  h+='</div></div></div>';
+  h+='<div class="form-group" style="margin-bottom:12px"><div class="form-label">相手の国籍</div>';
+  h+='<div class="inline-toggle-group">';
+  h+='<div class="inline-toggle country-toggle sel" onclick="toggleInlineCountry(this)">🇯🇵 日本人</div>';
+  h+='<div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇨🇳 中国人</div>';
+  h+='<div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇰🇷 韓国人</div>';
+  h+='<div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇹🇼 台湾人</div>';
+  h+='<div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🌏 その他</div>';
+  h+='<div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">不明</div>';
+  h+='</div><div class="other-country-input"><input class="form-input" placeholder="国名を入力（例：アメリカ人、ドイツ人）"></div></div>';
+  h+='<div class="form-row"><div class="form-group"><div class="form-label">碁盤サイズ</div><div class="inline-toggle-group">';
+  h+='<div class="inline-toggle board-toggle sel" onclick="toggleInline(this)">19路</div>';
+  h+='<div class="inline-toggle board-toggle" onclick="toggleInline(this)">13路</div>';
+  h+='<div class="inline-toggle board-toggle" onclick="toggleInline(this)">9路</div>';
+  h+='</div></div></div>';
+  h+='<div style="font-size:11px;color:var(--gold);letter-spacing:.2em;margin:10px 0 8px;padding-top:8px;border-top:1px solid var(--border)">📝 この対局のコメント</div>';
+  h+='<div class="form-group" style="margin-bottom:10px"><div class="form-label">✅ 良かった点</div>';
+  h+='<textarea class="form-textarea game-good" placeholder="うまくいった手、読み…" style="min-height:50px"></textarea>';
+  h+='<div class="public-toggle-row"><div class="toggle-switch on sw-game-good" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div></div>';
+  h+='<div class="form-group" style="margin-bottom:10px"><div class="form-label">⚠️ 反省点・敗因</div>';
+  h+='<textarea class="form-textarea game-bad" placeholder="ミス、見落とし…" style="min-height:50px"></textarea>';
+  h+='<div class="public-toggle-row"><div class="toggle-switch sw-game-bad" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div></div>';
+  h+='<div class="form-group"><div class="form-label">💭 自由メモ</div>';
+  h+='<textarea class="form-textarea game-free" placeholder="感想、気づき…" style="min-height:50px"></textarea>';
+  h+='<div class="public-toggle-row"><div class="toggle-switch on sw-game-free" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div></div>';
+  h+='</div></div>';
+  return h;
 }
 
 function renderGameList(){
