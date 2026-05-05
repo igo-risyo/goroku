@@ -589,7 +589,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
         <div class="form-section">
           <div class="form-title">⚫ 詰碁</div>
           <div class="form-row">
-            <div class="form-group"><div class="form-label">問題数（1問単位）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('tsumego',-1)">−</button><div class="num-display" id="val-tsumego">0</div><button class="num-btn" onclick="numChange('tsumego',1)">＋</button></div></div>
+            <div class="form-group"><div class="form-label">問題数（1問単位）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('tsumego',-1)">−</button><input class="num-display" id="val-tsumego" type="number" min="0" value="0" oninput="numVals.tsumego=Math.max(0,parseInt(this.value)||0);this.value=numVals.tsumego;" style="width:60px;"><button class="num-btn" onclick="numChange('tsumego',1)">＋</button></div></div>
             <div class="form-group"><div class="form-label">難易度</div><select class="form-select" id="tsumego-level"><option>★☆☆ 初級</option><option selected>★★☆ 中級</option><option>★★★ 上級</option><option>💎 プロ級</option></select></div>
           </div>
         </div>
@@ -1918,7 +1918,8 @@ window.submitRecord=async()=>{
       tags:[...new Set([...(prevData?.tags||[]),...tags])],
       updatedAt:serverTimestamp(),
     };
-    if(!existDocId) data.createdAt=serverTimestamp();
+    // createdAt: 既存ならそのまま保持、新規なら今
+    data.createdAt = existDocId ? (prevData?.createdAt || serverTimestamp()) : serverTimestamp();
     data.score=calcScore(data,currentGoals);
     data.aiComment=genAIComment(data,data.score,currentGoals);
 
@@ -1947,7 +1948,7 @@ window.submitRecord=async()=>{
       btn.disabled=false; btn.textContent='追加で記録する'; btn.style.background='';
       // 入力欄をリセット（追加分をまた入力できるように）
       numVals.tsumego=0; numVals.ai_study=0; numVals.kifu=0;
-      ['tsumego','ai_study','kifu'].forEach(k=>{ const el=$('val-'+k); if(el) el.textContent='0'; });
+      ['tsumego','ai_study','kifu'].forEach(k=>{ const el=$('val-'+k); if(el){ if(el.tagName==='INPUT') el.value=0; else el.textContent='0'; } });
       $('comment-good').value=''; $('comment-bad').value=''; $('comment-free').value='';
       $('extra-study-list').innerHTML='';
       gameList=[]; gameIdCounter=0;
@@ -2611,7 +2612,11 @@ function getExtraStudyData(){
 const numVals={tsumego:0,ai_study:0,kifu:0};
 window.numChange=(key,delta)=>{
   numVals[key]=Math.max(0,numVals[key]+delta);
-  const el=document.getElementById('val-'+key); if(el) el.textContent=numVals[key];
+  const el=document.getElementById('val-'+key);
+  if(el){
+    if(el.tagName==='INPUT') el.value=numVals[key];
+    else el.textContent=numVals[key];
+  }
 };
 
 // ── TOGGLES ──
