@@ -2338,7 +2338,17 @@ function mergeExtraStudy(prev, curr){
 // ── GAME CARDS ──
 window.addGame=()=>{
   const id=++gameIdCounter;
+  const idx=gameList.length+1;
   gameList.push({id,open:true});
+  const list=document.getElementById('game-list');
+  if(list){
+    const div=document.createElement('div');
+    div.innerHTML=buildGameCard(id,idx);
+    const card=div.firstElementChild;
+    if(card) list.appendChild(card);
+  }
+  setTimeout(()=>{const el=document.getElementById('game-card-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});},80);
+};
   // 全体再描画せず新しいカードだけ追加
   const list=document.getElementById('game-list');
   if(list){
