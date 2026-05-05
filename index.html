@@ -589,15 +589,15 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
         <div class="form-section">
           <div class="form-title">⚫ 詰碁</div>
           <div class="form-row">
-            <div class="form-group"><div class="form-label">問題数（1問単位）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('tsumego',-1)">−</button><input class="num-display" id="val-tsumego" type="number" min="0" value="0" oninput="numVals.tsumego=Math.max(0,parseInt(this.value)||0);this.value=numVals.tsumego;" style="width:60px;"><button class="num-btn" onclick="numChange('tsumego',1)">＋</button></div></div>
+            <div class="form-group"><div class="form-label">問題数（1問単位）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('tsumego',-1)">−</button><input class="num-display" id="val-tsumego" type="number" min="0" value="0" oninput="numVals.tsumego=Math.max(0,parseInt(this.value)||0);" style="width:60px;"><button class="num-btn" onclick="numChange('tsumego',1)">＋</button></div></div>
             <div class="form-group"><div class="form-label">難易度</div><select class="form-select" id="tsumego-level"><option>★☆☆ 初級</option><option selected>★★☆ 中級</option><option>★★★ 上級</option><option>💎 プロ級</option></select></div>
           </div>
         </div>
         <div class="form-section">
           <div class="form-title">📚 勉強時間</div>
           <div class="form-row">
-            <div class="form-group"><div class="form-label">🤖 AI研究（分）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('ai_study',-15)">−</button><div class="num-display" id="val-ai_study">0</div><button class="num-btn" onclick="numChange('ai_study',15)">＋</button></div></div>
-            <div class="form-group"><div class="form-label">棋譜並べ（分）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('kifu',-15)">−</button><div class="num-display" id="val-kifu">0</div><button class="num-btn" onclick="numChange('kifu',15)">＋</button></div></div>
+            <div class="form-group"><div class="form-label">🤖 AI研究（分）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('ai_study',-15)">−</button><input class="num-display" id="val-ai_study" type="number" min="0" value="0" oninput="numVals.ai_study=Math.max(0,parseInt(this.value)||0);" style="width:60px;"><button class="num-btn" onclick="numChange('ai_study',15)">＋</button></div></div>
+            <div class="form-group"><div class="form-label">棋譜並べ（分）</div><div class="num-input-wrap"><button class="num-btn" onclick="numChange('kifu',-15)">−</button><input class="num-display" id="val-kifu" type="number" min="0" value="0" oninput="numVals.kifu=Math.max(0,parseInt(this.value)||0);" style="width:60px;"><button class="num-btn" onclick="numChange('kifu',15)">＋</button></div></div>
           </div>
           <!-- その他項目（自由追加） -->
           <div class="form-label" style="margin-bottom:8px">その他の勉強（内容と時間を自由に入力）</div>
@@ -1874,6 +1874,11 @@ window.submitRecord=async()=>{
   const btn=$('submit-record-btn');
   btn.disabled=true; btn.textContent='保存中...';
   try{
+    // input要素から最新値をnumValsに同期
+    ['tsumego','ai_study','kifu'].forEach(k=>{
+      const el=document.getElementById('val-'+k);
+      if(el&&el.tagName==='INPUT') numVals[k]=Math.max(0,parseInt(el.value)||0);
+    });
     const tags=Array.from(document.querySelectorAll('#record-tags .toggle-item.active')).map(t=>t.textContent);
     const extra=getExtraStudyData();
     const newGames=gameList.map(g=>collectGameData(g.id));
@@ -2613,10 +2618,7 @@ const numVals={tsumego:0,ai_study:0,kifu:0};
 window.numChange=(key,delta)=>{
   numVals[key]=Math.max(0,numVals[key]+delta);
   const el=document.getElementById('val-'+key);
-  if(el){
-    if(el.tagName==='INPUT') el.value=numVals[key];
-    else el.textContent=numVals[key];
-  }
+  if(el){ if(el.tagName==='INPUT') el.value=numVals[key]; else el.textContent=numVals[key]; }
 };
 
 // ── TOGGLES ──
