@@ -829,6 +829,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
             <div class="form-label">💭 自由メモ</div>
             <textarea class="form-textarea" id="edit-comment-free" placeholder="感想、アイデア…"></textarea>
           </div>
+          <!-- 対局記録セクション -->
+          <div style="font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin:12px 0 8px;padding-top:12px;border-top:1px solid var(--border)">⚔️ 対局記録</div>
+          <div id="edit-game-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px"></div>
+          <button onclick="addEditGame()" style="width:100%;padding:8px;border:1px dashed var(--border2);background:transparent;color:var(--jade2);font-size:11px;border-radius:4px;cursor:pointer;margin-bottom:10px;">＋ 対局を追加</button>
           <button class="submit-btn" onclick="saveEdit()" style="margin-top:0">保存する</button>
         </div>
       </div>
@@ -2081,7 +2085,7 @@ async function loadTimeline(){
         </div>
         <div class="reactions">${reactHTML}</div>
         ${isMe?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
-          <button onclick="openEditModal('${rid}')" style="font-size:11px;padding:4px 12px;border:1px solid var(--border2);border-radius:4px;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">✏️ 編集</button>
+          <button onclick="openEditModal('${rid}')" class="icon-btn" style="font-size:11px;">✏️ 編集</button>
         </div>`:''}
       </div>`;
     }).join('');
@@ -2564,99 +2568,13 @@ function buildGameCard(id,idx){
 }
 
 function renderGameList(){
-  const el=$('game-list'); if(!el) return;
-  el.innerHTML=gameList.map((g,idx)=>`
-  <div class="game-card ${g.open?'open':''}" id="game-card-${g.id}">
-    <div class="game-card-header" onclick="toggleGameCard(${g.id})">
-      <div class="game-card-num">第${idx+1}局</div>
-      <div class="game-card-summary">対局詳細を入力してください</div>
-      <div class="game-card-result result-q">?</div>
-      <div class="game-card-chevron">▼</div>
-      <button class="game-card-remove" onclick="event.stopPropagation();removeGame(${g.id})">✕</button>
-    </div>
-    <div class="game-card-body">
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">結果</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle result-sel sel" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">勝</div>
-            <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">負</div>
-            <div class="inline-toggle" onclick="this.closest('.inline-toggle-group').querySelectorAll('.inline-toggle').forEach(t=>{t.classList.remove('sel','result-sel')});this.classList.add('sel','result-sel');updateGameSummary(${g.id})">引き分け</div>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-label">対局形式</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle format-toggle sel" onclick="toggleInline(this);updateGameSummary(${g.id})">ネット対局</div>
-            <div class="inline-toggle format-toggle" onclick="toggleInline(this);updateGameSummary(${g.id})">対面（リアル）</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">時間設定</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle time-toggle sel" onclick="toggleInline(this)">早碁</div>
-            <div class="inline-toggle time-toggle" onclick="toggleInline(this)">普通碁</div>
-            <div class="inline-toggle time-toggle" onclick="toggleInline(this)">長碁</div>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-label">自分の色</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle color-toggle sel" onclick="toggleInline(this)">⚫ 黒</div>
-            <div class="inline-toggle color-toggle" onclick="toggleInline(this)">⚪ 白</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">相手の名前・ID（任意）</div>
-          <input class="form-input opp-name-input" placeholder="例：プロ棋士A、goking88" oninput="updateGameSummary(${g.id})">
-        </div>
-        <div class="form-group">
-          <div class="form-label">相手のレベル</div>
-          <div class="inline-toggle-group">
-            <div class="inline-toggle level-toggle sel" onclick="toggleInline(this)">プロ</div>
-            <div class="inline-toggle level-toggle" onclick="toggleInline(this)">アマ強豪</div>
-            <div class="inline-toggle level-toggle" onclick="toggleInline(this)">アマ一般</div>
-            <div class="inline-toggle level-toggle" onclick="toggleInline(this)">初心者</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-group" style="margin-bottom:12px">
-        <div class="form-label">相手の国籍（複数可）</div>
-        <div class="inline-toggle-group">
-          <div class="inline-toggle country-toggle sel" onclick="toggleInlineCountry(this)">🇯🇵 日本人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇨🇳 中国人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇰🇷 韓国人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🇹🇼 台湾人</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">🌏 その他</div>
-          <div class="inline-toggle country-toggle" onclick="toggleInlineCountry(this)">不明</div>
-        </div>
-        <div class="other-country-input"><input class="form-input" placeholder="国名を入力（例：アメリカ人、ドイツ人）"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><div class="form-label">碁盤サイズ</div><div class="inline-toggle-group"><div class="inline-toggle board-toggle sel" onclick="toggleInline(this)">19路</div><div class="inline-toggle board-toggle" onclick="toggleInline(this)">13路</div><div class="inline-toggle board-toggle" onclick="toggleInline(this)">9路</div></div></div>
-      </div>
-      <div style="font-size:11px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin:10px 0 8px;padding-top:8px;border-top:1px solid var(--border)">📝 この対局のコメント</div>
-      <div class="form-group" style="margin-bottom:10px">
-        <div class="form-label">✅ 良かった点</div>
-        <textarea class="form-textarea game-good" placeholder="うまくいった手、読み…" style="min-height:50px"></textarea>
-        <div class="public-toggle-row"><div class="toggle-switch on sw-game-good" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div>
-      </div>
-      <div class="form-group" style="margin-bottom:10px">
-        <div class="form-label">⚠️ 反省点・敗因</div>
-        <textarea class="form-textarea game-bad" placeholder="ミス、見落とし…" style="min-height:50px"></textarea>
-        <div class="public-toggle-row"><div class="toggle-switch sw-game-bad" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">💭 自由メモ</div>
-        <textarea class="form-textarea game-free" placeholder="感想、気づき…" style="min-height:50px"></textarea>
-        <div class="public-toggle-row"><div class="toggle-switch on sw-game-free" onclick="toggleSwitch(this)"></div><span style="font-size:10px;color:var(--text3)">タイムラインに公開</span></div>
-      </div>
-    </div>
-  </div>`).join('');
+  const el=document.getElementById('game-list'); if(!el) return;
+  el.innerHTML='';
+  gameList.forEach(function(g,idx){
+    var div=document.createElement('div');
+    div.innerHTML=buildGameCard(g.id,idx+1);
+    el.appendChild(div.firstElementChild);
+  });
 }
 
 // ── EXTRA STUDY ──
@@ -3097,6 +3015,8 @@ window.openEditModal=async(rid)=>{
     document.getElementById('edit-comment-good').value=r.comment_good||'';
     document.getElementById('edit-comment-bad').value=r.comment_bad||'';
     document.getElementById('edit-comment-free').value=r.comment_free||'';
+    // 対局リストを描画
+    renderEditGames(r.games||[]);
     document.getElementById('edit-modal').style.display='flex';
   }catch(e){ showToast('読み込み失敗','error'); }
 };
@@ -3115,6 +3035,7 @@ window.saveEdit=async()=>{
     const updated={
       ...prev,
       tsumego: Math.max(0,parseInt(document.getElementById('edit-tsumego').value)||0),
+      games: collectEditGames(),
       ai_study: Math.max(0,parseInt(document.getElementById('edit-ai_study').value)||0),
       kifu: Math.max(0,parseInt(document.getElementById('edit-kifu').value)||0),
       comment_good: document.getElementById('edit-comment-good').value,
@@ -3251,6 +3172,111 @@ async function loadHistory(days=30){
   }catch(e){ console.log('History:',e.message); }
 }
 
+// ── EDIT MODAL: 対局記録 ──
+let editGames = []; // [{result,format,opponentName,opponentLevel,boardSize,myColor,commentGood,commentBad,commentFree}]
+
+function renderEditGames(games){
+  editGames = games.map((g,i)=>({...g, _id:i}));
+  buildEditGameList();
+}
+
+function buildEditGameList(){
+  const el = document.getElementById('edit-game-list');
+  if(!el) return;
+  if(!editGames.length){
+    el.innerHTML = '<div style="color:var(--text3);font-size:11px;padding:6px 0">対局記録なし</div>';
+    return;
+  }
+  var html = '';
+  for(var i=0;i<editGames.length;i++){
+    var g = editGames[i];
+    var resultOpts = ['勝','負','引き分け'].map(function(r){
+      return '<option value="'+r+'"'+(g.result===r?' selected':'')+'>'+r+'</option>';
+    }).join('');
+    var formatOpts = ['ネット対局','対面（リアル）'].map(function(f){
+      return '<option value="'+f+'"'+(g.format===f?' selected':'')+'>'+f+'</option>';
+    }).join('');
+    var levelOpts = ['プロ','アマ強豪','アマ一般','初心者'].map(function(l){
+      return '<option value="'+l+'"'+(g.opponentLevel===l?' selected':'')+'>'+l+'</option>';
+    }).join('');
+    var boardOpts = ['19路','13路','9路'].map(function(b){
+      return '<option value="'+b+'"'+(g.boardSize===b?' selected':'')+'>'+b+'</option>';
+    }).join('');
+    var colorOpts = ['⚫ 黒','⚪ 白'].map(function(c){
+      return '<option value="'+c+'"'+(g.myColor===c?' selected':'')+'>'+c+'</option>';
+    }).join('');
+    var ocResult  = "updateEditGame("+i+",'result',this.value)";
+    var ocFormat  = "updateEditGame("+i+",'format',this.value)";
+    var ocLevel   = "updateEditGame("+i+",'opponentLevel',this.value)";
+    var ocBoard   = "updateEditGame("+i+",'boardSize',this.value)";
+    var ocColor   = "updateEditGame("+i+",'myColor',this.value)";
+    var ocName    = "updateEditGame("+i+",'opponentName',this.value)";
+    var ocGood    = "updateEditGame("+i+",'commentGood',this.value)";
+    var ocBad     = "updateEditGame("+i+",'commentBad',this.value)";
+    var ocRemove  = "removeEditGame("+i+")";
+    html += '<div style="background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:10px;margin-bottom:6px">';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--gold)">第'+(i+1)+'局</div>';
+    html += '<button onclick="'+ocRemove+'" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;">✕</button>';
+    html += '</div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">';
+    html += '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px">結果</div>';
+    html += '<select class="form-select" style="font-size:11px;" onchange="'+ocResult+'">'+resultOpts+'</select></div>';
+    html += '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px">形式</div>';
+    html += '<select class="form-select" style="font-size:11px;" onchange="'+ocFormat+'">'+formatOpts+'</select></div>';
+    html += '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px">相手のレベル</div>';
+    html += '<select class="form-select" style="font-size:11px;" onchange="'+ocLevel+'">'+levelOpts+'</select></div>';
+    html += '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px">碁盤</div>';
+    html += '<select class="form-select" style="font-size:11px;" onchange="'+ocBoard+'">'+boardOpts+'</select></div>';
+    html += '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px">自分の色</div>';
+    html += '<select class="form-select" style="font-size:11px;" onchange="'+ocColor+'">'+colorOpts+'</select></div>';
+    html += '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px">相手の名前</div>';
+    html += '<input class="form-input" style="font-size:11px;" value="'+(g.opponentName||'')+'" placeholder="任意" oninput="'+ocName+'"></div>';
+    html += '</div>';
+    html += '<div style="margin-top:4px"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">✅ 良かった点</div>';
+    html += '<textarea class="form-textarea" style="min-height:40px;font-size:11px;" oninput="'+ocGood+'">'+(g.commentGood||g.comment_good||'')+'</textarea></div>';
+    html += '<div style="margin-top:4px"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">⚠️ 反省点</div>';
+    html += '<textarea class="form-textarea" style="min-height:40px;font-size:11px;" oninput="'+ocBad+'">'+(g.commentBad||g.comment_bad||'')+'</textarea></div>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+window.updateEditGame=(idx,key,val)=>{ if(editGames[idx]) editGames[idx][key]=val; };
+
+window.removeEditGame=(idx)=>{
+  editGames.splice(idx,1);
+  editGames.forEach((g,i)=>g._id=i);
+  buildEditGameList();
+};
+
+window.addEditGame=()=>{
+  editGames.push({result:'勝',format:'ネット対局',opponentName:'',opponentLevel:'アマ一般',boardSize:'19路',myColor:'⚫ 黒',commentGood:'',commentBad:'',commentFree:''});
+  buildEditGameList();
+  // 最後にスクロール
+  const el=document.getElementById('edit-game-list');
+  if(el) el.lastElementChild?.scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+
+function collectEditGames(){
+  return editGames.map(g=>({
+    result: g.result||'',
+    format: g.format||'',
+    opponentName: g.opponentName||'',
+    opponentLevel: g.opponentLevel||'',
+    boardSize: g.boardSize||'19路',
+    myColor: g.myColor||'',
+    commentGood: g.commentGood||g.comment_good||'',
+    commentGoodPublic: g.commentGoodPublic||false,
+    commentBad: g.commentBad||g.comment_bad||'',
+    commentBadPublic: g.commentBadPublic||false,
+    commentFree: g.commentFree||g.comment_free||'',
+    commentFreePublic: g.commentFreePublic||false,
+    timeControl: g.timeControl||'',
+    opponentCountry: g.opponentCountry||'',
+  }));
+}
+
 // HTMLのonclickから呼べるようにwindowに登録
 const fns = {
   doLogin,doSignup,doGoogleLogin,doLogout,
@@ -3271,6 +3297,7 @@ const fns = {
   toggleMascotBubble,closeMascot,nextMascotMsg,likeMascot,
   openEditModal,closeEditModal,saveEdit,
   setHistoryRange,
+  addEditGame,removeEditGame,updateEditGame,
 };
 Object.entries(fns).forEach(([k,v])=>{ window[k]=v; });
 
