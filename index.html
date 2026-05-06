@@ -810,6 +810,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
             <button onclick="closeEditModal()" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer">✕</button>
           </div>
           <div class="form-group" style="margin-bottom:10px">
+            <div class="form-label">📅 記録日付</div>
+            <input class="form-input" id="edit-date" type="date">
+            <div style="font-size:10px;color:var(--text3);margin-top:3px">日付をまたいだ記録はここで変更できます</div>
+          </div>
+          <div class="form-group" style="margin-bottom:10px">
             <div class="form-label">詰碁（問）</div>
             <input class="form-input" id="edit-tsumego" type="number" min="0" placeholder="0">
           </div>
@@ -2481,6 +2486,7 @@ function collectGameData(id){
   const card=document.getElementById('game-card-'+id); if(!card) return {};
   return{
     result:card.querySelector('.result-sel')?.textContent||'',
+    marginDiff:card.querySelector('.margin-diff-input')?.value||'',
     format:card.querySelector('.format-toggle.sel')?.textContent||'',
     timeControl:card.querySelector('.time-toggle.sel')?.textContent||'',
     opponentName:card.querySelector('.opp-name-input')?.value||'',
@@ -2515,7 +2521,10 @@ function buildGameCard(id,idx){
   h+='<div class="inline-toggle result-sel sel" onclick="'+rOn+'">勝</div>';
   h+='<div class="inline-toggle" onclick="'+rOn+'">負</div>';
   h+='<div class="inline-toggle" onclick="'+rOn+'">引き分け</div>';
-  h+='</div></div>';
+  h+='<div class="inline-toggle" onclick="'+rOn+'">無勝負</div>';
+  h+='</div>';
+  h+='<input class="form-input margin-diff-input" type="text" placeholder="目数差（任意）例: 3.5目" style="margin-top:6px;font-size:11px;">'
+  h+='</div>';
   h+='<div class="form-group"><div class="form-label">対局形式</div><div class="inline-toggle-group">';
   h+='<div class="inline-toggle format-toggle sel" onclick="toggleInline(this);updateGameSummary('+id+')">ネット対局</div>';
   h+='<div class="inline-toggle format-toggle" onclick="toggleInline(this);updateGameSummary('+id+')">対面（リアル）</div>';
@@ -3015,6 +3024,10 @@ window.openEditModal=async(rid)=>{
     document.getElementById('edit-comment-good').value=r.comment_good||'';
     document.getElementById('edit-comment-bad').value=r.comment_bad||'';
     document.getElementById('edit-comment-free').value=r.comment_free||'';
+    // 日付フィールドを設定
+    const recDate=r.createdAt?.toDate?.();
+    const dateStr=recDate?recDate.toISOString().split('T')[0]:new Date().toISOString().split('T')[0];
+    document.getElementById('edit-date').value=dateStr;
     // 対局リストを描画
     renderEditGames(r.games||[]);
     document.getElementById('edit-modal').style.display='flex';
@@ -3036,12 +3049,24 @@ window.saveEdit=async()=>{
       ...prev,
       tsumego: Math.max(0,parseInt(document.getElementById('edit-tsumego').value)||0),
       games: collectEditGames(),
+      recordDate: document.getElementById('edit-date').value||'',
       ai_study: Math.max(0,parseInt(document.getElementById('edit-ai_study').value)||0),
       kifu: Math.max(0,parseInt(document.getElementById('edit-kifu').value)||0),
       comment_good: document.getElementById('edit-comment-good').value,
       comment_bad: document.getElementById('edit-comment-bad').value,
       comment_free: document.getElementById('edit-comment-free').value,
       updatedAt: serverTimestamp(),
+      createdAt: (()=>{
+        const ed=document.getElementById('edit-date').value;
+        if(ed&&prev.createdAt){
+          const orig=prev.createdAt.toDate?.();
+          if(orig){
+            const nd=new Date(ed+'T'+orig.toTimeString().slice(0,8));
+            return {seconds:Math.floor(nd.getTime()/1000),nanoseconds:0,toDate:()=>nd,toMillis:()=>nd.getTime()};
+          }
+        }
+        return prev.createdAt;
+      })(),
     };
     updated.score=calcScore(updated,currentGoals);
     updated.aiComment=genAIComment(updated,updated.score,currentGoals);
@@ -3190,7 +3215,7 @@ function buildEditGameList(){
   var html = '';
   for(var i=0;i<editGames.length;i++){
     var g = editGames[i];
-    var resultOpts = ['勝','負','引き分け'].map(function(r){
+    var resultOpts = ['勝','負','引き分け','無勝負'].map(function(r){
       return '<option value="'+r+'"'+(g.result===r?' selected':'')+'>'+r+'</option>';
     }).join('');
     var formatOpts = ['ネット対局','対面（リアル）'].map(function(f){
@@ -3221,7 +3246,9 @@ function buildEditGameList(){
     html += '</div>';
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">';
     html += '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px">結果</div>';
-    html += '<select class="form-select" style="font-size:11px;" onchange="'+ocResult+'">'+resultOpts+'</select></div>';
+    html += '<select class="form-select" style="font-size:11px;" onchange="'+ocResult+'">'+resultOpts+'</select>';
+    html += '<input class="form-input" style="font-size:11px;margin-top:4px;" placeholder="目数差（任意）例: 3.5目" value="'+(g.marginDiff||'')+'" oninput="'+"updateEditGame("+i+",'marginDiff',this.value)"+'">';
+    html += '</div>';
     html += '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px">形式</div>';
     html += '<select class="form-select" style="font-size:11px;" onchange="'+ocFormat+'">'+formatOpts+'</select></div>';
     html += '<div><div style="font-size:10px;color:var(--text2);margin-bottom:3px">相手のレベル</div>';
@@ -3272,6 +3299,7 @@ function collectEditGames(){
     commentBadPublic: g.commentBadPublic||false,
     commentFree: g.commentFree||g.comment_free||'',
     commentFreePublic: g.commentFreePublic||false,
+    marginDiff: g.marginDiff||'',
     timeControl: g.timeControl||'',
     opponentCountry: g.opponentCountry||'',
   }));
