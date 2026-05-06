@@ -3045,29 +3045,21 @@ window.saveEdit=async()=>{
     const snap=await getDoc(doc(db,'records',currentEditRid));
     if(!snap.exists()) return;
     const prev=snap.data();
+    // 日付変更: 文字列として recordDate に保存、createdAt は元の値を維持
+    const editDateStr=document.getElementById('edit-date').value||'';
     const updated={
       ...prev,
       tsumego: Math.max(0,parseInt(document.getElementById('edit-tsumego').value)||0),
-      games: collectEditGames(),
-      recordDate: document.getElementById('edit-date').value||'',
       ai_study: Math.max(0,parseInt(document.getElementById('edit-ai_study').value)||0),
       kifu: Math.max(0,parseInt(document.getElementById('edit-kifu').value)||0),
       comment_good: document.getElementById('edit-comment-good').value,
       comment_bad: document.getElementById('edit-comment-bad').value,
       comment_free: document.getElementById('edit-comment-free').value,
+      games: collectEditGames(),
+      recordDate: editDateStr,
       updatedAt: serverTimestamp(),
-      createdAt: (()=>{
-        const ed=document.getElementById('edit-date').value;
-        if(ed&&prev.createdAt){
-          const orig=prev.createdAt.toDate?.();
-          if(orig){
-            const nd=new Date(ed+'T'+orig.toTimeString().slice(0,8));
-            return {seconds:Math.floor(nd.getTime()/1000),nanoseconds:0,toDate:()=>nd,toMillis:()=>nd.getTime()};
-          }
-        }
-        return prev.createdAt;
-      })(),
     };
+    // createdAt は必ず元の値を保持（FirestoreのTimestampをそのままセットするためspreadで引き継ぎ済み）
     updated.score=calcScore(updated,currentGoals);
     updated.aiComment=genAIComment(updated,updated.score,currentGoals);
     await setDoc(doc(db,'records',currentEditRid),updated,{merge:false});
